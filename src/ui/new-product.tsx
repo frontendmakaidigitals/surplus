@@ -4,9 +4,31 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { formatMoney } from "@/lib/utils";
-import type { Product } from "commerce-kit";
+
 import { cn } from "@/lib/utils";
 import { Maximize2 } from "lucide-react";
+interface Product {
+  id: string;
+  name: string;
+  slug?: string;
+  summary?: string;
+  description?: string;
+  images?: string[];
+  active: boolean;
+  price: number;
+  currency: string;
+  stock?: number;
+  category?: string;
+  brand?: string;
+  tags?: string[];
+  rating?: number;
+  discountPercentage?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  featured?: boolean;
+  image: string; 
+}
+
 const products = [
   {
     id: "1",
@@ -103,6 +125,8 @@ export const NewProduct = () => {
 
   const handleSelect = (product: Product) => setSelected(product);
   const handleClose = () => setSelected(null);
+
+  
 
   return (
     <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
