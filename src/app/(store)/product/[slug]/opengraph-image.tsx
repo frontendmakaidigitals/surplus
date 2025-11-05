@@ -15,10 +15,6 @@ export default async function Image(props: { params: Promise<{ slug: string }> }
 	const geistRegular = fetch(new URL("./Geist-Regular.ttf", import.meta.url)).then((res) =>
 		res.arrayBuffer(),
 	);
-	// const geistBold = fetch(new URL("./Geist-Bold.ttf", import.meta.url)).then((res) =>
-	// 	res.arrayBuffer(),
-	// );
-	// Note: accountGet not available in new SDK, using product only
 	const product = await commerce.product.get({ slug: params.slug });
 
 	if (!product) {
@@ -33,7 +29,7 @@ export default async function Image(props: { params: Promise<{ slug: string }> }
 			<div tw="flex-1 flex justify-center items-center">
 				<div
 					style={{
-						backgroundImage: `url(${product.image})`,
+						backgroundImage: `url(${product.images?.[0] || ""})`,
 						backgroundSize: "600px 630px",
 						backgroundPosition: "center center",
 						width: "600px",
