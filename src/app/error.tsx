@@ -1,0 +1,21 @@
+"use client";
+
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { YnsLink } from "@/ui/yns-link";
+
+export default function Error({ error }: { error: Error & { digest?: string }; reset: () => void }) {
+	useEffect(() => {
+		console.error(error);
+	}, [error]);
+
+
+	return (
+		<main className="mx-auto max-w-xl flex-auto text-center">
+			<h1 className="mb-8 mt-8 text-4xl font-black">Something went wrong</h1>
+			<Button variant="link" asChild>
+				<YnsLink href="/">Back</YnsLink>
+			</Button>
+		</main>
+	);
+}
