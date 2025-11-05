@@ -1,11 +1,12 @@
 "use client";
+import Logo from "@/ui/Logo";
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 mt-12 ">
+    <footer className="bg-[#c6dfe6] mt-12 ">
       <div className="mx-auto max-w-7xl space-y-8 px-4 py-16 sm:px-6 lg:space-y-16 lg:px-8">
         <div className="sm:flex sm:items-center sm:justify-between">
           <div className="text-teal-300">
-            <h2 className="text-3xl font-[500]">Logo</h2>
+            <Logo size={200} />
           </div>
           <ul className="mt-8 flex justify-start gap-6 sm:mt-0 sm:justify-end">
             <li>
@@ -13,7 +14,7 @@ const Footer = () => {
                 href="#"
                 rel="noreferrer"
                 target="_blank"
-                className=" transition hover:opacity-75 text-gray-200"
+                className=" transition hover:opacity-75 text-gray-900"
               >
                 <span className="sr-only">Facebook</span>
 
@@ -37,7 +38,7 @@ const Footer = () => {
                 href="#"
                 rel="noreferrer"
                 target="_blank"
-                className=" transition hover:opacity-75 text-gray-200"
+                className=" transition hover:opacity-75 text-gray-900"
               >
                 <span className="sr-only">Instagram</span>
 
@@ -61,7 +62,7 @@ const Footer = () => {
                 href="#"
                 rel="noreferrer"
                 target="_blank"
-                className=" transition hover:opacity-75 text-gray-200"
+                className=" transition hover:opacity-75 text-gray-900"
               >
                 <span className="sr-only">Twitter</span>
 
@@ -81,7 +82,7 @@ const Footer = () => {
                 href="#"
                 rel="noreferrer"
                 target="_blank"
-                className=" transition hover:opacity-75 text-gray-200"
+                className=" transition hover:opacity-75 text-gray-900"
               >
                 <span className="sr-only">GitHub</span>
 
@@ -105,7 +106,7 @@ const Footer = () => {
                 href="#"
                 rel="noreferrer"
                 target="_blank"
-                className=" transition hover:opacity-75 text-gray-200"
+                className=" transition hover:opacity-75 text-gray-900"
               >
                 <span className="sr-only">Dribbble</span>
 
@@ -128,66 +129,13 @@ const Footer = () => {
 
         <div className="grid grid-cols-1 gap-8 border-t pt-8 sm:grid-cols-2 lg:grid-cols-4 lg:pt-16 border-gray-800">
           <div>
-            <p className="font-medium  text-white">
-              Services
-            </p>
+            <p className="font-medium  text-black">Company</p>
 
             <ul className="mt-6 space-y-4 text-sm">
               <li>
                 <a
                   href="#"
-                  className=" transition hover:opacity-75 text-gray-200"
-                >
-                  1on1 Coaching
-                </a>
-              </li>
-
-              <li>
-                <a
-                  href="#"
-                  className=" transition hover:opacity-75 text-gray-200"
-                >
-                  Company Review
-                </a>
-              </li>
-
-              <li>
-                <a
-                  href="#"
-                  className=" transition hover:opacity-75 text-gray-200"
-                >
-                  Accounts Review
-                </a>
-              </li>
-
-              <li>
-                <a
-                  href="#"
-                  className=" transition hover:opacity-75 text-gray-200"
-                >
-                  HR Consulting
-                </a>
-              </li>
-
-              <li>
-                <a
-                  href="#"
-                  className=" transition hover:opacity-75 text-gray-200"
-                >
-                  SEO Optimisation
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <p className="font-medium  text-white">Company</p>
-
-            <ul className="mt-6 space-y-4 text-sm">
-              <li>
-                <a
-                  href="#"
-                  className=" transition hover:opacity-75 text-gray-200"
+                  className=" transition hover:opacity-75 text-gray-900"
                 >
                   About
                 </a>
@@ -196,7 +144,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#"
-                  className=" transition hover:opacity-75 text-gray-200"
+                  className=" transition hover:opacity-75 text-gray-900"
                 >
                   Meet the Team
                 </a>
@@ -205,7 +153,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#"
-                  className=" transition hover:opacity-75 text-gray-200"
+                  className=" transition hover:opacity-75 text-gray-900"
                 >
                   Accounts Review
                 </a>
@@ -214,15 +162,13 @@ const Footer = () => {
           </div>
 
           <div>
-            <p className="font-medium  text-white">
-              Helpful Links
-            </p>
+            <p className="font-medium  text-black">Helpful Links</p>
 
             <ul className="mt-6 space-y-4 text-sm">
               <li>
                 <a
                   href="#"
-                  className=" transition hover:opacity-75 text-gray-200"
+                  className=" transition hover:opacity-75 text-gray-900"
                 >
                   Contact
                 </a>
@@ -231,7 +177,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#"
-                  className=" transition hover:opacity-75 text-gray-200"
+                  className=" transition hover:opacity-75 text-gray-900"
                 >
                   FAQs
                 </a>
@@ -240,7 +186,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#"
-                  className=" transition hover:opacity-75 text-gray-200"
+                  className=" transition hover:opacity-75 text-gray-900"
                 >
                   Live Chat
                 </a>
@@ -249,13 +195,13 @@ const Footer = () => {
           </div>
 
           <div>
-            <p className="font-medium  text-white">Legal</p>
+            <p className="font-medium  text-black">Legal</p>
 
             <ul className="mt-6 space-y-4 text-sm">
               <li>
                 <a
                   href="#"
-                  className=" transition hover:opacity-75 text-gray-200"
+                  className=" transition hover:opacity-75 text-gray-900"
                 >
                   Accessibility
                 </a>
@@ -264,7 +210,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#"
-                  className=" transition hover:opacity-75 text-gray-200"
+                  className=" transition hover:opacity-75 text-gray-900"
                 >
                   Returns Policy
                 </a>
@@ -273,7 +219,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#"
-                  className=" transition hover:opacity-75 text-gray-200"
+                  className=" transition hover:opacity-75 text-gray-900"
                 >
                   Refund Policy
                 </a>
@@ -282,9 +228,47 @@ const Footer = () => {
               <li>
                 <a
                   href="#"
-                  className=" transition hover:opacity-75 text-gray-200"
+                  className=" transition hover:opacity-75 text-gray-900"
                 >
                   Hiring-3 Statistics
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-semibold text-black">Contact Details</p>
+            <ul className="mt-6 space-y-3 text-sm">
+              <li>
+                📍{" "}
+                <span className="font-medium">
+                  Sajja Industrial Area, Sharjah, UAE.
+                </span>
+              </li>
+              <li>
+                📞{" "}
+                <a
+                  href="tel:+971506349984"
+                  className="font-medium text-teal-700 hover:underline transition"
+                >
+                  (+971) 50-6349984
+                </a>
+              </li>
+              <li>
+                ✉️{" "}
+                <a
+                  href="mailto:info@surplusoilfield.com"
+                  className="font-medium text-teal-700 hover:underline transition"
+                >
+                  info@surplusoilfield.com
+                </a>
+              </li>
+              <li>
+                ✉️{" "}
+                <a
+                  href="mailto:support@surplusoilfield.com"
+                  className="font-medium text-teal-700 hover:underline transition"
+                >
+                  support@surplusoilfield.com
                 </a>
               </li>
             </ul>
@@ -292,8 +276,7 @@ const Footer = () => {
         </div>
 
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          © {new Date().getFullYear()}{" "}
-          Logo. All rights reserved.
+          © {new Date().getFullYear()} Surplus. All rights reserved.
         </p>
       </div>
     </footer>

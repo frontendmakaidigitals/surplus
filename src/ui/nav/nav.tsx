@@ -6,15 +6,17 @@ import { SearchNav } from "@/ui/nav/search-nav";
 import Link from "next/link";
 import { useCart } from "@/context/cart-context";
 import { useState } from "react";
-
+import Logo from "@/ui/Logo";
 export const Nav = () => {
   const [open, setOpen] = useState(false);
   const { isCartOpen } = useCart();
 
   return (
-    <header className={`sticky top-0 z-50 transition-colors ${
-          open || isCartOpen ? "bg-white" : "backdrop-blur-lg bg-white/60"
-        }`}>
+    <header
+      className={`sticky top-0 z-50 transition-colors ${
+        open || isCartOpen ? "bg-white" : "backdrop-blur-lg bg-white/60"
+      }`}
+    >
       {/* Top bar */}
       <div className="bg-blue-500 text-white text-sm py-2">
         <article className="container text-center">
@@ -27,13 +29,11 @@ export const Nav = () => {
       </div>
 
       {/* Sticky nav bar */}
-      <div
-        
-      >
+      <div>
         <div className="container flex items-center justify-between gap-3 py-3">
           {/* Logo */}
           <Link href="/" className="text-xl font-bold whitespace-nowrap">
-            Logo
+            <Logo size={120} />
           </Link>
 
           {/* Menu */}
