@@ -13,16 +13,16 @@ export function HeroSlider() {
   return (
     <Carousel className="w-full relative">
       <CarouselContent>
-        {Array.from({ length: 3 }).map((_, index) => (
+        {Array.from({ length: 4 }).map((_, index) => (
           <CarouselItem key={index}>
             <div className="overflow-hidden h-[400px]">
               <Image
                 alt="Error Loading Products"
                 loading="eager"
-                className="w-full h-full object-fit object-top"
+                className="w-full h-full object-conyain object-center"
                 height={450}
                 width={450}
-                src="/cover.png"
+                src={`/Banner-${index + 1}.jpg`}
               />
             </div>
           </CarouselItem>
