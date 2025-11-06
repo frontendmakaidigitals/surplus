@@ -44,7 +44,7 @@ export const Nav = () => {
           {/* Right section */}
           <div className="flex items-center gap-3">
             <SearchNav open={open} setOpen={setOpen} />
-            <CartIcon isCartOpen={isCartOpen} />
+            <CartIcon  />
             <Link href="/login">
               <UserIcon className="h-5 w-5 hover:text-neutral-500" />
             </Link>

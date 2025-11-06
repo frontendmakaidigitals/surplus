@@ -13,7 +13,7 @@ interface Product {
   slug?: string;
   summary?: string;
   description?: string;
-  images?: string[];
+  images: string[];
   active: boolean;
   price: number;
   currency: string;
@@ -26,7 +26,6 @@ interface Product {
   createdAt?: string;
   updatedAt?: string;
   featured?: boolean;
-  image: string; 
 }
 
 const products = [
@@ -37,7 +36,11 @@ const products = [
     summary: "High-performance bearings for industrial machinery.",
     description:
       "This precision-engineered bearing set is designed for heavy-duty industrial applications. Built from heat-treated steel and sealed for long-lasting durability, it reduces friction and ensures smooth rotational motion under high load conditions. Ideal for CNC machinery, pumps, and automotive systems.",
-    image: "https://7-10.in/cdn/shop/files/710.301.MB-1.jpg?v=1756777086",
+    images: [
+      "https://7-10.in/cdn/shop/files/710.301.MB-1.jpg?v=1756777086",
+      "https://7-10.in/cdn/shop/files/710.301.MB-2.jpg?v=1756777086",
+      "https://7-10.in/cdn/shop/files/710.301.MB-3.jpg?v=1756777086",
+    ],
     active: true,
     price: 2999,
     currency: "USD",
@@ -54,7 +57,11 @@ const products = [
     summary: "Precision tool holder for CNC machining systems.",
     description:
       "Crafted with high-tensile steel and balanced for optimal spindle performance, this CNC tool holder offers exceptional accuracy and rigidity. Compatible with standard ER collets, it minimizes vibration and enhances tool life, making it a must-have for precision milling and turning applications.",
-    image: "https://7-10.in/cdn/shop/files/710.301.MB-1.jpg?v=1756777086",
+    images: [
+      "https://7-10.in/cdn/shop/files/710.301.MB-1.jpg?v=1756777086",
+      "https://7-10.in/cdn/shop/files/710.301.MB-2.jpg?v=1756777086",
+      "https://7-10.in/cdn/shop/files/710.301.MB-3.jpg?v=1756777086",
+    ],
     active: true,
     price: 5999,
     currency: "USD",
@@ -72,7 +79,10 @@ const products = [
     summary: "Compact actuator drive for precise motion control.",
     description:
       "Engineered for high-precision motion systems, this linear actuator drive provides smooth and accurate movement with minimal noise. It’s ideal for automation, robotics, and manufacturing systems, with adjustable stroke lengths and an efficient motor assembly for consistent performance.",
-    image: "https://7-10.in/cdn/shop/files/710.301.MB-1.jpg?v=1756777086",
+    images: [
+      "https://7-10.in/cdn/shop/files/710.301.MB-1.jpg?v=1756777086",
+      "https://7-10.in/cdn/shop/files/710.301.MB-2.jpg?v=1756777086",
+    ],
     active: true,
     price: 8999,
     currency: "USD",
@@ -90,7 +100,10 @@ const products = [
     summary: "Efficient hydraulic pump for industrial systems.",
     description:
       "This high-efficiency hydraulic pump module delivers consistent pressure and flow rates for demanding hydraulic systems. Built with corrosion-resistant housing and precision valves, it ensures reliable operation in construction, automotive, and heavy machinery applications.",
-    image: "https://7-10.in/cdn/shop/files/710.301.MB-1.jpg?v=1756777086",
+    images: [
+      "https://7-10.in/cdn/shop/files/710.301.MB-1.jpg?v=1756777086",
+      "https://7-10.in/cdn/shop/files/710.301.MB-2.jpg?v=1756777086",
+    ],
     active: true,
     price: 10999,
     currency: "USD",
@@ -108,7 +121,12 @@ const products = [
     summary: "High-torque servo motor for automation systems.",
     description:
       "The Servo Motor Assembly provides precise control and responsive motion ideal for robotics and CNC equipment. It combines a brushless motor with integrated driver electronics, delivering high torque and low heat generation under continuous duty cycles.",
-    image: "https://7-10.in/cdn/shop/files/710.301.MB-1.jpg?v=1756777086",
+    images: [
+      "https://7-10.in/cdn/shop/files/710.301.MB-1.jpg?v=1756777086",
+      "https://7-10.in/cdn/shop/files/710.301.MB-2.jpg?v=1756777086",
+      "https://7-10.in/cdn/shop/files/710.301.MB-3.jpg?v=1756777086",
+      "https://7-10.in/cdn/shop/files/710.301.MB-4.jpg?v=1756777086",
+    ],
     active: true,
     price: 12999,
     currency: "USD",
@@ -120,13 +138,12 @@ const products = [
     featured: true,
   },
 ];
+
 export const NewProduct = () => {
   const [selected, setSelected] = useState<Product | null>(null);
 
   const handleSelect = (product: Product) => setSelected(product);
   const handleClose = () => setSelected(null);
-
-  
 
   return (
     <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
@@ -145,9 +162,7 @@ export const NewProduct = () => {
             className="relative bg-gray-100 h-[210px]"
           >
             <Image
-              src={
-                "https://png.pngtree.com/png-vector/20241120/ourmid/pngtree-standard-prototyping-breadboard-with-colorful-power-rails-and-grid-layout-on-png-image_14499515.png"
-              }
+              src={product.images[0] || ''}
               alt={product.name}
               fill
               className="object-contain w-full h-full object-top rounded-t-xl"
@@ -216,12 +231,10 @@ export const NewProduct = () => {
                 className="relative w-full bg-slate-100 h-[250px] flex-shrink-0"
               >
                 <Image
-                  src={
-                    "https://png.pngtree.com/png-vector/20241120/ourmid/pngtree-standard-prototyping-breadboard-with-colorful-power-rails-and-grid-layout-on-png-image_14499515.png"
-                  }
+                  src={selected.images[0]|| ''}
                   alt={selected.name}
                   fill
-                  className="object-contain  w-full h-full rounded-t-2xl"
+                  className="object-contain w-full h-full rounded-t-2xl"
                 />
               </motion.div>
 

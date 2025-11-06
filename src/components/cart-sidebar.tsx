@@ -12,7 +12,7 @@ interface CartSidebarProps {
 }
 
 export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
-  const { cart, itemCount } = useCart();
+  const { cart, totalItems, totalPrice, removeFromCart, addToCart } = useCart();
 
   return (
     <AnimatePresence mode="sync">
@@ -46,7 +46,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
               <div className="flex items-center justify-between border-b p-4">
                 <div className="flex items-center gap-2">
                   <ShoppingBag className="h-5 w-5" />
-                  <h2 className="text-lg font-semibold">Cart ({itemCount})</h2>
+                  <h2 className="text-lg font-semibold">Cart ({totalItems})</h2>
                 </div>
                 <button
                   onClick={onClose}
@@ -59,7 +59,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
 
               {/* Content */}
               <div className="flex-1 overflow-y-auto">
-                {!cart?.items?.length ? (
+                {!cart.length ? (
                   <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center">
                     <ShoppingBag className="h-12 w-12 text-gray-300" />
                     <div>
@@ -73,85 +73,87 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                   </div>
                 ) : (
                   <div className="p-4 space-y-4">
-                    {cart.items.map((item) => {
-                      const product = item.product;
-                      const price = item.price;
-
-                      return (
-                        <div
-                          key={item.id}
-                          className="flex items-start gap-3 border-b pb-4"
-                        >
-                          {/* Product Image */}
-                          <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
-                            {product?.images?.[0] ? (
-                              <Image
-                                src={product.images[0]}
-                                alt={product.name || "Product"}
-                                width={64}
-                                height={64}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <ShoppingBag className="h-6 w-6 text-gray-300" />
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Product Info */}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-sm text-gray-900 truncate">
-                              {product?.name || `Product ${item.productId}`}
-                            </h3>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {formatMoney({
-                                amount: price,
-                                currency: cart.currency || "USD",
-                                locale: "en-US",
-                              })}
-                            </p>
-                          </div>
-
-                          {/* Quantity Controls */}
-                          <div className="flex flex-col items-end gap-2">
-                            <button
-                              className="text-red-500 hover:text-red-700 p-1"
-                              aria-label="Remove item"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                            <div className="flex items-center gap-1 bg-gray-50 rounded-full px-2 py-1">
-                              <button
-                                className="rounded-full p-1 hover:bg-gray-200"
-                                disabled={item.quantity <= 1}
-                              >
-                                <Minus className="h-3 w-3" />
-                              </button>
-                              <span className="min-w-[1.5rem] text-center text-sm font-medium">
-                                {item.quantity}
-                              </span>
-                              <button className="rounded-full p-1 hover:bg-gray-200">
-                                <Plus className="h-3 w-3" />
-                              </button>
+                    {cart.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-start gap-3 border-b pb-4"
+                      >
+                        {/* Product Image */}
+                        <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+                          {item.images?.[0] ? (
+                            <Image
+                              src={item.images[0]}
+                              alt={item.name || "Product"}
+                              width={64}
+                              height={64}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <ShoppingBag className="h-6 w-6 text-gray-300" />
                             </div>
+                          )}
+                        </div>
+
+                        {/* Product Info */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-sm text-gray-900 truncate">
+                            {item.name}
+                          </h3>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {formatMoney({
+                              amount: item.price,
+                              currency: item.currency || "USD",
+                              locale: "en-US",
+                            })}
+                          </p>
+                        </div>
+
+                        {/* Quantity Controls */}
+                        <div className="flex flex-col items-end gap-2">
+                          <button
+                            className="text-red-500 hover:text-red-700 p-1"
+                            onClick={() => removeFromCart(item.id)}
+                            aria-label="Remove item"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                          <div className="flex items-center gap-1 bg-gray-50 rounded-full px-2 py-1">
+                            <button
+                              className="rounded-full p-1 hover:bg-gray-200"
+                              disabled={item.quantity <= 1}
+                              onClick={() =>
+                                addToCart(item, -1) // reduce qty
+                              }
+                            >
+                              <Minus className="h-3 w-3" />
+                            </button>
+                            <span className="min-w-[1.5rem] text-center text-sm font-medium">
+                              {item.quantity}
+                            </span>
+                            <button
+                              className="rounded-full p-1 hover:bg-gray-200"
+                              onClick={() => addToCart(item, 1)}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </button>
                           </div>
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
 
               {/* Footer */}
-              {cart && cart.items.length > 0 && (
+              {cart.length > 0 && (
                 <div className="border-t p-4 space-y-4">
                   <div className="flex items-center justify-between text-lg font-semibold">
                     <span>Total:</span>
                     <span>
                       {formatMoney({
-                        amount: cart.total || 0,
-                        currency: cart.currency || "USD",
+                        amount: totalPrice,
+                        currency: cart[0]?.currency || "USD",
                         locale: "en-US",
                       })}
                     </span>

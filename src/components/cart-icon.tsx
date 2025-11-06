@@ -3,24 +3,21 @@
 import { ShoppingBag } from "lucide-react";
 import { CartSidebar } from "@/components/cart-sidebar";
 import { useCart } from "@/context/cart-context";
-interface CartIconProps {
-  isCartOpen: boolean;
-}
 
-export function CartIcon({ isCartOpen }: CartIconProps) {
-  const { openCart, closeCart, itemCount } = useCart();
+export function CartIcon({}) {
+  const { openCart, closeCart, totalItems, isCartOpen } = useCart();
 
   return (
     <>
       <button
         onClick={openCart}
         className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
-        aria-label={`Open cart (${itemCount} items)`}
+        aria-label={`Open cart (${totalItems} items)`}
       >
         <ShoppingBag className="h-5 w-5" />
-        {itemCount > 0 && (
+        {totalItems > 0 && (
           <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-black text-xs font-bold text-white">
-            {itemCount > 99 ? "99+" : itemCount}
+            {totalItems > 99 ? "99+" : totalItems}
           </span>
         )}
       </button>

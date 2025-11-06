@@ -1,225 +1,180 @@
 "use client";
 
-import type { Cart, ProductInfo } from "commerce-kit";
-import { createContext, type ReactNode, useContext, useEffect, useOptimistic, useState } from "react";
-import {
-	addToCartAction,
-	getCartAction,
-	removeFromCartAction,
-	updateCartItemAction,
-} from "@/actions/cart-actions";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  startTransition,
+  ReactNode,
+} from "react";
+interface Product {
+  id: string;
+  name: string;
+  slug?: string;
+  summary?: string;
+  description?: string;
+  images: string[];
+  active: boolean;
+  price: number;
+  currency: string;
+  stock?: number;
+  category?: string;
+  brand?: string;
+  tags?: string[];
+  rating?: number;
+  discountPercentage?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  featured?: boolean;
+}
+// ---------------------------
+// Types
+// ---------------------------
 
-type CartAction =
-	| { type: "ADD_ITEM"; variantId: string; quantity: number; product?: ProductInfo }
-	| { type: "UPDATE_ITEM"; variantId: string; quantity: number }
-	| { type: "REMOVE_ITEM"; variantId: string }
-	| { type: "SYNC_CART"; cart: Cart | null };
+export interface CartItem extends Product {
+  quantity: number;
+}
 
 interface CartContextType {
-	cart: Cart | null;
-	isCartOpen: boolean;
-	itemCount: number;
-	openCart: () => void;
-	closeCart: () => void;
-	optimisticAdd: (variantId: string, quantity: number, product?: ProductInfo) => Promise<void>;
-	optimisticUpdate: (variantId: string, quantity: number) => Promise<void>;
-	optimisticRemove: (variantId: string) => Promise<void>;
+  cart: CartItem[];
+  addToCart: (product: Product, quantity?: number) => void;
+  removeFromCart: (id: string) => void;
+  clearCart: () => void;
+  totalItems: number;
+  totalPrice: number;
+  openCart: () => void;
+  isCartOpen: boolean;
+  closeCart: () => void;
+  optimisticAdd: (variantId: string, quantity: number) => Promise<void>;
 }
 
-function cartReducer(state: Cart | null, action: CartAction): Cart | null {
-	switch (action.type) {
-		case "ADD_ITEM": {
-			if (!state) {
-				// Create a new cart if none exists
-				return {
-					id: "optimistic",
-					items: [
-						{
-							id: action.variantId,
-							productId: action.variantId,
-							variantId: action.variantId,
-							quantity: action.quantity,
-							price: 0, // Will be updated from server
-							product: action.product,
-						},
-					],
-					total: 0,
-					currency: "USD",
-				};
-			}
+// ---------------------------
+// Context setup
+// ---------------------------
 
-			// Check if item already exists
-			const existingItemIndex = state.items.findIndex(
-				(item) => (item.variantId || item.productId) === action.variantId,
-			);
+const CartContext = createContext<CartContextType | undefined>(undefined);
 
-			if (existingItemIndex >= 0) {
-				// Update existing item
-				const existingItem = state.items[existingItemIndex];
-				if (existingItem) {
-					const updatedItems = [...state.items];
-					updatedItems[existingItemIndex] = {
-						...existingItem,
-						quantity: existingItem.quantity + action.quantity,
-					};
-					return {
-						...state,
-						items: updatedItems,
-					};
-				}
-			}
+// ---------------------------
+// Provider
+// ---------------------------
 
-			// Add new item
-			return {
-				...state,
-				items: [
-					...state.items,
-					{
-						id: action.variantId,
-						productId: action.variantId,
-						variantId: action.variantId,
-						quantity: action.quantity,
-						price: 0, // Will be updated from server
-						product: action.product,
-					},
-				],
-			};
-		}
+export const CartProvider = ({ children }: { children: ReactNode }) => {
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
-		case "UPDATE_ITEM": {
-			if (!state) return state;
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("cart");
+      if (stored) {
+        startTransition(() => {
+          setCart(JSON.parse(stored) as CartItem[]);
+        });
+      }
+    } catch (err) {
+      console.error("Failed to load cart:", err);
+    }
+  }, []);
 
-			if (action.quantity <= 0) {
-				// Remove item if quantity is 0 or less
-				return {
-					...state,
-					items: state.items.filter((item) => (item.variantId || item.productId) !== action.variantId),
-				};
-			}
+  // Save cart whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem("cart", JSON.stringify(cart));
+    } catch (err) {
+      console.error("Failed to save cart:", err);
+    }
+  }, [cart]);
 
-			const updatedItems = state.items.map((item) => {
-				if ((item.variantId || item.productId) === action.variantId) {
-					return { ...item, quantity: action.quantity };
-				}
-				return item;
-			});
+  // ---------------------------
+  // Cart actions
+  // ---------------------------
 
-			return {
-				...state,
-				items: updatedItems,
-			};
-		}
+  const addToCart = (product: Product, quantity = 1) => {
+    startTransition(() => {
+      setCart((prev) => {
+        const existing = prev.find((item) => item.id === product.id);
+        if (existing) {
+          return prev.map((item) =>
+            item.id === product.id
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
+          );
+        }
+        return [...prev, { ...product, quantity }];
+      });
+    });
+  };
 
-		case "REMOVE_ITEM": {
-			if (!state) return state;
+  const optimisticAdd = async (variantId: string, quantity: number) => {
+    // Simulate adding a product based on an ID (you can replace this with real fetch)
+    try {
+      // Example: Fetch the product details (mock)
+      const product: Product = {
+        id: variantId,
+        name: "Sample Product",
+        images: [],
+        price: 100,
+        active: true,
+        currency: "USD",
+      };
 
-			return {
-				...state,
-				items: state.items.filter((item) => (item.variantId || item.productId) !== action.variantId),
-			};
-		}
+      addToCart(product, quantity);
+    } catch (err) {
+      console.error("Failed to optimistically add product:", err);
+      throw err;
+    }
+  };
 
-		case "SYNC_CART": {
-			return action.cart;
-		}
+  const removeFromCart = (id: string) => {
+    startTransition(() => {
+      setCart((prev) => prev.filter((item) => item.id !== id));
+    });
+  };
+  const closeCart = () => {
+    startTransition(() => setIsCartOpen(false));
+  };
 
-		default:
-			return state;
-	}
-}
+  const clearCart = () => {
+    startTransition(() => {
+      setCart([]);
+    });
+  };
 
-const CartContext = createContext<CartContextType | null>(null);
+  const openCart = () => {
+    startTransition(() => setIsCartOpen(true));
+  };
 
-export function CartProvider({ children }: { children: ReactNode }) {
-	const [actualCart, setActualCart] = useState<Cart | null>(null);
-	const [optimisticCart, setOptimisticCart] = useOptimistic(actualCart, cartReducer);
-	const [isCartOpen, setIsCartOpen] = useState(false);
+  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const totalPrice = cart.reduce(
+    (acc, item) => acc + item.quantity * item.price,
+    0
+  );
 
-	// Calculate item count from optimistic cart
-	const itemCount = optimisticCart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const value: CartContextType = {
+    cart,
+    addToCart,
+    removeFromCart,
+    clearCart,
+    totalItems,
+    totalPrice,
+    openCart,
+    isCartOpen,
+	closeCart,
+    optimisticAdd,
+  };
 
-	// Load initial cart
-	useEffect(() => {
-		getCartAction().then((cart) => {
-			setActualCart(cart);
-		});
-	}, []);
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+};
 
-	// Sync optimistic cart with actual cart when it changes
-	useEffect(() => {
-		setOptimisticCart({ type: "SYNC_CART", cart: actualCart });
-	}, [actualCart, setOptimisticCart]);
+// ---------------------------
+// Hook
+// ---------------------------
 
-	const openCart = () => setIsCartOpen(true);
-	const closeCart = () => setIsCartOpen(false);
-
-	const optimisticAdd = async (variantId: string, quantity = 1, product?: ProductInfo) => {
-		// Optimistically update UI
-		setOptimisticCart({ type: "ADD_ITEM", variantId, quantity, product });
-
-		try {
-			// Perform server action
-			const updatedCart = await addToCartAction(variantId, quantity);
-			setActualCart(updatedCart);
-		} catch (error) {
-			// Rollback will happen automatically via useEffect
-			console.error("Failed to add to cart:", error);
-			throw error;
-		}
-	};
-
-	const optimisticUpdate = async (variantId: string, quantity: number) => {
-		// Optimistically update UI
-		setOptimisticCart({ type: "UPDATE_ITEM", variantId, quantity });
-
-		try {
-			// Perform server action
-			const updatedCart = await updateCartItemAction(variantId, quantity);
-			setActualCart(updatedCart);
-		} catch (error) {
-			// Rollback will happen automatically via useEffect
-			console.error("Failed to update cart item:", error);
-			throw error;
-		}
-	};
-
-	const optimisticRemove = async (variantId: string) => {
-		// Optimistically update UI
-		setOptimisticCart({ type: "REMOVE_ITEM", variantId });
-
-		try {
-			// Perform server action
-			const updatedCart = await removeFromCartAction(variantId);
-			setActualCart(updatedCart);
-		} catch (error) {
-			// Rollback will happen automatically via useEffect
-			console.error("Failed to remove from cart:", error);
-			throw error;
-		}
-	};
-
-	return (
-		<CartContext.Provider
-			value={{
-				cart: optimisticCart,
-				isCartOpen,
-				itemCount,
-				openCart,
-				closeCart,
-				optimisticAdd,
-				optimisticUpdate,
-				optimisticRemove,
-			}}
-		>
-			{children}
-		</CartContext.Provider>
-	);
-}
-
-export function useCart() {
-	const context = useContext(CartContext);
-	if (!context) {
-		throw new Error("useCart must be used within a CartProvider");
-	}
-	return context;
-}
+export const useCart = (): CartContextType => {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error("useCart must be used within a CartProvider");
+  }
+  return context;
+};

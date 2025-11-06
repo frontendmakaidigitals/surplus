@@ -21,7 +21,8 @@ const nextConfig: NextConfig = {
 			{ hostname: "*.blob.vercel-storage.com" },
 			{hostname:"7-10.in"},
 			{hostname:"*pngmart.com"},
-			{hostname:"*pngtree.com"}
+			{hostname:"*pngtree.com"},
+			{hostname:"images.unsplash.com"}
 		],
 		formats: ["image/avif", "image/webp"],
 	},

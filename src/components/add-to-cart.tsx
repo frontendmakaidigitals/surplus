@@ -1,36 +1,48 @@
 "use client";
 
-import { Plus } from "lucide-react";
 import { useCart } from "@/context/cart-context";
-
+interface Product {
+  id: string;
+  name: string;
+  slug?: string;
+  summary?: string;
+  description?: string;
+  images: string[];
+  active: boolean;
+  price: number;
+  currency: string;
+  stock?: number;
+  category?: string;
+  brand?: string;
+  tags?: string[];
+  rating?: number;
+  discountPercentage?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  featured?: boolean;
+}
 interface AddToCartProps {
-	variantId: string;
-	quantity?: number;
-	className?: string;
-	children?: React.ReactNode;
-	onSuccess?: () => void;
+  product: Product;
+  className?: string;
+  children?: React.ReactNode;
 }
 
-export function AddToCart({ variantId, quantity = 1, className = "", children, onSuccess }: AddToCartProps) {
-	const { openCart, optimisticAdd } = useCart();
+export function AddToCart({ product, className, children }: AddToCartProps) {
+  const { addToCart, openCart } = useCart();
 
-	const handleAddToCart = async () => {
-		try {
-			await optimisticAdd(variantId, quantity);
-			onSuccess?.();
-			openCart(); // Open cart sidebar after adding item
-		} catch (error) {
-			// Error is already logged in context, could show error toast here
-		}
-	};
+  const handleAdd = () => {
+    if (!product || (product.stock ?? 0) <= 0) return;
+    addToCart(product, 1);
+    openCart(); // ✅ open sidebar after adding
+  };
 
-	return (
-		<button
-			onClick={handleAddToCart}
-			className={`flex items-center justify-center gap-2 rounded-lg bg-black px-6 py-3 text-white hover:bg-gray-800 transition-colors ${className}`}
-		>
-			<Plus className="h-4 w-4" />
-			{children || "Add to Cart"}
-		</button>
-	);
+  return (
+    <button
+      onClick={handleAdd}
+      className={`rounded-lg bg-black px-6 py-3 text-white hover:bg-gray-800 ${className}`}
+      disabled={(product?.stock ?? 0) <= 0}
+    >
+      {children}
+    </button>
+  );
 }
