@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import Link from "next/link";
 import { useState } from "react";
 import { NavMobileMenu } from "@/ui/nav/nav-mobile-menu.client";
@@ -7,8 +7,8 @@ const links = [
   { label: "Home", href: "/" },
   { label: "About us", href: "/about" },
   { label: "Product Categories", href: "/categories" },
-  { label: "Guarantee & Refunds", href: "/refunds" },
-  { label: "Shipping options", href: "/shipping" },
+  { label: "Guarantee & Refunds", href: "/gurantees-and-refunds" },
+  { label: "Shipping options", href: "/shipment-overview" },
   { label: "Resources", href: "/resources" },
   { label: "Sell your surplus", href: "/sell" },
   { label: "Contact Us", href: "/contact" },
@@ -18,7 +18,7 @@ export const NavMenu = () => {
   const visibleCount = 8;
   const visibleLinks = links.slice(0, visibleCount);
   const moreLinks = links.slice(visibleCount);
-  console.log(moreLinks)
+  console.log(moreLinks);
   const [showMore, setShowMore] = useState(false);
   return (
     <>
