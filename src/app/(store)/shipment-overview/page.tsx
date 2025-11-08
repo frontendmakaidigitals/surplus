@@ -157,8 +157,8 @@ export default function GuaranteeRefunds() {
                       onClick={() => handleScroll(section.id)}
                       className={`w-full cursor-pointer py-[.5rem] rounded-lg px-2 text-left text-sm font-medium transition-colors ${
                         activeSection === section.id
-                          ? "bg-blue-600 text-slate-50 font-semibold"
-                          : "text-gray-600 hover:text-slate-50 hover:bg-blue-400"
+                          ? "bg-blue-100 border-l-2 border-blue-500 text-blue-500 font-semibold"
+                          : "text-gray-600 hover:text-blue-400 hover:bg-blue-100"
                       }`}
                     >
                       {section.title}
