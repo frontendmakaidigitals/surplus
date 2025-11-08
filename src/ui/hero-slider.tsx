@@ -21,7 +21,7 @@ export function HeroSlider() {
                 loading="eager"
                 className="w-full h-full object-conyain object-center"
                 height={450}
-                width={450}
+                width={900}
                 src={`/Banner-${index + 1}.jpg`}
               />
             </div>
