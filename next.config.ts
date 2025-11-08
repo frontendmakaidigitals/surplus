@@ -26,6 +26,7 @@ const nextConfig: NextConfig = {
 			{hostname:"*cdn.prod.website-files.com"},
 			{hostname:"*5.imimg.com"},
 			{hostname:"*encrypted-tbn0.gstatic.com"},
+			{hostname:"images.pexels.com"},
 		
 		],
 		formats: ["image/avif", "image/webp"],
