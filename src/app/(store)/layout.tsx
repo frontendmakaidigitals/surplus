@@ -9,15 +9,12 @@ export default async function StoreLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Note: accountGet and fileGet not available in new SDK
 
   return (
     <CartProvider>
       <Nav />
       <TooltipProvider>
-        <main className="container pt-5">
-          {children}
-        </main>
+        <main className="pt-2">{children}</main>
         <Footer />
       </TooltipProvider>
     </CartProvider>

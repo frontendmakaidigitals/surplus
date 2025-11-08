@@ -22,7 +22,11 @@ const nextConfig: NextConfig = {
 			{hostname:"7-10.in"},
 			{hostname:"*pngmart.com"},
 			{hostname:"*pngtree.com"},
-			{hostname:"images.unsplash.com"}
+			{hostname:"images.unsplash.com"},
+			{hostname:"*cdn.prod.website-files.com"},
+			{hostname:"*5.imimg.com"},
+			{hostname:"*encrypted-tbn0.gstatic.com"},
+		
 		],
 		formats: ["image/avif", "image/webp"],
 	},

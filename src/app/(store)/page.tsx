@@ -7,6 +7,7 @@ import ShopByCategory from "@/ui/shopby-category";
 import FeaturedCatalogs from "@/ui/featured-catalog";
 import Image from "next/image";
 import Link from "next/link";
+import RootLayout from "@/app/layout";
 export const metadata: Metadata = {
   alternates: { canonical: publicUrl },
 };
@@ -36,7 +37,7 @@ const services = [
 ];
 export default async function Home() {
   return (
-    <>
+    <RootLayout>
       <section className="rounded ">
         <HeroSlider />
 
@@ -110,6 +111,6 @@ export default async function Home() {
         </div>
         <FeaturedCatalogs />
       </section>
-    </>
+    </RootLayout>
   );
 }

@@ -160,7 +160,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     totalPrice,
     openCart,
     isCartOpen,
-	closeCart,
+    closeCart,
     optimisticAdd,
   };
 

@@ -11,7 +11,7 @@ export function CartIcon({}) {
     <>
       <button
         onClick={openCart}
-        className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+        className="relative  flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
         aria-label={`Open cart (${totalItems} items)`}
       >
         <ShoppingBag className="h-5 w-5" />
