@@ -109,7 +109,7 @@ export default function GuaranteeRefunds() {
       {/* Main Section */}
       <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Sidebar */}
-        <aside className="md:col-span-1">
+        <aside className="hidden md:block md:col-span-1">
           <div className="sticky top-28 shadow-sm rounded-xl border border-gray-300/40 p-6 space-y-4">
             <h3 className="text-lg font-semibold text-gray-800 mb-3">Topics</h3>
             <ul className="space-y-3">
@@ -133,7 +133,7 @@ export default function GuaranteeRefunds() {
 
         {/* Content */}
         <div className="md:col-span-3">
-          <div className="px-6 border-l border-slate-600/20">
+          <div className="px-6 py-6 lg:py-0 border-t lg:border-t-0 lg:border-l border-slate-600/20">
             <div className="space-y-16">
               {sections.map((section, i) => (
                 <motion.section

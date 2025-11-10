@@ -35,6 +35,19 @@ export default function AboutUsSection() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  function formatNumber(num: number): string {
+    if (num >= 1_000_000_000) {
+      return (num / 1_000_000_000).toFixed(1).replace(/\.0$/, "") + "B";
+    }
+    if (num >= 1_000_000) {
+      return (num / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+    }
+    if (num >= 10_000) {
+      return (num / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+    }
+    return num.toLocaleString("en-US");
+  }
+
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
@@ -150,25 +163,29 @@ export default function AboutUsSection() {
                 themselves. These numbers reflect the trust the global energy
                 sector places in us:
               </p>
-              <div className="grid grid-cols-2  md:grid-cols-4 gap-6 mt-10">
-                {[
-                  { num: "1000+", label: "Available Equipment Listings" },
-                  { num: "100,000+", label: "Positive Customer Feedback" },
-                  { num: "9000+", label: "Items Processed Each Year" },
-                  { num: "9+", label: "Countries Served" },
-                ].map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="p-6 bg-blue-50 rounded-2xl border border-blue-100"
-                  >
-                    <h3 className="text-4xl font-extrabold text-gray-700">
-                      {item.num}
-                    </h3>
-                    <p className="mt-2 text-gray-600 font-medium">
-                      {item.label}
-                    </p>
+              <div className="w-full mt-10">
+                <div className="max-w-6xl mx-auto ">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    {[
+                      { num: 1000, label: "Available Equipment Listings" },
+                      { num: 100000, label: "Positive Customer Feedback" },
+                      { num: 9000, label: "Items Processed Each Year" },
+                      { num: 9, label: "Countries Served" },
+                    ].map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="p-6 bg-blue-50 rounded-2xl border border-blue-100 text-center shadow-sm hover:shadow-md transition"
+                      >
+                        <h3 className="text-4xl font-extrabold text-gray-700">
+                          {formatNumber(item.num)}+
+                        </h3>
+                        <p className="mt-2 text-gray-600 font-medium">
+                          {item.label}
+                        </p>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
             </div>
 
