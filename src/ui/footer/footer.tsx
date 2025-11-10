@@ -1,6 +1,10 @@
 "use client";
 import Logo from "@/ui/Logo";
+import Link from "next/link";
+import { products, categories } from "../../../data";
 const Footer = () => {
+  const productList = products;
+  const categoriesList = categories;
   return (
     <footer className="bg-[#c6dfe6] mt-12 ">
       <div className="mx-auto max-w-7xl space-y-8 px-4 py-16 sm:px-6 lg:space-y-16 lg:px-8">
@@ -131,10 +135,10 @@ const Footer = () => {
           <div>
             <p className="font-medium  text-black">Company</p>
 
-            <ul className="mt-6 space-y-4 text-sm">
+            <ul className="mt-6 capitalize space-y-4 text-sm">
               <li>
                 <a
-                  href="#"
+                  href="/about"
                   className=" transition hover:opacity-75 text-gray-900"
                 >
                   About
@@ -143,96 +147,77 @@ const Footer = () => {
 
               <li>
                 <a
-                  href="#"
+                  href="/gurantees-and-refunds"
                   className=" transition hover:opacity-75 text-gray-900"
                 >
-                  Meet the Team
+                  gurantees and refunds
                 </a>
               </li>
 
               <li>
                 <a
-                  href="#"
+                  href="/sell-your-surplus"
                   className=" transition hover:opacity-75 text-gray-900"
                 >
-                  Accounts Review
+                  sell your surplus
                 </a>
               </li>
-            </ul>
-          </div>
-
-          <div>
-            <p className="font-medium  text-black">Helpful Links</p>
-
-            <ul className="mt-6 space-y-4 text-sm">
               <li>
                 <a
-                  href="#"
+                  href="/shipment-overview"
+                  className=" transition hover:opacity-75 text-gray-900"
+                >
+                  shipment overview
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/Conact"
                   className=" transition hover:opacity-75 text-gray-900"
                 >
                   Contact
                 </a>
               </li>
-
-              <li>
-                <a
-                  href="#"
-                  className=" transition hover:opacity-75 text-gray-900"
-                >
-                  FAQs
-                </a>
-              </li>
-
-              <li>
-                <a
-                  href="#"
-                  className=" transition hover:opacity-75 text-gray-900"
-                >
-                  Live Chat
-                </a>
-              </li>
             </ul>
           </div>
 
           <div>
-            <p className="font-medium  text-black">Legal</p>
+            <p className="font-medium  text-black">New Products</p>
 
             <ul className="mt-6 space-y-4 text-sm">
-              <li>
-                <a
-                  href="#"
-                  className=" transition hover:opacity-75 text-gray-900"
-                >
-                  Accessibility
-                </a>
-              </li>
+              {productList.slice(0, 6).map((product, index) => (
+                <li key={index}>
+                  <Link
+                    href={
+                      "/product/" +
+                      product.name.split(" ").join("-").toLowerCase()
+                    }
+                    className=" transition hover:opacity-75 text-gray-900"
+                  >
+                    {product.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-              <li>
-                <a
-                  href="#"
-                  className=" transition hover:opacity-75 text-gray-900"
-                >
-                  Returns Policy
-                </a>
-              </li>
+          <div>
+            <p className="font-medium  text-black">Categories</p>
 
-              <li>
-                <a
-                  href="#"
-                  className=" transition hover:opacity-75 text-gray-900"
-                >
-                  Refund Policy
-                </a>
-              </li>
-
-              <li>
-                <a
-                  href="#"
-                  className=" transition hover:opacity-75 text-gray-900"
-                >
-                  Hiring-3 Statistics
-                </a>
-              </li>
+            <ul className="mt-6 space-y-4 text-sm">
+              {categoriesList.slice(0, 8).map((category, index) => (
+                <li key={index}>
+                  <Link
+                    href={
+                      `/category/` +
+                      category.title.split(" ").join("-").toLowerCase()
+                    }
+                    className=" transition hover:opacity-75 text-gray-900"
+                  >
+                    {category.title}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
           <div>
