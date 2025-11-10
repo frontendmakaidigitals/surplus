@@ -103,7 +103,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                           <p className="text-sm text-gray-600 mt-1">
                             {formatMoney({
                               amount: item.price,
-                              currency: item.currency || "USD",
+                              currency:  "USD",
                               locale: "en-US",
                             })}
                           </p>
@@ -153,7 +153,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     <span>
                       {formatMoney({
                         amount: totalPrice,
-                        currency: cart[0]?.currency || "USD",
+                        currency:  "USD",
                         locale: "en-US",
                       })}
                     </span>
