@@ -32,7 +32,9 @@ export default async function Page(props: {
   const params = await props.params;
   const categoryName = decodeURIComponent(params.slug);
   const categoryProducts = products.filter(
-    (p) => p.category.toLowerCase() === categoryName.toLowerCase()
+    (p) =>
+      p.category.split(" ").join("-").toLowerCase() ===
+      categoryName.toLowerCase()
   );
   console.log(categoryProducts, "categoryProducts");
   if (categoryProducts.length === 0) {
@@ -60,11 +62,11 @@ export default async function Page(props: {
       </RootLayoutWrapper>
       <section className="bg-white shadow py-6 mt-4 mb-5">
         <RootLayoutWrapper>
-          <div className="flex justify-between items-center">
+          <div className=" lg:flex justify-between items-center">
             <h1 className="text-xl font-[700]">
               New, Surplus & Used {params.slug} For Sale
             </h1>
-            <div className="flex items-center gap-3">
+            <div className="mt-10 lg:mt-0 flex items-center gap-3">
               <label>Sort by:</label>
               <Select>
                 <SelectTrigger className="w-[200px] bg-white">

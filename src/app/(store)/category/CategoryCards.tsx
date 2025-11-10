@@ -27,7 +27,7 @@ const CategoryCards: React.FC<CategoryCardsProps> = ({ data }) => {
                 height={300}
               />
             </div>
-            <h2 className="w-full border-t border-slate-400/30 py-2 text-center">
+            <h2 className="w-full bg-neutral-100 border-t border-slate-400/30 py-2 text-center">
               {cat.name}
             </h2>
           </Link>

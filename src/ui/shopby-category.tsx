@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import type { Category } from "../../data";
 
-
 export default function ShopByCategory({
   categories,
 }: {
@@ -44,7 +43,9 @@ export default function ShopByCategory({
 
               {/* Link */}
               <Link
-                href={`/category/`+cat.title}
+                href={
+                  `/category/` + cat.title.split(" ").join("-").toLowerCase()
+                }
                 className="bg-sky-400 text-sky-100 px-4 rounded-full py-[.4rem] text-sm font-medium hover:underline hover:text-sky-800 mt-auto"
               >
                 VIEW ALL
