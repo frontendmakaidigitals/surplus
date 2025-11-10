@@ -37,11 +37,7 @@ export default async function SearchPage(props: {
 			<h1 className="text-3xl font-bold leading-none tracking-tight text-foreground">
 				Search results for “{query}”
 			</h1>
-			{products?.length ? (
-				<ProductList  />
-			) : (
-				<ProductNotFound query={query} />
-			)}
+			
 		</main>
 	);
 }
