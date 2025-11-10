@@ -13,7 +13,17 @@ export function HeroSlider() {
   const slides = Array.from({ length: 4 });
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [api, setApi] = React.useState<any>(null);
+  const [width, setWidth] = React.useState(0);
 
+  const handleResize = () => {
+    setWidth(window.innerWidth);
+  };
+
+  React.useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   React.useEffect(() => {
     if (!api) return;
     setCurrentIndex(api.selectedScrollSnap());
@@ -22,12 +32,9 @@ export function HeroSlider() {
       setCurrentIndex(api.selectedScrollSnap());
     });
   }, [api]);
-
+  const isMobile = width < 768;
   return (
-    <Carousel
-       setApi={setApi}
-      className="w-full mb-10 mt-6 relative"
-    >
+    <Carousel setApi={setApi} className="w-full mb-10 mt-6 relative">
       <CarouselContent>
         {Array.from({ length: 4 }).map((_, index) => (
           <CarouselItem key={index}>
@@ -35,10 +42,14 @@ export function HeroSlider() {
               <Image
                 alt="Error Loading Products"
                 loading="eager"
-                className="w-full h-full object-cover object-center"
+                className="w-full h-full object-fit lg:object-contain object-center"
                 height={450}
                 width={900}
-                src={`/Banner-${index + 1}.jpg`}
+                src={
+                  !isMobile
+                    ? `/Banner-${index + 1}.jpg`
+                    : `/Banner-${index + 1}-m.jpg`
+                }
               />
             </div>
           </CarouselItem>
@@ -49,7 +60,7 @@ export function HeroSlider() {
         <CarouselNext className="static translate-y-0 bg-blue-500 hover:bg-blue-400 text-slate-50 disabled:bg-slate-400" />
       </div>
       <div className="absolute -bottom-6 left-0 right-0 flex justify-center items-center gap-2 z-10">
-       {slides.map((_, i) => (
+        {slides.map((_, i) => (
           <button
             key={i}
             onClick={() => api?.scrollTo(i)}
