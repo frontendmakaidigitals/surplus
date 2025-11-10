@@ -1,7 +1,7 @@
 import { RedirectType, redirect } from "next/navigation";
 import type { Metadata } from "next/types";
 import { publicUrl } from "@/env.mjs";
-import { Search } from "@/lib/api";
+
 import { ProductList } from "@/ui/products/product-list";
 import { ProductNotFound } from "@/ui/products/product-not-found";
 import { products } from "../../../../data";
