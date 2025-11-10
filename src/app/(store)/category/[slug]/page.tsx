@@ -24,75 +24,21 @@ import {
   PaginationPrevious,
 } from "@/ui/pagination";
 import CategoryCards from "@/app/(store)/category/CategoryCards";
+import { products } from "../../../../../data";
 import ProductCount from "@/ui/product-count";
-export default async function ProductPage(props: {
+export default async function Page(props: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ variant?: string; image?: string }>;
 }) {
-  const paramsPromise = props.params;
-  const { slug } = await paramsPromise;
-  const products = [
-    {
-      title: "ALLEN BRADLEY 100-C12EJ10 AC CONTACTOR 24V-DC 25A AMP 7-1/2HP",
-      stock: "Only 3 Left",
-      image: "/images/allen-bradley-100-C12EJ10.jpg",
-    },
-    {
-      title: "ALLEN BRADLEY 100-C23EJ10 AC CONTACTOR 24V-DC 30A AMP 15HP",
-      stock: "Only 1 Left",
-      image: "/images/allen-bradley-100-C23EJ10.jpg",
-    },
-    {
-      title: "ALLEN BRADLEY 100-C97D10 120V-AC 120A AMP 75HP AC CONTACTOR",
-      stock: "Only 1 Left",
-      image: "/images/allen-bradley-100-C97D10.jpg",
-    },
-    {
-      title: "ALLEN BRADLEY 100-C09*10 AC CONTACTOR 120V-AC 25A AMP 7-1/2HP",
-      stock: "Only 1 Left",
-      image: "/images/allen-bradley-100-C09-10.jpg",
-    },
-    {
-      title: "ALLEN BRADLEY 100-DP30NJ2 AC CONTACTOR 24V-AC 300A AMP",
-      stock: "In Stock",
-      image: "/images/allen-bradley-100-DP30NJ2.jpg",
-    },
-    {
-      title: "ALLEN BRADLEY 100-C85DJ00 AC CONTACTOR 24V-DC 60A AMP 60HP",
-      stock: "Only 1 Left",
-      image: "/images/allen-bradley-100-C85DJ00.jpg",
-    },
-    {
-      title: "ALLEN BRADLEY 700-CF310E AC CONTACTOR 24V-DC 25A AMP",
-      stock: "Only 1 Left",
-      image: "/images/allen-bradley-700-CF310E.jpg",
-    },
-    {
-      title: "ALLEN BRADLEY 100-D140D11 AC CONTACTOR 120V-AC 220A AMP 100HP",
-      stock: "Only 1 Left",
-      image: "/images/allen-bradley-100-D140D11.jpg",
-    },
-    {
-      title: "ALLEN BRADLEY 100-C300D00 AC CONTACTOR 120V-AC 65A AMP 20HP",
-      stock: "Only 1 Left",
-      image: "/images/allen-bradley-100-C300D00.jpg",
-    },
-    {
-      title: "ALLEN BRADLEY 100-C72DJ00 24V-DC 90A AMP 50HP AC CONTACTOR",
-      stock: "Only 1 Left",
-      image: "/images/allen-bradley-100-C72DJ00.jpg",
-    },
-    {
-      title: "ALLEN BRADLEY 509-FO* SIZE 5 AC CONTACTOR 270A AMP 200HP",
-      stock: "Only 1 Left",
-      image: "/images/allen-bradley-509-FO.jpg",
-    },
-    {
-      title:
-        "ALLEN BRADLEY 509-BOO-XXX SIZE 1 AC CONTACTOR 115-120V-AC 27A AMP",
-      stock: "Only 3 Left",
-      image: "/images/allen-bradley-509-BOO-XXX.jpg",
-    },
-  ];
+  const params = await props.params;
+  const categoryName = decodeURIComponent(params.slug);
+  const categoryProducts = products.filter(
+    (p) => p.category.toLowerCase() === categoryName.toLowerCase()
+  );
+  console.log(categoryProducts, "categoryProducts");
+  if (categoryProducts.length === 0) {
+    return <h1>Category not found</h1>;
+  }
 
   return (
     <>
@@ -108,7 +54,7 @@ export default async function ProductPage(props: {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>{slug}</BreadcrumbPage>
+              <BreadcrumbPage>{params.slug}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -117,7 +63,7 @@ export default async function ProductPage(props: {
         <RootLayoutWrapper>
           <div className="flex justify-between items-center">
             <h1 className="text-xl font-[700]">
-              New, Surplus & Used {slug} For Sale
+              New, Surplus & Used {params.slug} For Sale
             </h1>
             <div className="flex items-center gap-3">
               <label>Sort by:</label>
@@ -136,10 +82,10 @@ export default async function ProductPage(props: {
         </RootLayoutWrapper>
       </section>
       <section className="container mb-10">
-        <ProductCount dataArray={products} />
+        <ProductCount dataArray={categoryProducts} />
       </section>
       <RootLayoutWrapper>
-        <CategoryCards data={products} />
+        <CategoryCards data={categoryProducts} />
         <section className="mt-14 ">
           <Pagination>
             <PaginationContent>
@@ -150,15 +96,6 @@ export default async function ProductPage(props: {
                 <PaginationLink aria-disabled href="#" isActive>
                   1
                 </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">2</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">3</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationEllipsis />
               </PaginationItem>
               <PaginationItem>
                 <PaginationNext href="#" />

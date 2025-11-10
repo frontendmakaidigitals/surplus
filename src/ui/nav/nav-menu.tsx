@@ -3,22 +3,16 @@ import Link from "next/link";
 import { useState } from "react";
 import { NavMobileMenu } from "@/ui/nav/nav-mobile-menu.client";
 import { ChevronDown } from "lucide-react";
-const links = [
-  { label: "Home", href: "/" },
-  { label: "About us", href: "/about" },
-  { label: "Product Categories", href: "/categories" },
-  { label: "Guarantee & Refunds", href: "/gurantees-and-refunds" },
-  { label: "Shipping options", href: "/shipment-overview" },
-  { label: "Resources", href: "/resources" },
-  { label: "Sell your surplus", href: "/sell" },
-  { label: "Contact Us", href: "/contact" },
-];
 
-export const NavMenu = () => {
+export const NavMenu = ({
+  links,
+}: {
+  links: { label: string; href: string }[];
+}) => {
   const visibleCount = 8;
   const visibleLinks = links.slice(0, visibleCount);
   const moreLinks = links.slice(visibleCount);
-  console.log(moreLinks);
+
   const [showMore, setShowMore] = useState(false);
   return (
     <>
@@ -69,22 +63,6 @@ export const NavMenu = () => {
             </li>
           )}
         </ul>
-      </div>
-      <div className="sm:hidden flex items-center">
-        <NavMobileMenu>
-          <ul className="flex pb-8 flex-col items-stretch justify-center gap-x-1">
-            {links.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="group inline-flex h-9 w-full items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-hidden"
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </NavMobileMenu>
       </div>
     </>
   );

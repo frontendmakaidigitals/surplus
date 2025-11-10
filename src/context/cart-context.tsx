@@ -8,37 +8,18 @@ import React, {
   startTransition,
   ReactNode,
 } from "react";
-interface Product {
-  id: string;
-  name: string;
-  slug?: string;
-  summary?: string;
-  description?: string;
-  images: string[];
-  active: boolean;
-  price: number;
-  currency: string;
-  stock?: number;
-  category?: string;
-  brand?: string;
-  tags?: string[];
-  rating?: number;
-  discountPercentage?: number;
-  createdAt?: string;
-  updatedAt?: string;
-  featured?: boolean;
-}
+import type { addtocart } from "../../data";
 // ---------------------------
 // Types
 // ---------------------------
 
-export interface CartItem extends Product {
+export interface CartItem extends addtocart {
   quantity: number;
 }
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: Product, quantity?: number) => void;
+  addToCart: (product: addtocart, quantity?: number) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
   totalItems: number;
@@ -90,7 +71,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   // Cart actions
   // ---------------------------
 
-  const addToCart = (product: Product, quantity = 1) => {
+  const addToCart = (product: addtocart, quantity = 1) => {
     startTransition(() => {
       setCart((prev) => {
         const existing = prev.find((item) => item.id === product.id);
@@ -110,13 +91,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     // Simulate adding a product based on an ID (you can replace this with real fetch)
     try {
       // Example: Fetch the product details (mock)
-      const product: Product = {
+      const product: addtocart = {
         id: variantId,
         name: "Sample Product",
         images: [],
         price: 100,
-        active: true,
-        currency: "USD",
+        category: "",
+        model: "",
+        condition:""
       };
 
       addToCart(product, quantity);

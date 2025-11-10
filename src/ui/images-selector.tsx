@@ -11,7 +11,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({ images = [] }) => {
 
   if (!images || images.length === 0) {
     return (
-      <div className="w-full aspect-video bg-neutral-100 rounded-xl flex items-center justify-center border text-neutral-500">
+      <div className="w-full aspect-video bg-white rounded-xl flex items-center justify-center border text-neutral-500">
         No images available
       </div>
     );
@@ -20,7 +20,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({ images = [] }) => {
   return (
     <div className="lg:col-span-7 lg:row-span-3 lg:row-start-1 flex flex-col gap-4">
       {/* Main large image */}
-      <div className="relative w-full aspect-video bg-neutral-100 rounded-xl overflow-hidden border">
+      <div className="relative w-full aspect-video bg-white rounded-xl overflow-hidden border">
         <Image
           src={selectedImage || 'https://png.pngtree.com/png-vector/20220608/ourmid/pngtree-shopping-bag-icon-design-vector-templates-white-on-background-png-image_4900872.png'}
           alt="Selected product image"

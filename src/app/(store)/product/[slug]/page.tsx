@@ -14,129 +14,21 @@ import { YnsLink } from "@/ui/yns-link";
 import { deslugify, formatMoney } from "@/lib/utils";
 import RootLayoutWrapper from "@/ui/rootlayout";
 import ImageSelector from "@/ui/images-selector";
-
-const products = [
-  {
-    id: "1",
-    name: "Industrial Bearing Set",
-    slug: "industrial-bearing-set",
-    summary: "High-performance bearings for industrial machinery.",
-    description:
-      "This precision-engineered bearing set is designed for heavy-duty industrial applications. Built from heat-treated steel and sealed for long-lasting durability, it reduces friction and ensures smooth rotational motion under high load conditions. Ideal for CNC machinery, pumps, and automotive systems.",
-    images: [
-      "https://7-10.in/cdn/shop/files/710.301.MB-1.jpg?v=1756777086",
-      "https://7-10.in/cdn/shop/files/710.301.MB-2.jpg?v=1756777086",
-      "https://7-10.in/cdn/shop/files/710.301.MB-3.jpg?v=1756777086",
-    ],
-    active: true,
-    price: 2999,
-    currency: "USD",
-    stock: 20,
-    category: "Mechanical Components",
-    brand: "BasicWear",
-    tags: ["bearing", "industrial", "mechanical"],
-    rating: 4.5,
-  },
-  {
-    id: "2",
-    name: "CNC Tool Holder",
-    slug: "cnc-tool-holder",
-    summary: "Precision tool holder for CNC machining systems.",
-    description:
-      "Crafted with high-tensile steel and balanced for optimal spindle performance, this CNC tool holder offers exceptional accuracy and rigidity. Compatible with standard ER collets, it minimizes vibration and enhances tool life, making it a must-have for precision milling and turning applications.",
-    images: [
-      "https://7-10.in/cdn/shop/files/710.301.MB-1.jpg?v=1756777086",
-      "https://7-10.in/cdn/shop/files/710.301.MB-2.jpg?v=1756777086",
-      "https://7-10.in/cdn/shop/files/710.301.MB-3.jpg?v=1756777086",
-    ],
-    active: true,
-    price: 5999,
-    currency: "USD",
-    stock: 10,
-    category: "CNC Accessories",
-    brand: "UrbanEdge",
-    tags: ["cnc", "tool-holder", "machining"],
-    rating: 4.8,
-    discountPercentage: 10,
-  },
-  {
-    id: "3",
-    name: "Linear Actuator Drive",
-    slug: "linear-actuator-drive",
-    summary: "Compact actuator drive for precise motion control.",
-    description:
-      "Engineered for high-precision motion systems, this linear actuator drive provides smooth and accurate movement with minimal noise. It’s ideal for automation, robotics, and manufacturing systems, with adjustable stroke lengths and an efficient motor assembly for consistent performance.",
-    images: [
-      "https://7-10.in/cdn/shop/files/710.301.MB-1.jpg?v=1756777086",
-      "https://7-10.in/cdn/shop/files/710.301.MB-2.jpg?v=1756777086",
-    ],
-    active: true,
-    price: 8999,
-    currency: "USD",
-    stock: 15,
-    category: "Automation Components",
-    brand: "StepPro",
-    tags: ["linear", "actuator", "automation"],
-    rating: 4.6,
-    featured: true,
-  },
-  {
-    id: "4",
-    name: "Hydraulic Pump Module",
-    slug: "hydraulic-pump-module",
-    summary: "Efficient hydraulic pump for industrial systems.",
-    description:
-      "This high-efficiency hydraulic pump module delivers consistent pressure and flow rates for demanding hydraulic systems. Built with corrosion-resistant housing and precision valves, it ensures reliable operation in construction, automotive, and heavy machinery applications.",
-    images: [
-      "https://7-10.in/cdn/shop/files/710.301.MB-1.jpg?v=1756777086",
-      "https://7-10.in/cdn/shop/files/710.301.MB-2.jpg?v=1756777086",
-    ],
-    active: true,
-    price: 10999,
-    currency: "USD",
-    stock: 12,
-    category: "Hydraulics",
-    brand: "StepPro",
-    tags: ["hydraulic", "pump", "module"],
-    rating: 4.7,
-    featured: true,
-  },
-  {
-    id: "5",
-    name: "Servo Motor Assembly",
-    slug: "servo-motor-assembly",
-    summary: "High-torque servo motor for automation systems.",
-    description:
-      "The Servo Motor Assembly provides precise control and responsive motion ideal for robotics and CNC equipment. It combines a brushless motor with integrated driver electronics, delivering high torque and low heat generation under continuous duty cycles.",
-    images: [
-      "https://7-10.in/cdn/shop/files/710.301.MB-1.jpg?v=1756777086",
-      "https://7-10.in/cdn/shop/files/710.301.MB-2.jpg?v=1756777086",
-      "https://7-10.in/cdn/shop/files/710.301.MB-3.jpg?v=1756777086",
-      "https://7-10.in/cdn/shop/files/710.301.MB-4.jpg?v=1756777086",
-    ],
-    active: true,
-    price: 12999,
-    currency: "USD",
-    stock: 8,
-    category: "Motors & Drives",
-    brand: "StepPro",
-    tags: ["servo", "motor", "automation"],
-    rating: 4.9,
-    featured: true,
-  },
-];
+import { products } from "../../../../../data";
+import { ConditionBadge } from "@/ui/condition-colors";
 export default async function ProductPage(props: {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ variant?: string; image?: string }>;
 }) {
   const params = await props.params;
-  const product = products.find((p) => p.slug === params.slug);
+  const product = products.find(
+    (p) => p.name.split(" ").join("-").toLowerCase() === params.slug
+  );
   if (!product) {
     return <h1>Product not found</h1>;
   }
 
-  const category = "lorem";
-
+  const category = product.category;
   return (
     <RootLayoutWrapper>
       <article className="pb-12">
@@ -192,7 +84,7 @@ export default async function ProductPage(props: {
                   href="#"
                   className="text-blue-600 hover:text-blue-700 hover:underline transition-colors"
                 >
-                  {product?.brand || "Unknown"}
+                  {"Unknown"}
                 </a>
               </div>
 
@@ -213,7 +105,7 @@ export default async function ProductPage(props: {
             <p className="mt-4 text-3xl font-bold text-blue-600">
               {formatMoney({
                 amount: Math.round(Number(product?.price || 0)), // ✅ ensures integer
-                currency: product?.currency || "AED", // ✅ fallback currency
+                currency: "USD", // ✅ fallback currency
               })}
             </p>
 
@@ -251,9 +143,7 @@ export default async function ProductPage(props: {
                   </span>
                 )}
               </div>
-              <span className="inline-block bg-yellow-100 text-yellow-700 px-3 py-1 rounded-md text-sm font-semibold">
-                In Fair Condition
-              </span>
+              <ConditionBadge condition={product.condition} />
             </div>
 
             {/* Add to Cart */}
@@ -296,7 +186,7 @@ export default async function ProductPage(props: {
                     <span className="font-semibold text-gray-900">
                       Condition:
                     </span>{" "}
-                    <span className="">Fair</span>
+                    <span className="">{product.condition}</span>
                   </li>
                   <li>
                     <span className="font-semibold text-gray-900">

@@ -3,26 +3,7 @@ import { toast } from "sonner";
 import { Minus, Plus } from "lucide-react";
 import { useCart } from "@/context/cart-context";
 import { AnimatePresence, motion } from "motion/react";
-interface Product {
-  id: string;
-  name: string;
-  slug?: string;
-  summary?: string;
-  description?: string;
-  images: string[];
-  active: boolean;
-  price: number;
-  currency: string;
-  stock?: number;
-  category?: string;
-  brand?: string;
-  tags?: string[];
-  rating?: number;
-  discountPercentage?: number;
-  createdAt?: string;
-  updatedAt?: string;
-  featured?: boolean;
-}
+import type { Product } from "../../data";
 interface AddToCartProps {
   product: Product;
   className?: string;

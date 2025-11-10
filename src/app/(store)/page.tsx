@@ -7,8 +7,9 @@ import ShopByCategory from "@/ui/shopby-category";
 import FeaturedCatalogs from "@/ui/featured-catalog";
 import Image from "next/image";
 import Link from "next/link";
-
+import { products, categories, catalogs } from "../../../data";
 import RootLayoutWrapper from "@/ui/rootlayout";
+
 export const metadata: Metadata = {
   alternates: { canonical: publicUrl },
 };
@@ -36,13 +37,17 @@ const services = [
     shadow: "hover:shadow-yellow-200",
   },
 ];
+
 export default async function Home() {
+  const productList = products;
+  const categoriesList = categories;
+  const catalogList = catalogs;
   return (
     <RootLayoutWrapper>
       <section className="rounded ">
         <HeroSlider />
 
-        <section className="relative mt-3 ">
+        <section className="hidden relative mt-3 ">
           {/* subtle background pattern / blur glow */}
           <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.03)_0%,transparent_70%)]"></div>
 
@@ -83,20 +88,20 @@ export default async function Home() {
           <span className="absolute left-0 -bottom-1 h-[3px] w-24 bg-gradient-to-r from-red-500 to-orange-400 rounded-full"></span>
         </h2>
 
-        <ProductList />
+        <ProductList productData={productList} />
       </section>
       <section className="mt-14">
         <h2 className="relative mb-6 text-3xl font-semibold tracking-tight text-gray-900">
           New Products
           <span className="absolute left-0 -bottom-1 h-[3px] w-24 bg-gradient-to-r from-green-500 to-lime-400 rounded-full"></span>
         </h2>
-        <NewProduct />
+        <NewProduct productData={productList} />
       </section>
       <section className="mt-14">
         <h2 className="mb-8 text-3xl font-semibold tracking-tight text-gray-900 underline underline-offset-8 decoration-sky-400">
           Shop by Category
         </h2>
-        <ShopByCategory />
+        <ShopByCategory categories={categoriesList} />
       </section>
       <section className="mt-14">
         <div className="flex justify-between items-center ">
@@ -105,12 +110,20 @@ export default async function Home() {
           </h2>
           <Link
             href={"/"}
-            className="bg-gray-900 hover:scale-[1.07] transition-all duration-200 mb-3 text-slate-100 rounded-full px-4 py-[.4rem]"
+            className="bg-gray-900 hidden lg:block hover:scale-[1.07] transition-all duration-200 mb-3 text-slate-100 rounded-full px-4 py-[.4rem]"
           >
-            Browse all catalogs
+            Browse all <span className="">catalogs</span>
           </Link>
         </div>
-        <FeaturedCatalogs />
+        <FeaturedCatalogs catalog={catalogList} />
+        <div className="lg:hidden mt-6 !w-full flex justify-center items-center">
+          <Link
+            href={"/"}
+            className="bg-gray-900  hover:scale-[1.07] transition-all duration-200 text-slate-100 rounded-full px-4 py-[.4rem]"
+          >
+            Browse all <span className="">catalogs</span>
+          </Link>
+        </div>
       </section>
     </RootLayoutWrapper>
   );
