@@ -6,42 +6,161 @@ import Image from "next/image";
 const sections = [
   {
     id: "quality",
-    title: "Quality Assurance Policy",
-    content: [
-      "At Surplus Oil Field, we are deeply committed to maintaining the highest standards of product quality and customer satisfaction. Every item in our inventory, whether new, used, or surplus, undergoes a meticulous inspection and verification process to ensure it meets both industry standards and the expectations of our clients.",
-      "Our team of quality control specialists checks each product for accuracy, functionality, and authenticity before it is listed for sale or dispatched.",
-      "We partner with trusted global suppliers and utilize strict evaluation criteria to ensure that only reliable, tested, and performance-verified equipment reaches our customers.",
-      "If any product fails to meet these standards, you are entitled to a replacement, credit, or refund as outlined below.",
+    title: "1. Quality Assurance Policy",
+    paragraphs: [
+      <>
+        At <strong>Surplus Oil Field</strong>, we are deeply committed to
+        maintaining the highest standards of product quality and customer
+        satisfaction. Every item in our inventory, whether new, used, or
+        surplus, undergoes a meticulous inspection and verification process to
+        ensure it meets both industry standards and the expectations of our
+        clients. Our team of quality control specialists checks each product for
+        accuracy, functionality, and authenticity before it is listed for sale
+        or dispatched.
+      </>,
+      <>
+        We partner with trusted global suppliers and utilize strict evaluation
+        criteria to ensure that only reliable, tested, and performance-verified
+        equipment reaches our customers. All items are securely packaged to
+        minimize the risk of damage during transit. Whether you’re purchasing a
+        single component or a bulk consignment, we guarantee that every product
+        you receive from <strong>Surplus Oil Field</strong> will be exactly as
+        described, fully functional, safely delivered, and ready for use.
+      </>,
+      <>
+        We take pride in ensuring that all equipment and components are
+        thoroughly inspected and tested before shipment.
+      </>,
     ],
+    list: [
+      "Every product undergoes a multi-point inspection to verify performance and authenticity.",
+      "Items are carefully packed to prevent transit damage.",
+      "Used and surplus items are graded and clearly described so you know exactly what to expect.",
+      "We guarantee that the items you receive will match their listed specifications, condition, and description.",
+    ],
+    closing:
+      "If any product fails to meet these standards, you are entitled to a replacement, credit, or refund as outlined below.",
   },
   {
     id: "returns",
-    title: "Return & Refund Policy",
-    content: [
-      "We understand that purchasing industrial and oilfield equipment can involve complex decisions, and we want you to feel completely confident when you buy from us.",
-      "Surplus Oil Field offers a 30-day return policy from the date of shipment (extended to 45 days for registered customers).",
-      "Free returns apply when the product received is not as described, arrives damaged, is non-functional, or when a back-ordered item exceeds the quoted lead time.",
-      "Return shipping costs are the buyer’s responsibility in cases of incorrect ordering, application mismatch, or buyer’s remorse.",
-      "Refunds are issued promptly once the returned items have been received and verified by our inspection team.",
+    title: "2. Return & Refund Policy",
+    paragraphs: [
+      <>
+        We understand that purchasing industrial and oilfield equipment can
+        involve complex decisions, and we want you to feel completely confident
+        when you buy from us. That’s why <strong>Surplus Oil Field</strong>{" "}
+        offers a 30-day return policy from the date of shipment. If you’re not
+        entirely satisfied with your purchase, you may return it for a full
+        refund or exchange, provided that the item is undamaged, unused, and
+        returned in its original condition. Customers with a registered{" "}
+        <strong>Surplus Oil Field</strong> account benefit from an extended
+        return window of up to 45 days.
+      </>,
+      <>
+        Free returns apply when the product received is not as described,
+        arrives damaged, is non-functional, or when a back-ordered item exceeds
+        the quoted lead time. However, return shipping costs are the buyer’s
+        responsibility in cases of incorrect ordering, application mismatch, or
+        buyer’s remorse.
+      </>,
+      <>
+        All “New” condition products must be returned in their original
+        manufacturer packaging with seals intact; removing or tampering with
+        packaging may void refund eligibility. Refunds are issued promptly once
+        the returned items have been received and verified by our inspection
+        team.
+      </>,
+    ],
+    sublists: [
+      {
+        title: "Free Returns Apply When:",
+        items: [
+          "The item received is not as described or represented.",
+          "The item is non-functional upon receipt.",
+          "The product is damaged during shipping.",
+          "A back-ordered item exceeds the quoted lead time.",
+        ],
+      },
+      {
+        title: "Return Shipping Costs Apply When:",
+        items: [
+          "The return is due to buyer’s remorse.",
+          "The product does not fit your intended application.",
+        ],
+      },
+      {
+        title: "Additional Conditions:",
+        items: [
+          "Products listed as “New” must be returned in original manufacturer packaging with all seals intact.",
+          "Tampering with factory packaging or removing security seals will void refund eligibility.",
+          "Refunds are processed once items are received and verified at our warehouse.",
+        ],
+      },
     ],
   },
   {
     id: "exchange",
-    title: "Exchange / Replacement Policy",
-    content: [
-      "If you receive an item that is defective, damaged, or not as described, you may request a replacement instead of a refund.",
-      "Once the returned product has been received and inspected, we will arrange for a replacement to be shipped immediately at no additional cost.",
-      "If an identical item is not available, we will offer an equivalent product or issue a store credit that can be applied to your next purchase.",
-      "All shipping costs for returns or replacements of damaged, incorrect, or defective products are fully covered by Surplus Oil Field.",
+    title: "3. Exchange / Replacement Policy",
+    paragraphs: [
+      <>
+        At <strong>Surplus Oil Field</strong>, we strive to resolve every issue
+        with efficiency and fairness. If you receive an item that is defective,
+        damaged, or not as described, you may request a replacement instead of a
+        refund. Once the returned product has been received and inspected, we
+        will arrange for a replacement to be shipped immediately, at no
+        additional cost to you.
+      </>,
+      <>
+        If an identical item is not available, we will offer an equivalent
+        product or issue a store credit that can be applied to your next
+        purchase. Our replacement process is designed to minimize downtime for
+        your operations. All shipping costs associated with returns or
+        replacements of damaged, incorrect, or defective products are fully
+        covered by <strong>Surplus Oil Field</strong>.
+      </>,
+      <>
+        We value our customers’ time and trust, and our goal is always to ensure
+        you receive a product that meets your operational needs without
+        unnecessary delay or inconvenience.
+      </>,
+    ],
+    list: [
+      "If you prefer a replacement instead of a refund, we’ll gladly arrange it, subject to stock availability.",
+      "Replacements are shipped immediately after inspection of the returned item.",
+      "If an identical replacement isn’t available, you may choose an alternate item or receive a store credit toward your next purchase.",
+      "In the case of damaged or incorrect items, return shipping is fully covered by Surplus Oil Field.",
     ],
   },
   {
     id: "warranty",
-    title: "Warranty Disclaimer",
-    content: [
-      "Unless specifically stated otherwise, Surplus Oil Field does not provide a manufacturer warranty on surplus, used, or reconditioned products.",
-      "Items labeled as “New” or “OEM-Certified” may include the manufacturer’s warranty if indicated on the product page.",
-      "We ensure all products are tested for operational reliability before sale and guarantee the authenticity and functional quality of every product we sell.",
+    title: "4. Warranty Disclaimer",
+    paragraphs: [
+      <>
+        Unless specifically stated otherwise, <strong>Surplus Oil Field</strong>{" "}
+        does not provide a manufacturer warranty on surplus, used, or
+        reconditioned products. These items are sourced from verified suppliers
+        and undergo functional testing to ensure quality and reliability prior
+        to sale, but they may not carry the original factory warranty.
+      </>,
+      <>
+        That said, we take every reasonable measure to ensure that each product
+        performs as intended and is accurately represented in its listing. Items
+        labeled as “New” or “OEM-Certified” may include the manufacturer’s
+        warranty if indicated on the product page. Customers are encouraged to
+        review product details carefully to understand the warranty coverage
+        applicable to each item.
+      </>,
+      <>
+        Our promise is straightforward: we guarantee the authenticity,
+        integrity, and working condition of every product we sell, providing our
+        customers with the peace of mind they deserve when sourcing industrial
+        or oilfield equipment.
+      </>,
+    ],
+    list: [
+      "We ensure all products are tested for operational reliability before sale.",
+      "Warranty coverage may apply to new and OEM-certified items as indicated on product listings.",
+      "Our commitment is to functional quality and honest representation, not factory warranty duration.",
     ],
   },
 ];
@@ -135,24 +254,38 @@ export default function GuaranteeRefunds() {
         <div className="md:col-span-3">
           <div className="px-6 py-6 lg:py-0 border-t lg:border-t-0 lg:border-l border-slate-600/20">
             <div className="space-y-16">
-              {sections.map((section, i) => (
-                <motion.section
-                  key={section.id}
-                  id={section.id}
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <h2 className="text-2xl font-[700] text-gray-800 mb-4">
-                    {i + 1}. {section.title}
+              {sections.map((section) => (
+                <article key={section.id} id={section.id} className="mb-16">
+                  <h2 className="text-2xl font-bold mb-6 text-foreground">
+                    {section.title}
                   </h2>
-                  <ul className="list-disc list-inside space-y-2 text-gray-700 leading-relaxed">
-                    {section.content.map((line, idx) => (
-                      <li key={idx}>{line}</li>
+
+                  <div className="space-y-5 text-[15px] text-muted-foreground">
+                    {section.paragraphs.map((p, i) => (
+                      <p key={i}>{p}</p>
                     ))}
-                  </ul>
-                </motion.section>
+                  </div>
+
+                  {section.list && (
+                    <ul className="list-disc pl-6 mt-6 space-y-3 text-[15px] text-muted-foreground">
+                      {section.list.map((item, i) => (
+                        <li key={i}>{item}</li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {section.sublists &&
+                    section.sublists.map((sub, i) => (
+                      <div key={i} className="mt-6">
+                        <h4 className="font-semibold mb-3">{sub.title}</h4>
+                        <ul className="list-disc pl-6 space-y-2 text-[15px] text-muted-foreground">
+                          {sub.items.map((item, j) => (
+                            <li key={j}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                </article>
               ))}
             </div>
           </div>
