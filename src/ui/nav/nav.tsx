@@ -1,5 +1,12 @@
 "use client";
-import { UserIcon } from "lucide-react";
+import {
+  UserIcon,
+  ChevronDown,
+  ShoppingBag,
+  Edit,
+  Phone,
+  LogOut,
+} from "lucide-react";
 import { CartIcon } from "@/components/cart-icon";
 import { NavMenu } from "@/ui/nav/nav-menu";
 import { SearchNav } from "@/ui/nav/search-nav";
@@ -7,7 +14,14 @@ import Link from "next/link";
 import { useCart } from "@/context/cart-context";
 import { useState } from "react";
 import { NavMobileMenu } from "@/ui/nav/nav-mobile-menu.client";
+import Image from "next/image";
 import Logo from "@/ui/Logo";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 export const Nav = () => {
   const [open, setOpen] = useState(false);
   const { isCartOpen } = useCart();
@@ -21,6 +35,10 @@ export const Nav = () => {
     { label: "Sell your surplus", href: "/sell-your-surplus" },
     { label: "Contact Us", href: "/contact" },
   ];
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const isLoggedIn = true;
+  const avatar = "";
   return (
     <header
       className={`sticky top-0 z-50 transition-colors ${
@@ -48,16 +66,79 @@ export const Nav = () => {
 
           {/* Menu */}
           <div className="hidden sm:flex flex-1 justify-center">
-            <NavMenu links={links} />
+            <NavMenu loginStatus={isLoggedIn} links={links} />
           </div>
 
           {/* Right section */}
           <div className="flex items-center gap-3">
             <SearchNav open={open} setOpen={setOpen} />
             <CartIcon />
-            <Link href="/login" className="hidden lg:block">
-              <UserIcon className="h-5 w-5 hover:text-neutral-500" />
-            </Link>
+            {isLoggedIn ? (
+              <div>
+                {avatar ? (
+                  <Image src={avatar} alt="avatar" width={40} height={40} />
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <DropdownMenu
+                      open={userMenuOpen}
+                      onOpenChange={setUserMenuOpen}
+                    >
+                      <DropdownMenuTrigger className="flex rounded-lg px-3 py-[.4rem] text-sm font-medium hover:bg-neutral-100 items-center gap-2">
+                        <div className="border rounded-full p-1">
+                          <UserIcon className="h-5 w-5 hover:text-neutral-500" />
+                        </div>
+                        <p className="">Faheem</p>
+                        <ChevronDown size={16} />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-44">
+                        <DropdownMenuItem className="py-[.6rem]">
+                          <Link
+                            onClick={() => setUserMenuOpen(false)}
+                            className="flex items-center gap-2"
+                            href={{
+                              pathname: "/my-account",
+                              query: "edit-profile",
+                            }}
+                          >
+                            <ShoppingBag className="!size-[20px] mr-2 text-secondary" />{" "}
+                            Orders
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="py-[.6rem]">
+                          <Link
+                            onClick={() => setUserMenuOpen(false)}
+                            className="flex items-center gap-2"
+                            href={{
+                              pathname: "/my-account",
+                              query: "action=edit-profile",
+                            }}
+                          >
+                            <Edit className="!size-[20px] mr-2 text-secondary" />{" "}
+                            Edit Profile
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="py-[.6rem]">
+                          <Phone className="!size-[20px] mr-2 text-secondary" />{" "}
+                          Contact Us
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => setUserMenuOpen(false)}
+                          className="py-[.6rem] hover:!bg-red-500 group hover:!text-white"
+                        >
+                          <LogOut className="!size-[20px] mr-2 text-secondary group-hover:!text-white" />{" "}
+                          Log Out
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link href="/login" className="hidden lg:block">
+                <UserIcon className="h-5 w-5 hover:text-neutral-500" />
+              </Link>
+            )}
+
             <div className="sm:hidden flex items-center gap-3">
               <NavMobileMenu>
                 <ul className="flex pb-8 flex-col items-start justify-center gap-y-3">

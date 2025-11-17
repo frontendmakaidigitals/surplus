@@ -5,10 +5,12 @@ import { ChevronDown } from "lucide-react";
 
 export const NavMenu = ({
   links,
+  loginStatus,
 }: {
   links: { label: string; href: string }[];
+  loginStatus: boolean;
 }) => {
-  const visibleCount = 8;
+  const visibleCount = loginStatus ? 6 : 8;
   const visibleLinks = links.slice(0, visibleCount);
   const moreLinks = links.slice(visibleCount);
 
@@ -26,7 +28,7 @@ export const NavMenu = ({
                 {link.label}
               </Link>
             </li>
-          ))}
+          ))} 
 
           {/* “More” dropdown */}
           {moreLinks.length > 0 && (

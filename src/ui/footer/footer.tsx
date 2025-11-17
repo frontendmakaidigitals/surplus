@@ -6,7 +6,7 @@ const Footer = () => {
   const productList = products;
   const categoriesList = categories;
   return (
-    <footer className="bg-[#c6dfe6] mt-12 ">
+    <footer className="bg-[#c6dfe6] ">
       <div className="mx-auto max-w-7xl space-y-8 px-4 py-16 sm:px-6 lg:space-y-16 lg:px-8">
         <div className="sm:flex sm:items-center sm:justify-between">
           <div className="text-teal-300">
