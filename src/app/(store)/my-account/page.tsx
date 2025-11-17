@@ -52,7 +52,6 @@ export default function UserDashboard() {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      const parsed = JSON.parse(storedUser);
     } else {
       const defaultUser = {
         name: "Faheem Khan",
