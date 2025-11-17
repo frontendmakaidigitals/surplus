@@ -110,7 +110,6 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <DashboardCard
             title="Today's Sales"
-            icon={<DollarSign className="h-6 w-6" />}
             value={formatCurrency(stats.todaySales)}
             trendData={graphData.todaySales}
             trendDirection="up"
@@ -118,7 +117,6 @@ export default function AdminDashboard() {
 
           <DashboardCard
             title="Monthly Sales"
-            icon={<TrendingUp className="h-6 w-6" />}
             value={formatCurrency(stats.monthlySales)}
             trendData={graphData.monthlySales}
             trendDirection="up"
@@ -126,7 +124,7 @@ export default function AdminDashboard() {
 
           <DashboardCard
             title="Total Sales"
-            icon={<BarChart3 className="h-6 w-6" />}
+
             value={formatCurrency(stats.totalSales)}
             trendData={graphData.totalSales}
             trendDirection="down"
@@ -134,7 +132,7 @@ export default function AdminDashboard() {
 
           <DashboardCard
             title="Total Orders"
-            icon={<ShoppingCart className="h-6 w-6" />}
+
             value={stats.totalOrders}
             trendData={graphData.totalOrders}
             trendDirection="up"
@@ -145,7 +143,6 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <DashboardCard
             title="Pending Orders"
-            icon={<Clock className="h-6 w-6" />}
             value={stats.pendingOrders}
             trendData={graphData.pendingOrders}
             trendDirection="down" // pending going down = good
@@ -154,7 +151,6 @@ export default function AdminDashboard() {
 
           <DashboardCard
             title="Delivered Orders"
-            icon={<CheckCircle className="h-6 w-6" />}
             value={stats.deliveredOrders}
             trendData={graphData.deliveredOrders}
             trendDirection="up"
@@ -163,7 +159,7 @@ export default function AdminDashboard() {
           {/* ⭐ NEW: CANCELLED ORDERS */}
           <DashboardCard
             title="Cancelled Orders"
-            icon={<PackageCheck className="h-6 w-6 rotate-45 text-red-600" />}
+
             value={stats.cancelledOrders}
             trendData={graphData.cancelledOrders}
             trendDirection="up" // increase in cancelled = BAD
@@ -173,7 +169,7 @@ export default function AdminDashboard() {
           {/* ⭐ EXTRA CARD (or remove) */}
           <DashboardCard
             title="Return Rate"
-            icon={<Clock className="h-6 w-6" />}
+
             value="2.5%"
             trendData={graphData.todaySales}
             trendDirection="down"
@@ -235,14 +231,12 @@ export default function AdminDashboard() {
 export function DashboardCard({
   title,
   value,
-  icon,
   trendData = [],
   trendDirection = "up",
   reverseColors = false, // ⭐ new
 }: {
   title: string;
   value: string | number;
-  icon: React.ReactNode;
   trendData?: any[];
   trendDirection?: "up" | "down";
   reverseColors?: boolean;
