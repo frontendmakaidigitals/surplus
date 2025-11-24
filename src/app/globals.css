@@ -1,7 +1,34 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
+@layer base {
+  :root {
+    --color-primary: #d2461c;
+    --color-primary-hover: #b93e18;
+    --color-secondary: #0c6074;
+    --color-secondary-hover: #0b5363;
+    --color-accent: #d0302a;
+    --color-info: #0c5e94;
+    --color-brand-dark: #135f99;
 
+    /* Neutrals & Backgrounds */
+    --color-background: #f7f9fb;
+    --color-muted: #f0f4f8;
+    --color-surface: #ffffff;
+    --color-border: #e2e8f0;
+
+    /* Text Colors */
+    --color-text-primary: #1e293b;
+    --color-text-secondary: #475569;
+    --color-text-inverted: #ffffff;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.15);
+    --radius: 0.5rem;
+  }
+}
 @theme {
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
@@ -10,8 +37,8 @@
   --color-foreground: hsl(var(--foreground));
 
   --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-
+  --color-primary-foreground: var(--color-text-inverted);
+  --color-text-primary: var(--color-primary-foreground);
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
 
@@ -100,36 +127,6 @@ body {
 
 @utility animation-slide-from-right {
   animation: slide-from-right 0.2s ease-out forwards;
-}
-
-@layer base {
-  :root {
-    --color-primary: #d2461c;
-    --color-primary-hover: #b93e18;
-    --color-secondary: #0c6074;
-    --color-secondary-hover: #0b5363;
-    --color-accent: #d0302a;
-    --color-info: #0c5e94;
-    --color-brand-dark: #135f99;
-
-    /* Neutrals & Backgrounds */
-    --color-background: #f7f9fb;
-    --color-muted: #f0f4f8;
-    --color-surface: #ffffff;
-    --color-border: #e2e8f0;
-
-    /* Text Colors */
-    --color-text-primary: #1e293b;
-    --color-text-secondary: #475569;
-    --color-text-inverted: #ffffff;
-
-    /* Shadows */
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.15);
-    --radius: 0.5rem;
-  }
-
 }
 
 @layer base {

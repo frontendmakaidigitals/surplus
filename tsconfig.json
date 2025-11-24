@@ -30,6 +30,14 @@
 			"@/components/ui/*": ["./src/ui/shadcn/*"]
 		}
 	},
-	"include": ["next-fix.d.ts", "i18n.d.ts", "**/*.mjs", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+	"include": [
+		"next-fix.d.ts",
+		"i18n.d.ts",
+		"**/*.mjs",
+		"**/*.ts",
+		"**/*.tsx",
+		".next/types/**/*.ts",
+		"src/app/dashboard/manage-products/products"
+	],
 	"exclude": ["node_modules", "src/script/**/*.ts"]
 }

@@ -10,7 +10,7 @@ export function DashboardCard({
 }: {
   title: string;
   value: string | number;
-  trendData?: any[];
+  trendData?: { value: number }[];
   trendDirection?: "up" | "down";
   reverseColors?: boolean;
 }) {

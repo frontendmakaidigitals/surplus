@@ -12,6 +12,7 @@ import {
   SidebarMenuButton,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { ChevronDown } from "lucide-react";
 import {
   Home,
   Package,
@@ -19,7 +20,15 @@ import {
   Users,
   Settings,
   LogOut,
+  FolderTree,
+  BookOpen,
+  Boxes,
 } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Logo from "@/ui/Logo";
@@ -33,7 +42,27 @@ export function AppSidebar() {
 
   const adminRoutes = [
     { name: "Dashboard", href: "/dashboard", icon: Home },
-    { name: "Products", href: "/dashboard/products", icon: Package },
+    {
+      name: "Products",
+      icon: Package,
+      children: [
+        {
+          name: "Categories",
+          href: "/dashboard/products/categories",
+          icon: FolderTree,
+        },
+        {
+          name: "Catalog",
+          href: "/dashboard/products/catalog",
+          icon: BookOpen,
+        },
+        {
+          name: "Product",
+          href: "/dashboard/manage-products/products",
+          icon: Boxes,
+        },
+      ],
+    },
     { name: "Orders", href: "/dashboard/orders", icon: ShoppingCart },
     { name: "Users", href: "/dashboard/users", icon: Users },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
@@ -70,9 +99,62 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {adminRoutes.map(({ name, href, icon: Icon }) => {
+              {adminRoutes.map(({ name, href, icon: Icon, children }) => {
                 const isActive = pathname === href;
 
+                // ⭐ If the route has children → render collapsible
+                if (children) {
+                  return (
+                    <Collapsible
+                      key={name}
+                      defaultOpen
+                      className="group/collapsible"
+                    >
+                      <SidebarMenuItem>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton
+                            tooltip={name}
+                            className={cn(
+                              "!h-12 !px-4 font-medium flex justify-between",
+                              pathname.startsWith("/dashboard/products")
+                                ? "bg-primary/10 text-primary hover:bg-primary/20"
+                                : "text-muted-foreground hover:bg-slate-400/10"
+                            )}
+                          >
+                            <div className="flex items-center gap-3">
+                              <Icon className="!h-5 !w-5 shrink-0" />
+                              <span>Manage {name}</span>
+                            </div>
+
+                            <ChevronDown className="h-4 w-4 transition-all group-data-[state=open]/collapsible:-rotate-90" />
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+
+                        <CollapsibleContent>
+                          <div className="ml-10 flex flex-col gap-1">
+                            {children.map(({ name, href, icon: ChildIcon }) => (
+                              <Link
+                                key={name}
+                                href={href}
+                                className={cn(
+                                  "flex items-center gap-2 text-sm py-2 px-2 rounded",
+                                  pathname === href
+                                    ? "bg-primary/10 text-primary"
+                                    : "text-muted-foreground hover:bg-slate-400/10"
+                                )}
+                              >
+                                <ChildIcon className="h-4 w-4" />
+                                {name}
+                              </Link>
+                            ))}
+                          </div>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  );
+                }
+
+                // ⭐ Else render normal item
                 return (
                   <SidebarMenuItem key={name}>
                     <SidebarMenuButton
@@ -82,7 +164,7 @@ export function AppSidebar() {
                         "!h-12 !px-4 font-medium",
                         isActive
                           ? "bg-primary/10 text-primary hover:bg-primary/20"
-                          : "text-muted-foreground hover:bg-muted/30"
+                          : "text-muted-foreground hover:bg-slate-400/10"
                       )}
                     >
                       <Link
