@@ -29,7 +29,7 @@ export default function CatalogPage() {
     setCategories((prev) => prev.filter((cat) => cat.id !== id));
   };
 
-  console.log(editing, open)
+  console.log(editing, open);
 
   const openEditDialog = (category: Catalog) => {
     setEditing(category);

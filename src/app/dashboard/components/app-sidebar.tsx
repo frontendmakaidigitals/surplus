@@ -65,7 +65,7 @@ export function AppSidebar() {
     },
     {
       name: "Surplus Requests",
-      href: "/dashboard/orders",
+      href: "/dashboard/surplus-requests",
       icon: MessageSquareMore,
       badge: true,
     },

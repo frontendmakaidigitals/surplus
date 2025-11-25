@@ -3,6 +3,7 @@
 import { Table } from "../components/Table";
 import { JSX, useState } from "react";
 import { ViewRequestDialog } from "../components/ViewRequestDialog";
+import { StatCard } from "../components/Info-Cards";
 
 type Column<T> = {
   label: string;
@@ -89,8 +90,10 @@ export default function SurplesRequestPage() {
   ];
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-semibold mb-6">Surples Requests</h1>
-
+      <h1 className="text-3xl font-semibold mb-3">Surplus Requests</h1>
+      <div className="mb-6 flex">
+        <StatCard title="Total Requests" value={requests.length} />
+      </div>
       <div className="overflow-hidden rounded-xl border ">
         <Table columns={columns} data={requests} />
       </div>
