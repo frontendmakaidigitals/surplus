@@ -2,15 +2,12 @@
 import React from "react";
 import { products } from "../../../../../data";
 import { ProductProvider } from "../../context/ProductContext";
-import Link from "next/link";
-import { Button } from "@/ui/shadcn/button";
 import ProductTable from "../../components/ProductTable";
-import { Plus } from "lucide-react";
 import RootLayoutWrapper from "@/ui/rootlayout";
 import Searchbar from "../../components/searchbar";
 import { PaginationWrapper } from "@/ui/PaginationWrapper";
 import { DeleteConfirmDialog } from "@/ui/DeleteDialogWrapper";
-
+import { StatsGrid } from "../../components/Info-Cards";
 const Page = () => {
   return (
     <RootLayoutWrapper>
@@ -23,14 +20,19 @@ const Page = () => {
                 Manage all your products in one place.
               </p>
             </div>
-            <Link href={"/dashboard/manage-products/products/add"}>
-              <Button>
-                <Plus className="w-4 h-4" />
-                Add Product
-              </Button>
-            </Link>
           </div>
 
+          <div className="flex justify-between items-end mb-4 mt-6">
+            <StatsGrid
+              products={32}
+              categories={6}
+              catalogs={3}
+              actionCard={{
+                title: "Add Product",
+                onClick: () => window.alert("Propmpt triggered"),
+              }}
+            />
+          </div>
           <Searchbar />
           <div className="border rounded-lg mb-4 py-3">
             <ProductTable />

@@ -45,7 +45,11 @@ const ProductForm = () => {
       {/* Price */}
       <div className="space-y-2">
         <Label>Price ($)</Label>
-        <Input type="number" {...form.register("price")} placeholder="1000" />
+        <Input
+          type="number"
+          {...form.register("price", { valueAsNumber: true })}
+          placeholder="1000"
+        />
       </div>
 
       {/* Category */}

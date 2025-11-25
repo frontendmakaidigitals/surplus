@@ -7,7 +7,7 @@ import RootLayoutWrapper from "@/ui/rootlayout";
 const Header = () => {
   return (
     <RootLayoutWrapper>
-      <div className="w-full py-2 flex justify-between items-center ">
+      <div className="w-full pt-6 pb-2 flex justify-between items-center ">
         <SidebarTrigger />
 
         <div className=" gap-2 flex justify-center items-center">

@@ -49,7 +49,7 @@ export default function ProductView() {
         {product.price ? (
           <p className="mt-1 text-sky-600 font-semibold">
             {formatMoney({
-              amount: product.price,
+              amount: product.price * 100,
               currency: "USD",
               locale: "en-US",
             })}

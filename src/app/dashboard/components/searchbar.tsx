@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { Input } from "@/ui/shadcn/input";
 import { Search, Trash2, Upload } from "lucide-react";
 import { Button } from "@/ui/shadcn/button";
 import { ProductFilter } from "./product-filter";
 import { ExportDialog } from "./ExportDialog";
 import { useProductContext } from "../context/ProductContext";
-
+import ViewToggle from "./View-Toggle";
 const Searchbar = () => {
+  const [view, setView] = useState<"table" | "card">("table");
   const {
     searchQuery,
     setSearchQuery,
@@ -47,17 +48,19 @@ const Searchbar = () => {
           products={filteredProducts}
           selectedProducts={selectedProductObjects}
         />
+        <Button
+          variant="destructive"
+          className="gap-2"
+          disabled={selectedProducts.length < 2}
+          onClick={() => setShowDeleteDialog(true)}
+        >
+          <Trash2 className="w-4 h-4" />
+          Bulk Delete{" "}
+          {selectedProducts.length > 1 ? `(${selectedProducts.length})` : null}
+        </Button>
       </div>
-      <Button
-        variant="destructive"
-        className="gap-2"
-        disabled={selectedProducts.length < 2}
-        onClick={() => setShowDeleteDialog(true)}
-      >
-        <Trash2 className="w-4 h-4" />
-        Bulk Delete{" "}
-        {selectedProducts.length > 1 ? `(${selectedProducts.length})` : null}
-      </Button>
+
+      <ViewToggle view={view} onChange={setView} />
     </div>
   );
 };
