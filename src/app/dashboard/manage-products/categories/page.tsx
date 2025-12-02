@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, JSX } from "react";
 import CategoryForm from "../../components/Category-Form";
 import CategoryCard from "../../components/CategoryCard";
@@ -142,7 +141,7 @@ export default function CategoriesPage() {
           catalogs={3}
           actionCard={{
             title: "Add Category",
-            onClick: () => window.alert("Propmpt triggered"),
+            onClick: () => setOpen(true),
           }}
         />
         <ViewToggle view={view} onChange={setView} />

@@ -1,30 +1,32 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import { decrypt, updateSession } from "./lib/auth";
+import { NextRequest, NextResponse } from "next/server";
 
-const ProtectedPaths = ["/orders"];
+export function middleware(req: NextRequest) {
+  const token = req.cookies.get("token")?.value;
+  const pathname = req.nextUrl.pathname;
 
-export async function middleware(request: NextRequest) {
-	const { pathname } = request.nextUrl;
-	const isProtectedPath = ProtectedPaths.some((p) => pathname.startsWith(p));
+  // Routes where logged-in users should NOT go
+  const authPages = ["/login"];
 
-	if (!isProtectedPath) {
-		return NextResponse.next();
-	}
+  // Protected routes
+  const protectedRoutes = ["/dashboard", "/my-account"];
 
-	const session = request.cookies.get("session")?.value;
-	if (!session) {
-		return NextResponse.redirect(new URL("/login", request.url));
-	}
+  // 1️⃣ If user has token AND visits login/register → redirect to home
+  if (token && authPages.includes(pathname)) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
 
-	const data = await decrypt(session);
-	if (!data || data.expires < Date.now()) {
-		return NextResponse.redirect(new URL("/login", request.url));
-	}
+  // 2️⃣ If user tries to access protected page without token → login
+  const isProtected = protectedRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
 
-	return updateSession(request);
+  if (isProtected && !token) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-	matcher: ["/orders"],
+  matcher: ["/login", "/register", "/dashboard/:path*", "/my-account/:path*"],
 };

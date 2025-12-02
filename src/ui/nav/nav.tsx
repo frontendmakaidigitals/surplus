@@ -12,19 +12,38 @@ import { NavMenu } from "@/ui/nav/nav-menu";
 import { SearchNav } from "@/ui/nav/search-nav";
 import Link from "next/link";
 import { useCart } from "@/context/cart-context";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavMobileMenu } from "@/ui/nav/nav-mobile-menu.client";
 import Image from "next/image";
 import Logo from "@/ui/Logo";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { usePathname } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  avatar?: string;
+}
 export const Nav = () => {
+  const router = useRouter();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const { isCartOpen } = useCart();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  // User authentication states
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User>();
+
   const links = [
     { label: "Home", href: "/" },
     { label: "About us", href: "/about" },
@@ -35,10 +54,45 @@ export const Nav = () => {
     { label: "Sell your surplus", href: "/sell-your-surplus" },
     { label: "Contact Us", href: "/contact" },
   ];
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const isLoggedIn = true;
-  const avatar = "";
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get("/api/profile");
+        if (response.data && response.data.data) {
+          const userData = response.data.data;
+          setIsLoggedIn(true);
+          setUser(userData);
+        } else {
+          setIsLoggedIn(false);
+        }
+      } catch (error: any) {
+        // Silently handle auth errors - 401 just means not logged in
+        if (error.response?.status === 401) {
+          setIsLoggedIn(false);
+        } else {
+          console.error("Unexpected error checking auth status:", error);
+          setIsLoggedIn(false);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, [pathname]);
+
+  const logout = async () => {
+    try {
+      await axios.post("/api/logout");
+      setIsLoggedIn(false);
+      router.push("/");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
   return (
     <header
       className={`sticky top-0 z-50 transition-colors ${
@@ -73,65 +127,82 @@ export const Nav = () => {
           <div className="flex items-center gap-3">
             <SearchNav open={open} setOpen={setOpen} />
             <CartIcon />
-            {isLoggedIn ? (
-              <div>
-                {avatar ? (
-                  <Image src={avatar} alt="avatar" width={40} height={40} />
+
+            {/* Loading state */}
+            {isLoggedIn && user ? (
+              <div className="flex items-center gap-3">
+                {/* Avatar */}
+                {user.avatar ? (
+                  <Image
+                    src={user.avatar}
+                    alt="avatar"
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                  />
                 ) : (
-                  <div className="flex items-center gap-3">
-                    <DropdownMenu
-                      open={userMenuOpen}
-                      onOpenChange={setUserMenuOpen}
-                    >
-                      <DropdownMenuTrigger className="flex rounded-lg px-3 py-[.4rem] text-sm font-medium hover:bg-neutral-100 items-center gap-2">
-                        <div className="border rounded-full p-1">
-                          <UserIcon className="h-5 w-5 hover:text-neutral-500" />
-                        </div>
-                        <p className="">Faheem</p>
-                        <ChevronDown size={16} />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-44">
-                        <DropdownMenuItem className="py-[.6rem]">
-                          <Link
-                            onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2"
-                            href={{
-                              pathname: "/my-account",
-                              query: "edit-profile",
-                            }}
-                          >
-                            <ShoppingBag className="!size-[20px] mr-2 text-secondary" />{" "}
-                            Orders
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="py-[.6rem]">
-                          <Link
-                            onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-2"
-                            href={{
-                              pathname: "/my-account",
-                              query: "action=edit-profile",
-                            }}
-                          >
-                            <Edit className="!size-[20px] mr-2 text-secondary" />{" "}
-                            Edit Profile
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="py-[.6rem]">
-                          <Phone className="!size-[20px] mr-2 text-secondary" />{" "}
-                          Contact Us
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onSelect={() => setUserMenuOpen(false)}
-                          className="py-[.6rem] hover:!bg-red-500 group hover:!text-white"
-                        >
-                          <LogOut className="!size-[20px] mr-2 text-secondary group-hover:!text-white" />{" "}
-                          Log Out
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                  // fallback without flicker
+                  <div className="border rounded-full p-1">
+                    <UserIcon className="h-5 w-5 hover:text-neutral-500" />
                   </div>
                 )}
+
+                {/* Dropdown */}
+                <DropdownMenu
+                  open={userMenuOpen}
+                  onOpenChange={setUserMenuOpen}
+                >
+                  <DropdownMenuTrigger className="flex rounded-lg px-3 py-[.4rem] text-sm font-medium hover:bg-neutral-100 items-center gap-2">
+                    <p>{user.first_name || "User"}</p>
+                    <ChevronDown size={16} />
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent className="w-44">
+                    <DropdownMenuItem className="py-[.6rem]">
+                      <Link
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2"
+                        href={{
+                          pathname: "/my-account",
+                          query: "edit-profile",
+                        }}
+                      >
+                        <ShoppingBag className="!size-[20px] mr-2 text-secondary" />
+                        Orders
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem className="py-[.6rem]">
+                      <Link
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2"
+                        href={{
+                          pathname: "/my-account",
+                          query: "action=edit-profile",
+                        }}
+                      >
+                        <Edit className="!size-[20px] mr-2 text-secondary" />
+                        Edit Profile
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem className="py-[.6rem]">
+                      <Phone className="!size-[20px] mr-2 text-secondary" />
+                      Contact Us
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      onSelect={() => {
+                        setUserMenuOpen(false);
+                        logout();
+                      }}
+                      className="py-[.6rem] hover:!bg-red-500 group hover:!text-white"
+                    >
+                      <LogOut className="!size-[20px] mr-2 text-secondary group-hover:!text-white" />
+                      Log Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             ) : (
               <Link href="/login" className="hidden lg:block">

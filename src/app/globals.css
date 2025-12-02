@@ -269,3 +269,10 @@ input[type="search" i]::-webkit-search-cancel-button {
     @apply bg-background text-foreground;
   }
 }
+
+.toaster {
+  --normal-bg: #ef4444; /* red-500 hex */
+  --normal-text: #ffffff;
+  --normal-border: #dc2626; /* red-600 */
+  --border-radius: 0.5rem; /* rounded-md */
+}

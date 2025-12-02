@@ -2,8 +2,49 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-
+import SurplusRequestForm from "./request-form";
+import { ProductBuilderProvider } from "@/app/dashboard/context/ProductFormContext";
+import {
+  BadgeCheck,
+  Airplay,
+  Users,
+  Timer,
+  Globe2,
+  Headphones,
+} from "lucide-react";
 const SurplusPage = () => {
+  const items = [
+    {
+      title: "We have the expertise",
+      desc: "With years of experience in oilfield asset recovery...",
+      icon: BadgeCheck,
+    },
+    {
+      title: "We have the exposure",
+      desc: "We actively list and promote your equipment...",
+      icon: Airplay,
+    },
+    {
+      title: "We have the buyers",
+      desc: "Our buyer network includes industrial contractors...",
+      icon: Users,
+    },
+    {
+      title: "We have the fastest recovery rate",
+      desc: "Most clients see results within one to two weeks...",
+      icon: Timer,
+    },
+    {
+      title: "We are global",
+      desc: "With distribution centers in UAE, USA, Canada...",
+      icon: Globe2,
+    },
+    {
+      title: "We are ready to respond",
+      desc: "We provide free desktop valuations within 2–3 business days...",
+      icon: Headphones,
+    },
+  ];
   return (
     <div className=" text-gray-800">
       {/* Hero Section */}
@@ -49,57 +90,27 @@ const SurplusPage = () => {
         </h2>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {[
-            {
-              title: "We have the expertise",
-              desc: "With years of experience in oilfield asset recovery, our consignment and direct purchase programs have helped clients maximize returns from surplus equipment and MRO inventory, efficiently and transparently.",
-              img: "https://images.pexels.com/photos/3855962/pexels-photo-3855962.jpeg",
-            },
-            {
-              title: "We have the exposure",
-              desc: "We actively list and promote your equipment across global marketplaces, ensuring your inventory reaches qualified buyers worldwide.",
-              img: "https://images.pexels.com/photos/6801642/pexels-photo-6801642.jpeg",
-            },
-            {
-              title: "We have the buyers",
-              desc: "Our buyer network includes industrial contractors, distributors, and resellers who trust us for high-quality surplus equipment.",
-              img: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg",
-            },
-            {
-              title: "We have the fastest recovery rate",
-              desc: "Most clients see results within one to two weeks of listing. Our easy-to-use reporting portal offers full visibility, giving you control of your recovery process.",
-              img: "https://images.pexels.com/photos/7097/people-coffee-tea-meeting.jpg",
-            },
-            {
-              title: "We are global",
-              desc: "With distribution centers in the UAE, USA, Canada, and Pakistan, we enable smooth international transactions.",
-              img: "https://images.pexels.com/photos/618613/pexels-photo-618613.jpeg",
-            },
-            {
-              title: "We are ready to respond",
-              desc: "We provide free desktop valuations within 2–3 business days, helping you move forward confidently.",
-              img: "https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg",
-            },
-          ].map((item, i) => (
-            <motion.div
-              key={i}
-              whileHover={{ scale: 1.02 }}
-              className="p-6 bg-gray-50 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition"
-            >
-              <div className="w-full h-48 mb-4 relative rounded-xl overflow-hidden">
-                <Image
-                  src={item.img}
-                  alt={item.title}
-                  fill
-                  className="object-cover hover:scale-105 transition duration-500"
-                />
-              </div>
-              <h3 className="text-xl font-semibold mb-3 text-blue-900">
-                {item.title}
-              </h3>
-              <p className="text-gray-700">{item.desc}</p>
-            </motion.div>
-          ))}
+          {items.map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <motion.div
+                key={i}
+                whileHover={{ scale: 1.02 }}
+                className="p-6 bg-gray-50 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-3 rounded-full bg-blue-100 text-secondary">
+                    <Icon size={22} strokeWidth={2} />
+                  </div>
+                  <h3 className="text-xl font-semibold text-secondary">
+                    {item.title}
+                  </h3>
+                </div>
+
+                <p className="text-gray-700">{item.desc}</p>
+              </motion.div>
+            );
+          })}
         </div>
 
         <div className="text-center mt-12">
@@ -168,7 +179,21 @@ const SurplusPage = () => {
         </div>
       </section>
 
-      <section className="relative max-w-sm mb-10 lg:max-w-6xl mx-auto mt-16 py-16 px-6 text-center text-white overflow-hidden rounded-3xl shadow-xl">
+      <section className="max-w-3xl mt-14 mx-auto px-4">
+        <div className="mb-7">
+          <h1 className="text-4xl font-[600] text-center">
+            List Your Inventory
+          </h1>
+          <p className="text-center">
+            List your inventory and get a free valuation report.
+          </p>
+        </div>
+        <ProductBuilderProvider>
+          <SurplusRequestForm />
+        </ProductBuilderProvider>
+      </section>
+
+      <section className="relative max-w-sm mb-10 lg:max-w-6xl mx-auto mt-16 py-12 px-6 text-center text-white overflow-hidden rounded-3xl shadow-xl">
         {/* Background Image */}
         <Image
           src="https://images.pexels.com/photos/3862130/pexels-photo-3862130.jpeg"
@@ -186,7 +211,7 @@ const SurplusPage = () => {
 
         {/* Content */}
         <div className="relative z-10 max-w-5xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">
+          <h2 className="text-2xl lg:text-3xl font-bold mb-6 leading-tight">
             Partner with Us as Your <br className="hidden md:block" />
             <span className="text-primary">Asset Recovery Expert</span>
           </h2>
@@ -200,10 +225,10 @@ const SurplusPage = () => {
           </p>
 
           <div className="flex justify-center gap-4 flex-wrap">
-            <button className="bg-white text-primary px-8 py-3 rounded-full hover:bg-gray-100 transition font-semibold shadow-md">
+            <button className="bg-white text-primary text-sm px-6 py-2 rounded-full hover:bg-gray-100 transition font-semibold shadow-md">
               Request a Free Desktop Valuation
             </button>
-            <button className="border border-white text-white px-8 py-3 rounded-full hover:bg-white hover:text-primary transition font-semibold shadow-md">
+            <button className="border border-white text-white text-sm px-6 py-2 rounded-full hover:bg-white hover:text-primary transition font-semibold shadow-md">
               Get Valuation Report
             </button>
           </div>
