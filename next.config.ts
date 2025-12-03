@@ -4,61 +4,63 @@ import type { NextConfig } from "next/types";
 const withMDX = MDX();
 
 const nextConfig: NextConfig = {
-	reactStrictMode: true,
-	eslint: {
-		ignoreDuringBuilds: true,
-	},
-	output: process.env.DOCKER ? "standalone" : undefined,
-	logging: {
-		fetches: {
-			fullUrl: true,
-		},
-	},
-	images: {
-		remotePatterns: [
-			{ hostname: "files.stripe.com" },
-			{ hostname: "d1wqzb5bdbcre6.cloudfront.net" },
-			{ hostname: "*.blob.vercel-storage.com" },
-			{hostname:"7-10.in"},
-			{hostname:"*pngmart.com"},
-			{hostname:"*pngtree.com"},
-			{hostname:"images.unsplash.com"},
-			{hostname:"*cdn.prod.website-files.com"},
-			{hostname:"*5.imimg.com"},
-			{hostname:"*encrypted-tbn0.gstatic.com"},
-			{hostname:"images.pexels.com"},
-		
-		],
-		formats: ["image/avif", "image/webp"],
-	},
-	transpilePackages: ["next-mdx-remote", "commerce-kit"],
-	experimental: {
-		esmExternals: true,
-		scrollRestoration: true,
-		ppr: false,
-		cpus: 1,
-		reactCompiler: true,
-		mdxRs: true,
-		inlineCss: true,
-	},
-	webpack: (config) => {
-		return {
-			...config,
-			resolve: {
-				...config.resolve,
-				extensionAlias: {
-					".js": [".js", ".ts"],
-					".jsx": [".jsx", ".tsx"],
-				},
-			},
-		};
-	},
-	rewrites: async () => [
-		{
-			source: "/stats/:match*",
-			destination: "https://eu.umami.is/:match*",
-		},
-	],
+  reactStrictMode: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  output: process.env.DOCKER ? "standalone" : undefined,
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
+  images: {
+    remotePatterns: [
+      { hostname: "files.stripe.com" },
+      { hostname: "d1wqzb5bdbcre6.cloudfront.net" },
+      { hostname: "*.blob.vercel-storage.com" },
+      { hostname: "7-10.in" },
+      { hostname: "*pngmart.com" },
+      { hostname: "*pngtree.com" },
+      { hostname: "images.unsplash.com" },
+      { hostname: "*cdn.prod.website-files.com" },
+      { hostname: "*5.imimg.com" },
+      { hostname: "*encrypted-tbn0.gstatic.com" },
+      { hostname: "images.pexels.com" },
+    ],
+    formats: ["image/avif", "image/webp"],
+  },
+  transpilePackages: ["next-mdx-remote", "commerce-kit"],
+  experimental: {
+    esmExternals: true,
+    scrollRestoration: true,
+    ppr: false,
+    cpus: 1,
+    reactCompiler: true,
+    mdxRs: true,
+    inlineCss: true,
+    serverActions: {
+      bodySizeLimit: "2.1mb",
+    },
+  },
+  webpack: (config) => {
+    return {
+      ...config,
+      resolve: {
+        ...config.resolve,
+        extensionAlias: {
+          ".js": [".js", ".ts"],
+          ".jsx": [".jsx", ".tsx"],
+        },
+      },
+    };
+  },
+  rewrites: async () => [
+    {
+      source: "/stats/:match*",
+      destination: "https://eu.umami.is/:match*",
+    },
+  ],
 };
 
 export default withMDX(nextConfig);

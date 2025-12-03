@@ -8,7 +8,7 @@ import { Catalog } from "../../data";
 export default function FeaturedCatalogs({ catalog }: { catalog: Catalog[] }) {
   return (
     <div className="">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 xl:grid-cols-4 lg:gap-4">
         {catalog.map((cat, index) => (
           <motion.div
             whileHover={{
@@ -17,14 +17,14 @@ export default function FeaturedCatalogs({ catalog }: { catalog: Catalog[] }) {
             }}
             transition={{ duration: 0.3 }}
             key={index}
-            className="group cursor-pointer bg-white border border-gray-200 rounded-xl shadow-sm pt-1 px-1 text-center hover:border-sky-400"
+            className="group pb-1 cursor-pointer bg-white border border-gray-200 
+             rounded-xl shadow-sm pt-1 px-1 text-center hover:border-secondary
+             flex flex-col"
           >
             {/* Image */}
-            <div className="relative overflow-hidden w-full h-48  rounded-lg  mb-4">
+            <div className="relative overflow-hidden w-full aspect-square rounded-lg mb-4">
               <Image
-                src={
-                  cat.img
-                }
+                src={cat.img}
                 alt={cat.title}
                 width={220}
                 height={220}
@@ -33,7 +33,10 @@ export default function FeaturedCatalogs({ catalog }: { catalog: Catalog[] }) {
             </div>
 
             {/* Title */}
-            <h3 className="text-sky-700 px-4 pb-3  text-sm font-medium group-hover:text-sky-800 transition-colors">
+            <h3
+              className="px-4 rounded-lg py-3 bg-primary/10 text-black text-sm font-medium 
+                 transition-colors mt-auto"
+            >
               {cat.title}
             </h3>
           </motion.div>

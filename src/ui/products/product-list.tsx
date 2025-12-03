@@ -17,7 +17,7 @@ export const ProductList = ({ productData }: { productData: Product[] }) => {
   const handleClose = () => setSelected(null);
 
   return (
-    <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+    <div className="relative grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5 lg:gap-4">
       {productData.slice(0, 5).map((product) => (
         <Link
           key={product.id}
@@ -34,7 +34,7 @@ export const ProductList = ({ productData }: { productData: Product[] }) => {
             {/* Product Image */}
             <motion.div
               layoutId={`image-${product.id}`}
-              className="relative h-[210px]"
+              className="relative aspect-square"
             >
               <Image
                 src={product.images[0] || ""}
@@ -151,7 +151,7 @@ export const ProductList = ({ productData }: { productData: Product[] }) => {
                       </span>{" "}
                       5-66-6409-33
                     </li>
-                    
+
                     <li>
                       <span className="font-semibold text-gray-900">
                         Custom Description:

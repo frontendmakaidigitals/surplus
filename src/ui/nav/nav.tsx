@@ -57,7 +57,6 @@ export const Nav = () => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-
         const response = await axios.get("/api/profile");
         if (response.data && response.data.data) {
           const userData = response.data.data;
@@ -125,8 +124,6 @@ export const Nav = () => {
           <div className="flex items-center gap-3">
             <SearchNav open={open} setOpen={setOpen} />
             <CartIcon />
-
-            {/* Loading state */}
             {isLoggedIn && user ? (
               <div className="flex items-center gap-3">
                 {/* Avatar */}
@@ -203,7 +200,7 @@ export const Nav = () => {
                 </DropdownMenu>
               </div>
             ) : (
-              <Link href="/login" className="hidden lg:block">
+              <Link href="/login" className="">
                 <UserIcon className="h-5 w-5 hover:text-neutral-500" />
               </Link>
             )}

@@ -3,18 +3,8 @@ import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-
+import UpdateForm from "./update-form";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 import {
   Package,
@@ -23,8 +13,6 @@ import {
   Clock,
   XCircle,
   User2Icon,
-  Edit,
-  Plus,
 } from "lucide-react";
 
 type User = {
@@ -49,21 +37,13 @@ interface UserDashboardProps {
   userData: User;
 }
 export default function UserDashboard({ userData }: UserDashboardProps) {
-  const [user, setUser] = useState<User>(userData);
+  const user = userData;
   const orders = [{}];
   const [editOpen, setEditOpen] = useState(false);
-  const [form, setForm] = useState<User>(userData);
 
   const searchParams = useSearchParams();
   const action = searchParams.get("action");
-  const router = useRouter();
 
-  const handleSave = () => {
-    setUser(form);
-    localStorage.setItem("user", JSON.stringify(form));
-    toast.success("Profile updated successfully!");
-    setEditOpen(false);
-  };
   useEffect(() => {
     if (action === "edit-profile") {
       setEditOpen(true);
@@ -105,177 +85,13 @@ export default function UserDashboard({ userData }: UserDashboardProps) {
               </p>
             </div>
           </div>
-
-          {/* Edit Button */}
-          <Dialog open={editOpen} onOpenChange={setEditOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2 hover:text-white">
-                <Edit className="w-4 h-4" /> Edit Profile
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-xl">
-              <DialogHeader>
-                <DialogTitle>Edit Profile</DialogTitle>
-              </DialogHeader>
-
-              <div className="space-y-4 py-4">
-                <div className="flex flex-col gap-2">
-                  <div className="relative w-40 h-40 border border-slate-800/20 rounded-full mx-auto flex justify-center items-center">
-                    {form.avatar ? (
-                      <img
-                        src={form.avatar || "/placeholder-avatar.png"}
-                        className="w-full h-full rounded-full object-cover border-4 border-blue-500"
-                        alt="avatar"
-                      />
-                    ) : (
-                      <User2Icon className="size-[66px]" />
-                    )}
-
-                    <button
-                      type="button"
-                      className="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 shadow-lg flex items-center justify-center text-white"
-                      onClick={() =>
-                        document.getElementById("avatarInput")?.focus()
-                      }
-                    >
-                      <Plus />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {" "}
-                  {/* Name */}
-                  <div>
-                    <label className="text-sm font-medium">First Name</label>
-                    <Input
-                      value={form.first_name}
-                      onChange={(e) =>
-                        setForm({ ...form, first_name: e.target.value })
-                      }
-                      placeholder="John"
-                    />
-                  </div>
-                  {/* Last Name */}
-                  <div>
-                    <label className="text-sm font-medium">Last Name</label>
-                    <Input
-                      value={form.last_name}
-                      onChange={(e) =>
-                        setForm({ ...form, last_name: e.target.value })
-                      }
-                      placeholder="Doe"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {/* Email */}
-                  <div>
-                    <label className="text-sm font-medium">Email</label>
-                    <Input
-                      type="email"
-                      value={form.email}
-                      onChange={(e) =>
-                        setForm({ ...form, email: e.target.value })
-                      }
-                      placeholder="you@example.com"
-                    />
-                  </div>
-                  {/* Phone */}
-                  <div>
-                    <label className="text-sm font-medium">Phone</label>
-                    <Input
-                      type="tel"
-                      value={form.phone}
-                      onChange={(e) =>
-                        setForm({ ...form, phone: e.target.value })
-                      }
-                      placeholder="+1 555 123 4567"
-                    />
-                  </div>
-                </div>
-
-                {/* Address */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-sm font-medium">City</label>
-                    <Input
-                      value={form?.city}
-                      onChange={(e) =>
-                        setForm({ ...form, city: e.target.value })
-                      }
-                      placeholder="Dubai"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Street</label>
-                    <Input
-                      value={form.street}
-                      onChange={(e) =>
-                        setForm({ ...form, street: e.target.value })
-                      }
-                      placeholder="Main Street"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">
-                      Building / Apt
-                    </label>
-                    <Input
-                      value={form.building}
-                      onChange={(e) =>
-                        setForm({ ...form, building: e.target.value })
-                      }
-                      placeholder="Building 12A"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Country</label>
-                    <Input
-                      value={form.country}
-                      onChange={(e) =>
-                        setForm({ ...form, country: e.target.value })
-                      }
-                      placeholder="UAE"
-                    />
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label className="text-sm font-medium">Password</label>
-                  <Input
-                    type="password"
-                    value={form.password}
-                    onChange={(e) =>
-                      setForm({ ...form, password: e.target.value })
-                    }
-                    placeholder="••••••••"
-                  />
-                  <p className="text-xs text-neutral-500 mt-1">
-                    Leave blank if you do not want to change your password.
-                  </p>
-                </div>
-              </div>
-
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setEditOpen(false);
-                    router.replace("/my-account", { scroll: false });
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button onClick={handleSave}>Save</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <UpdateForm
+            data={user}
+            editOpen={editOpen}
+            setEditOpen={setEditOpen}
+          />
         </div>
 
-        {/* Stats Section */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="shadow-md hover:shadow-lg transition">
             <CardHeader>

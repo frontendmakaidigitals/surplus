@@ -6,7 +6,6 @@ import { Shield, Tag, Truck } from "lucide-react";
 export default function Auth() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2 grid-cols-1">
-      {/* Left Side - Form */}
       <div className="flex items-center overflow-hidden min-h-screen relative justify-center py-4 lg:p-8">
         <div className="absolute bottom-0 translate-y-1/2 left-0 -translate-x-1/2 rounded-full -z-20 w-[400px] h-[400px] lg:w-[800px] lg:h-[800px] opacity-30 bg-gradient-to-tr blur-3xl from-purple-500/60 to-primary/60" />
         <div className="w-full max-w-lg h-auto">
@@ -27,7 +26,7 @@ export default function Auth() {
       </div>
 
       {/* Right Side - Benefits */}
-      <div className="hidden pt-8  lg:flex items-center relative h-full min-h-screen justify-center overflow-hidden">
+      <div className="hidden   lg:flex items-center relative h-full min-h-screen justify-center overflow-hidden">
         <div className="absolute bottom-5 right-5 bg-white/50 backdrop-blur-2xl rounded-3xl p-5 shadow-xl border border-white/40 max-w-xs xl:max-w-md">
           <h1 className="mb-4 text-xl leading-tight text-slate-950 font-semibold">
             Benefits of Registering with NRIParts include:

@@ -34,8 +34,8 @@ export function HeroSlider() {
   }, [api]);
   const isMobile = width < 768;
   return (
-    <Carousel setApi={setApi} className="w-full mb-10 mt-6 relative">
-      <CarouselContent>
+    <Carousel setApi={setApi} className="w-full relative mb-10 ">
+      <CarouselContent className="">
         {Array.from({ length: 4 }).map((_, index) => (
           <CarouselItem key={index}>
             <div className="overflow-hidden h-[230px] lg:h-[400px]">

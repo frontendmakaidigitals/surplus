@@ -17,7 +17,7 @@ export const NewProduct = ({ productData }: { productData: Product[] }) => {
   const handleClose = () => setSelected(null);
 
   return (
-    <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+    <div className="relative grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-5 lg:gap-4">
       {productData.slice(5, 10).map((product) => (
         <Link
           key={product.id}
@@ -34,7 +34,7 @@ export const NewProduct = ({ productData }: { productData: Product[] }) => {
             {/* Product Image */}
             <motion.div
               layoutId={`image-${product.id}`}
-              className="relative h-[210px]"
+              className="relative aspect-square"
             >
               <Image
                 src={product.images[0] || ""}
