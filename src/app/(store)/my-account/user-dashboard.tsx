@@ -44,18 +44,13 @@ type User = {
   phone?: string;
   password?: string;
 };
-interface Order {
-  id: string;
-  date: string;
-  total: number;
-  status: "Delivered" | "Processing" | "Cancelled";
-}
+
 interface UserDashboardProps {
   userData: User;
 }
 export default function UserDashboard({ userData }: UserDashboardProps) {
   const [user, setUser] = useState<User>(userData);
-  const [orders, setOrders] = useState<Order[]>([]);
+  const orders = [{}];
   const [editOpen, setEditOpen] = useState(false);
   const [form, setForm] = useState<User>(userData);
 
@@ -77,10 +72,10 @@ export default function UserDashboard({ userData }: UserDashboardProps) {
 
   if (!user) return null;
 
-  const totalOrders = orders.length;
-  const delivered = orders.filter((o) => o.status === "Delivered").length;
-  const processing = orders.filter((o) => o.status === "Processing").length;
-  const cancelled = orders.filter((o) => o.status === "Cancelled").length;
+  const totalOrders = 0;
+  const delivered = 0;
+  const processing = 0;
+  const cancelled = 0;
 
   return (
     <section className="bg-gray-100 py-16">
@@ -348,27 +343,15 @@ export default function UserDashboard({ userData }: UserDashboardProps) {
                 </thead>
                 <tbody>
                   {orders.length > 0 ? (
-                    orders.map((order) => (
+                    orders.map((order, id) => (
                       <tr
-                        key={order.id}
+                        key={id}
                         className="border-b last:border-0 hover:bg-muted/30 transition"
                       >
-                        <td className="py-3 px-4 font-medium">{order.id}</td>
-                        <td className="py-3 px-4">{order.date}</td>
-                        <td className="py-3 px-4">₹{order.total}</td>
-                        <td className="py-3 px-4">
-                          <span
-                            className={`px-2 py-1 rounded-md text-xs font-medium ${
-                              order.status === "Delivered"
-                                ? "bg-green-100 text-green-700"
-                                : order.status === "Processing"
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-red-100 text-red-700"
-                            }`}
-                          >
-                            {order.status}
-                          </span>
-                        </td>
+                        <td className="py-3 px-4 font-medium">0</td>
+                        <td className="py-3 px-4"></td>
+                        <td className="py-3 px-4">$</td>
+                        <td className="py-3 px-4"></td>
                       </tr>
                     ))
                   ) : (

@@ -41,7 +41,6 @@ export const Nav = () => {
 
   // User authentication states
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User>();
 
   const links = [
@@ -58,7 +57,7 @@ export const Nav = () => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        setIsLoading(true);
+
         const response = await axios.get("/api/profile");
         if (response.data && response.data.data) {
           const userData = response.data.data;
@@ -76,7 +75,6 @@ export const Nav = () => {
           setIsLoggedIn(false);
         }
       } finally {
-        setIsLoading(false);
       }
     };
 

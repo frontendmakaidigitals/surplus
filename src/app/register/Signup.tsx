@@ -58,7 +58,7 @@ const Signup = () => {
   } = useForm<SignupFormType>({
     resolver: zodResolver(signupSchema),
   });
-  const role = "admin";
+
   const onSubmit = async (data: SignupFormType) => {
     const { agree, confirmPassword, ...submitData } = data;
     const payload = { ...submitData };
