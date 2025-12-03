@@ -108,7 +108,7 @@ export default function Captcha({
   return (
     <div className="space-y-2 select-none min-w-full">
       {/* Canvas */}
-      <div className="flex w-full gap-3 ">
+      <div className="flex flex-col lg:flex-row w-full gap-3 ">
         <canvas
           ref={canvasRef}
           width={150}

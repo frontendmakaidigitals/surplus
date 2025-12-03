@@ -147,7 +147,7 @@ const Signup = () => {
 
   return (
     <Card className="border-0 shadow-none">
-      <CardContent className="p-8 ">
+      <CardContent className="py-8 lg:p-8 ">
         <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {/* First Name */}
