@@ -11,10 +11,10 @@ export function CartIcon({}) {
     <>
       <button
         onClick={openCart}
-        className="relative  flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+        className="relative cursor-pointer hover:text-slate-600 flex  items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
         aria-label={`Open cart (${totalItems} items)`}
       >
-        <ShoppingBag className="h-5 w-5" />
+        <ShoppingBag className="h-[22px] w-[22px]" />
         {totalItems > 0 && (
           <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-black text-xs font-bold text-white">
             {totalItems > 99 ? "99+" : totalItems}

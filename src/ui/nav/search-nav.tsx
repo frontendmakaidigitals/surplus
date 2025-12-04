@@ -32,10 +32,10 @@ export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
       {/* Search icon button */}
       <button
         onClick={() => setOpen(true)}
-        className="lg:flex hidden cursor-pointer items-center justify-center w-9 h-9 rounded-full hover:bg-neutral-100 transition"
+        className=" cursor-pointer items-center justify-center  rounded-full hover:bg-neutral-100 transition"
         aria-label="Open search"
       >
-        <SearchIcon className="h-5 w-5 text-neutral-700" />
+        <SearchIcon className="h-[22px] w-[22px] text-neutral-700" />
       </button>
 
       {/* Overlay */}

@@ -4,10 +4,9 @@ import { ProductList } from "@/ui/products/product-list";
 import { HeroSlider } from "@/ui/hero-slider";
 import { NewProduct } from "@/ui/new-product";
 import ShopByCategory from "@/ui/shopby-category";
-import FeaturedCatalogs from "@/ui/featured-catalog";
 import Image from "next/image";
-import Link from "next/link";
-import { products, categories, catalogs } from "../../../data";
+import ReviewsSection from "@/ui/Testimonial";
+import { products, categories } from "../../../data";
 import RootLayoutWrapper from "@/ui/rootlayout";
 
 export const metadata: Metadata = {
@@ -37,11 +36,102 @@ const services = [
     shadow: "hover:shadow-yellow-200",
   },
 ];
+type Review = {
+  name: string;
+  date: string;
+  title: string;
+  text: string;
+  productName: string;
+  productImg: string;
+};
+type Reviews = Review[];
+
+const reviews: Reviews = [
+  {
+    name: "Rohit Sharma",
+    date: "12/01/25",
+    title: "High-quality bearings, perfect fit",
+    text: "Ordered SKF 6205 bearings and the quality is excellent. Packaging was secure and delivery was faster than expected.",
+    productName: "SKF 6205 Deep Groove Ball Bearing",
+    productImg: "/products/bearing-6205.png",
+  },
+  {
+    name: "Ankit Verma",
+    date: "11/28/25",
+    title: "Sturdy and reliable",
+    text: "These industrial couplings are well-built and fit our compressor perfectly. No vibration issues after installation.",
+    productName: "Jaw-Type Flexible Coupling",
+    productImg: "/products/coupling-jaw.png",
+  },
+  {
+    name: "David Reed",
+    date: "11/18/25",
+    title: "Good pricing and fast service",
+    text: "The solenoid valves arrived on time and work smoothly. Very competitive pricing compared to local suppliers.",
+    productName: "2-Way Brass Solenoid Valve",
+    productImg: "/products/solenoid-valve.png",
+  },
+  {
+    name: "Pooja Iyer",
+    date: "11/12/25",
+    title: "Perfect replacement part",
+    text: "We used this sensor as a replacement in our CNC machine and it performed better than the original.",
+    productName: "Inductive Proximity Sensor M12",
+    productImg: "/products/proximity-sensor.png",
+  },
+  {
+    name: "Mark Wilson",
+    date: "11/08/25",
+    title: "Great build quality",
+    text: "The pneumatic fittings are strong and leak-proof. Have been running on our assembly line for weeks with zero issues.",
+    productName: "Pneumatic Push-Fit Elbow Connector",
+    productImg: "/products/pneumatic-fitting.png",
+  },
+  {
+    name: "Vikram Singh",
+    date: "10/30/25",
+    title: "Highly recommended",
+    text: "Good quality V-belts with strong grip and no stretching. Our machine runs smoother now.",
+    productName: "A-Section V-Belt A46",
+    productImg: "/products/vbelt-a46.png",
+  },
+  {
+    name: "Emily Carter",
+    date: "10/22/25",
+    title: "Accurate and durable",
+    text: "This pressure gauge is very accurate. Installed it on our air compressor and readings are stable.",
+    productName: "Stainless Steel Pressure Gauge 0–300 PSI",
+    productImg: "/products/pressure-gauge.png",
+  },
+  {
+    name: "Sanjay Patel",
+    date: "10/15/25",
+    title: "Good value for money",
+    text: "The hydraulic hose is tough and flexible. Used it for a press machine repair—works perfectly.",
+    productName: "Hydraulic Hose R2AT 1/2 Inch",
+    productImg: "/products/hydraulic-hose.png",
+  },
+  {
+    name: "Michael Green",
+    date: "10/10/25",
+    title: "Smooth performance",
+    text: "The motor run capacitor fixed the humming issue on our blower motor. Excellent quality.",
+    productName: "Motor Run Capacitor 50µF",
+    productImg: "/products/run-capacitor.png",
+  },
+  {
+    name: "Harish Kumar",
+    date: "10/04/25",
+    title: "Exactly what we needed",
+    text: "We ordered limit switches for our conveyor line—they are rugged and work flawlessly.",
+    productName: "Industrial Limit Switch",
+    productImg: "/products/limit-switch.png",
+  },
+];
 
 export default async function Home() {
   const productList = products;
   const categoriesList = categories;
-  const catalogList = catalogs;
   return (
     <section>
       <div className="lg:container">
@@ -97,39 +187,83 @@ export default async function Home() {
           <NewProduct productData={productList} />
         </section>
         {/* Banner Image */}
-        <div className="bg-slate-200 rounded-lg mt-14 h-[200px] flex justify-center items-center w-full">
+        <div className="bg-slate-200 rounded-lg mt-14 h-[200px] lg:h-[320px] flex justify-center items-center w-full">
           <p className="text-gray-800 text-xl font-[500]">Banner Image</p>
         </div>
         {/* Banner Image */}
         <section className="mt-14">
-          <h2 className="mb-8 text-3xl font-semibold tracking-tight text-gray-900 underline underline-offset-8 decoration-sky-400">
+          <h2 className="mb-8 text-3xl font-semibold tracking-tight text-gray-900 underline underline-offset-8 decoration-secondary">
             Shop by Category
           </h2>
           <ShopByCategory categories={categoriesList} />
         </section>
-        <section className="mt-14 mb-12 lg:mb-24">
-          <div className="flex justify-between items-center ">
-            <h2 className="mb-8 text-3xl font-semibold tracking-tight text-gray-900 underline underline-offset-8 decoration-sky-400">
-              Our Featured Catalogs
-            </h2>
-            <Link
-              href={"/"}
-              className="bg-gray-900 hidden lg:block hover:scale-[1.07] transition-all duration-200 mb-3 text-slate-100 rounded-full px-4 py-[.4rem]"
-            >
-              Browse all <span className="">catalogs</span>
-            </Link>
-          </div>
-          <FeaturedCatalogs catalog={catalogList} />
-          <div className="lg:hidden mt-6 !w-full flex justify-center items-center">
-            <Link
-              href={"/"}
-              className="bg-gray-900  hover:scale-[1.07] transition-all duration-200 text-slate-100 rounded-full px-5 py-[.5rem]"
-            >
-              Browse all <span className="">catalogs</span>
-            </Link>
-          </div>
-        </section>
+        <ReviewsSection reviews={reviews} />
+        <CTASection />
       </RootLayoutWrapper>
+    </section>
+  );
+}
+
+function CTASection() {
+  return (
+    <section className="pt-2 pb-20 lg:py-20">
+      <div className="container mx-auto px-6">
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* CTA 1 – Buy Products */}
+          <div className="bg-orange-500/5 flex flex-col justify-between">
+            <div className="bg-slate-200 h-[200px] lg:h-[320px] flex justify-center items-center w-full">
+              <p className="text-gray-800 text-xl font-[500]">CTA Image</p>
+            </div>
+            <div className="px-5 py-8">
+              <div>
+                <h3 className="text-3xl text-center font-[400] mb-3">
+                  Get Quality Industrial Parts
+                </h3>
+                <p className="text-neutral-600 text-center mb-6">
+                  Browse thousands of new & refurbished components trusted by
+                  industries worldwide. Fast delivery, verified quality, and
+                  competitive pricing.
+                </p>
+              </div>
+              <div className="flex justify-center">
+                <a
+                  href="/shop"
+                  className="mt-auto inline-block text-center px-6 py-3 bg-primary text-white  font-medium hover:bg-primary/90 transition"
+                >
+                  Shop Industrial Parts
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA 2 – Sell Surplus */}
+          <div className="bg-neutral-900 text-white  flex flex-col justify-between">
+            <div className="bg-slate-200 h-[200px] lg:h-[320px] flex justify-center items-center w-full">
+              <p className="text-gray-800 text-xl font-[500]">CTA Image</p>
+            </div>
+            <div className="px-5 py-8">
+              <div>
+                <h3 className="text-3xl text-center font-[400] mb-3">
+                  Sell Your Surplus Inventory
+                </h3>
+                <p className="text-neutral-300 text-center mb-6">
+                  Turn unused machinery components, spares, and MRO inventory
+                  into cash. We buy in bulk or help you liquidate fast.
+                </p>
+              </div>
+
+              <div className="flex justify-center">
+                <a
+                  href="/sell"
+                  className="mt-auto inline-block text-center px-6 py-3 bg-white text-neutral-900 font-medium hover:bg-neutral-200 transition"
+                >
+                  Sell Your Products
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

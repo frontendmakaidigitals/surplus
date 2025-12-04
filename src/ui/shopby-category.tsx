@@ -12,11 +12,12 @@ export default function ShopByCategory({
 }) {
   return (
     <div className="">
-      <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-5 gap-2 lg:gap-4">
         {categories.slice(0, 8).map((cat, i) => (
           <motion.div
             key={i}
-            className="group bg-white rounded-xl border border-gray-300/40  transition-all pt-1 px-1 flex flex-col items-start"
+            className="group bg-white rounded-xl border border-gray-300/40 transition-all 
+             pt-1 px-1 flex flex-col"
           >
             {/* Image */}
             <div className="relative rounded-lg w-full aspect-square mb-4">
@@ -28,17 +29,17 @@ export default function ShopByCategory({
               />
             </div>
 
-            {/* Title */}
-            <div className="px-5 pb-6">
+            {/* Content */}
+            <div className="px-5 pb-6 flex flex-col h-full">
               <h3 className="text-xl font-semibold text-gray-800 mb-3 group-hover:text-sky-800">
                 {cat.title}
               </h3>
 
               {/* Items */}
-              <ul className="text-gray-600 flex flex-wrap gap-3 text-sm mb-3">
+              <ul className="text-gray-600 flex flex-row lg:flex-col flex-wrap gap-3 lg:gap-2 text-sm lg:text-xs mb-3">
                 {cat.items.map((item, j) => (
                   <li
-                    className="bg-secondary/20 rounded text-slate-900 px-4 py-[.35rem]"
+                    className="bg-secondary/20 lg:bg-transparent rounded text-slate-900 px-4 py-[.35rem] lg:p-0"
                     key={j}
                   >
                     {item}
@@ -46,13 +47,15 @@ export default function ShopByCategory({
                 ))}
               </ul>
 
-              {/* Link */}
-              <div className="w-full lg:w-fit">
+              {/* Link - pushes to bottom */}
+              <div className="w-full lg:w-fit mt-auto">
                 <Link
                   href={
                     `/category/` + cat.title.split(" ").join("-").toLowerCase()
                   }
-                  className="bg-primary text-center block text-sky-100 w-full px-4 rounded-lg py-[.5rem] text-sm font-medium hover:underline hover:text-primray/90 mt-auto"
+                  className="bg-primary text-center block text-sky-100 w-full px-4 rounded-lg 
+                   py-[.5rem] text-sm lg:text-xs font-medium hover:underline 
+                   hover:text-primray/90"
                 >
                   VIEW ALL
                 </Link>

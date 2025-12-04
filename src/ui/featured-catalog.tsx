@@ -8,7 +8,7 @@ import { Catalog } from "../../data";
 export default function FeaturedCatalogs({ catalog }: { catalog: Catalog[] }) {
   return (
     <div className="">
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 xl:grid-cols-4 lg:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 xl:grid-cols-5 lg:gap-4">
         {catalog.map((cat, index) => (
           <motion.div
             whileHover={{

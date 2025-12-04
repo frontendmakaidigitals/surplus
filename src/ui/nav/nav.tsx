@@ -14,17 +14,12 @@ import Link from "next/link";
 import { useCart } from "@/context/cart-context";
 import { useState, useEffect } from "react";
 import { NavMobileMenu } from "@/ui/nav/nav-mobile-menu.client";
-import Image from "next/image";
 import Logo from "@/ui/Logo";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { usePathname } from "next/navigation";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import UserMenu from "./user-menu";
+import { toast } from "sonner";
 interface User {
   id: number;
   first_name: string;
@@ -37,7 +32,6 @@ export const Nav = () => {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const { isCartOpen } = useCart();
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   // User authentication states
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -83,6 +77,10 @@ export const Nav = () => {
   const logout = async () => {
     try {
       await axios.post("/api/logout");
+      toast.success("Logged out successfully!", {
+        className:
+          "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+      });
       setIsLoggedIn(false);
       router.push("/");
     } catch (error) {
@@ -96,8 +94,7 @@ export const Nav = () => {
         open || isCartOpen ? "bg-white" : "backdrop-blur-lg bg-white/60"
       }`}
     >
-      {/* Top bar */}
-      <div className="bg-blue-500 text-white text-sm py-2">
+      <div className="bg-primary text-white text-sm py-2">
         <article className="container text-center">
           Create Your Free Account for Preferred Pricing, Extended Warranties, &
           Much More!{" "}
@@ -110,109 +107,40 @@ export const Nav = () => {
       {/* Sticky nav bar */}
       <div>
         <div className="container flex items-center justify-between gap-3 py-3">
-          {/* Logo */}
-          <Link href="/" className="text-xl font-bold whitespace-nowrap">
+          {/* ---------- LEFT (Desktop Logo) ---------- */}
+          <Link
+            href="/"
+            className="text-xl hidden lg:block font-bold whitespace-nowrap"
+          >
             <Logo size={120} />
           </Link>
 
-          {/* Menu */}
+          {/* ---------- CENTER (Desktop Menu) ---------- */}
           <div className="hidden sm:flex flex-1 justify-center">
             <NavMenu loginStatus={isLoggedIn} links={links} />
           </div>
 
-          {/* Right section */}
-          <div className="flex items-center gap-3">
+          {/* ---------- RIGHT (Desktop Right Section) ---------- */}
+          <div className="hidden sm:flex items-center gap-3">
             <SearchNav open={open} setOpen={setOpen} />
             <CartIcon />
-            {isLoggedIn && user ? (
-              <div className="flex items-center gap-3">
-                {/* Avatar */}
-                {user.avatar ? (
-                  <Image
-                    src={user.avatar}
-                    alt="avatar"
-                    width={40}
-                    height={40}
-                    className="rounded-full"
-                  />
-                ) : (
-                  // fallback without flicker
-                  <div className="border rounded-full p-1">
-                    <UserIcon className="h-5 w-5 hover:text-neutral-500" />
-                  </div>
-                )}
+            <UserMenu logout={logout} isLoggedIn={isLoggedIn} user={user} />
+          </div>
 
-                {/* Dropdown */}
-                <DropdownMenu
-                  open={userMenuOpen}
-                  onOpenChange={setUserMenuOpen}
-                >
-                  <DropdownMenuTrigger className="flex rounded-lg px-3 py-[.4rem] text-sm font-medium hover:bg-neutral-100 items-center gap-2">
-                    <p>{user.first_name || "User"}</p>
-                    <ChevronDown size={16} />
-                  </DropdownMenuTrigger>
+          {/* ========================================================= */}
+          {/* ======================  MOBILE VIEW  ==================== */}
+          {/* ========================================================= */}
 
-                  <DropdownMenuContent className="w-44">
-                    <DropdownMenuItem className="py-[.6rem]">
-                      <Link
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2"
-                        href={{
-                          pathname: "/my-account",
-                          query: "edit-profile",
-                        }}
-                      >
-                        <ShoppingBag className="!size-[20px] mr-2 text-secondary" />
-                        Orders
-                      </Link>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem className="py-[.6rem]">
-                      <Link
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2"
-                        href={{
-                          pathname: "/my-account",
-                          query: "action=edit-profile",
-                        }}
-                      >
-                        <Edit className="!size-[20px] mr-2 text-secondary" />
-                        Edit Profile
-                      </Link>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem className="py-[.6rem]">
-                      <Phone className="!size-[20px] mr-2 text-secondary" />
-                      Contact Us
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                      onSelect={() => {
-                        setUserMenuOpen(false);
-                        logout();
-                      }}
-                      className="py-[.6rem] hover:!bg-red-500 group hover:!text-white"
-                    >
-                      <LogOut className="!size-[20px] mr-2 text-secondary group-hover:!text-white" />
-                      Log Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            ) : (
-              <Link href="/login" className="">
-                <UserIcon className="h-5 w-5 hover:text-neutral-500" />
-              </Link>
-            )}
-
-            <div className="sm:hidden flex items-center gap-3">
+          <div className="flex sm:hidden items-center justify-between w-full">
+            {/* ---- LEFT: Menu + Search ---- */}
+            <div className="flex items-center gap-3">
               <NavMobileMenu>
                 <ul className="flex pb-8 flex-col items-start justify-center gap-y-3">
                   {links.map((link) => (
                     <li key={link.href}>
                       <Link
                         href={link.href}
-                        className="group font-[400] inline-flex h-9 w-full items-center justify-center rounded-md bg-transparent px-4 py-2 text-lg transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-hidden"
+                        className="group font-[400] inline-flex h-9 w-full items-center justify-center rounded-md bg-transparent px-4 py-2 text-lg transition-colors hover:bg-accent hover:text-accent-foreground"
                       >
                         {link.label}
                       </Link>
@@ -220,6 +148,22 @@ export const Nav = () => {
                   ))}
                 </ul>
               </NavMobileMenu>
+
+              <SearchNav open={open} setOpen={setOpen} />
+            </div>
+
+            {/* ---- CENTER: Logo ---- */}
+            <Link
+              href="/"
+              className="text-xl font-bold whitespace-nowrap mx-auto"
+            >
+              <Logo size={120} />
+            </Link>
+
+            {/* ---- RIGHT: Cart + User ---- */}
+            <div className="flex items-center gap-3">
+              <CartIcon />
+              <UserMenu logout={logout} isLoggedIn={isLoggedIn} user={user} />
             </div>
           </div>
         </div>
