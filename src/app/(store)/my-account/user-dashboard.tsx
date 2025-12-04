@@ -1,7 +1,7 @@
 "use client";
-import { toast } from "sonner";
+
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import {  useSearchParams } from "next/navigation";
 import Image from "next/image";
 import UpdateForm from "./update-form";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
