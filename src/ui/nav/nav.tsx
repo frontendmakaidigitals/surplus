@@ -1,12 +1,5 @@
 "use client";
-import {
-  UserIcon,
-  ChevronDown,
-  ShoppingBag,
-  Edit,
-  Phone,
-  LogOut,
-} from "lucide-react";
+
 import { CartIcon } from "@/components/cart-icon";
 import { NavMenu } from "@/ui/nav/nav-menu";
 import { SearchNav } from "@/ui/nav/search-nav";
