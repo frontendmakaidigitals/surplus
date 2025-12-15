@@ -453,19 +453,19 @@ export const categories: Category[] = [
   {
     id: "c1",
     title: "Industrial Automation & Motion Controls",
-    img: "/hydraulic_pump/face.png",
+    img: "/bosch 3.webp",
     count: 5,
   },
   {
     id: "c2",
     title: "Home & Garden",
-    img: "/engine_mount/face.webp",
+    img: "/cl2.webp",
     count: 5,
   },
   {
     id: "c3",
     title: "Consumer Electronics",
-    img: "/radiator_assembly/face.png",
+    img: "/fs1.webp",
     count: 4,
   },
 ];

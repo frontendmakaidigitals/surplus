@@ -17,14 +17,15 @@ export default function ShopByCategory({
           <motion.div
             key={i}
             className="group transition-all 
-             pt-1 px-1 grid bg-slate-100 border border-slate-300/20 hover:shadow grid-cols-2 gap-4"
+              p-1 grid bg-slate-100 rounded-lg border border-slate-300/20 hover:shadow grid-cols-2 gap-4"
           >
             {/* Image */}
-            <div className="relative transition-transform duration-500 group-hover:scale-105 rounded-xl bg-gray-300/30 border border-gray-300/8 w-full aspect-square">
+            <div className="relative overflow-hidden rounded-lg bg-gray-300/30 border border-gray-300/8 w-full aspect-square">
               <Image
-                src={cat.img}
+                src={`/products/${cat.img || ""}`}
                 alt={cat.title}
                 fill
+                unoptimized
                 className="object-cover object-center "
               />
               <p className="text-slate-50 rounded-lg bg-secondary/80 px-3 py-[.3rem]  absolute top-2 left-2 text-xs">
@@ -71,11 +72,12 @@ export default function ShopByCategory({
              pt-1 px-1 grid bg-slate-100 border border-slate-300/20 hover:shadow grid-cols-2 gap-4"
           >
             {/* Image */}
-            <div className="relative transition-transform duration-500 group-hover:scale-105 rounded-xl bg-gray-300/30 border border-gray-300/8 w-full aspect-square">
+            <div className="relative overflow-hidden rounded-lg bg-gray-300/30 border border-gray-300/8 w-full aspect-square">
               <Image
-                src={cat.img}
+                src={`/products/${cat.img || ""}`}
                 alt={cat.title}
                 fill
+                unoptimized
                 className="object-cover object-center "
               />
               <p className="text-slate-50 rounded-lg bg-secondary/80 px-3 py-[.3rem]  absolute top-2 left-2 text-xs">
