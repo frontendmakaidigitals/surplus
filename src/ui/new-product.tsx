@@ -10,12 +10,12 @@ import ImageSelector from "@/ui/images-selector";
 import { cn } from "@/lib/utils";
 import { Maximize2 } from "lucide-react";
 import Link from "next/link";
+import DiscountUtility from "./products/discount-utility";
+import RenderStockStatus from "./products/stock-utility";
 export const NewProduct = ({ productData }: { productData: Product[] }) => {
   const [selected, setSelected] = useState<Product | null>(null);
-
   const handleSelect = (product: Product) => setSelected(product);
   const handleClose = () => setSelected(null);
-
   return (
     <div className="relative grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-5 lg:gap-4">
       {productData.slice(5, 10).map((product) => (
@@ -27,20 +27,24 @@ export const NewProduct = ({ productData }: { productData: Product[] }) => {
           <motion.div
             layoutId={`new-card-${product.id}`}
             className={cn(
-              "relative cursor-pointer overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow",
+              "relative cursor-pointer overflow-hidden",
               selected?.id === product.id && "z-50"
             )}
           >
             {/* Product Image */}
             <motion.div
-              layoutId={`image-${product.id}`}
-              className="relative aspect-square"
+              layoutId={`new-image-${product.id}`}
+              className="relative aspect-[4/5] bg-gray-300/30 border border-gray-300/8"
             >
+              <div className="absolute z-10 top-2 left-2">
+                <ConditionBadge condition={product.condition} />
+              </div>
               <Image
-                src={product.images[0] || ""}
-                alt={product.name}
                 fill
-                className="object-contain object-center scale-[.8] rounded-t-xl"
+                unoptimized
+                src={`/products/${product.images?.[0] || ""}`}
+                alt={product.name}
+                className="object-cover object-center "
               />
 
               {/* ✅ Preview button — stops navigation, opens modal */}
@@ -57,19 +61,34 @@ export const NewProduct = ({ productData }: { productData: Product[] }) => {
             </motion.div>
 
             {/* Product Info */}
-            <motion.div layout className="p-2">
-              <h2 className="text-sm font-medium text-gray-800 line-clamp-2">
+            <motion.div layout className="pb-2 pt-1">
+              <div className="flex mb-2 justify-between items-center">
+                <span>{RenderStockStatus(Number(product.stock))}</span>
+                {product.freeShipping && (
+                  <span className="text-xs">Free Shipping</span>
+                )}
+              </div>
+              <h2 className="text font-medium text-gray-800 line-clamp-2">
                 {product.name}
               </h2>
-              {product.price && (
-                <p className="mt-1 text-sky-600 font-semibold">
-                  {formatMoney({
-                    amount: product.price,
-                    currency: "USD",
-                    locale: "en-US",
-                  })}
-                </p>
-              )}
+              <div>
+                {product.discountPercentage ? (
+                  DiscountUtility(
+                    product.discountPercentage,
+                    product.discountStartDate,
+                    product.discountEndDate,
+                    product.price
+                  )
+                ) : (
+                  <p className="mt-1 text-xl font-semibold">
+                    {formatMoney({
+                      amount: product.price,
+                      currency: "USD",
+                      locale: "en-US",
+                    })}
+                  </p>
+                )}
+              </div>
             </motion.div>
           </motion.div>
         </Link>
@@ -79,104 +98,89 @@ export const NewProduct = ({ productData }: { productData: Product[] }) => {
       <AnimatePresence>
         {selected && (
           <>
-            {/* Dark backdrop */}
+            {/* Backdrop */}
             <motion.div
               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{
-                type: "spring",
-                stiffness: 120,
-                damping: 20,
-                mass: 0.2,
-              }}
+              transition={{ duration: 0.2 }}
               onClick={handleClose}
             />
 
-            {/* Expanded Card */}
+            {/* Modal */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
+              exit={{ opacity: 0, y: 30 }}
               layoutId={`new-card-${selected.id}`}
-              transition={{
-                type: "spring",
-                stiffness: 120,
-                damping: 18,
-                mass: 0.4,
-              }}
-              className="fixed px-5 py-3 inset-0 z-50 m-auto flex max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl max-h-[85dvh]"
+              transition={{ type: "spring", stiffness: 120, damping: 18 }}
+              className="fixed inset-0 z-50 m-auto flex max-w-2xl flex-col 
+                   bg-white rounded-2xl shadow-xl overflow-hidden 
+                   max-h-[88dvh]"
             >
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                {selected.name}
-              </h2>
-              {/* Product Image */}
-              <motion.div
-                layoutId={`new-image-${selected.id}`}
-                className="relative w-full h-auto  flex-shrink-0"
-              >
-                <div className="absolute right-5 top-4 z-20">
-                  <ConditionBadge condition={selected.condition} />
-                </div>
-                <ImageSelector images={selected.images} />
-              </motion.div>
+              {/* Header */}
+              <div className="px-6 py-4 border-b bg-white">
+                <h1 className="text-[1.35rem] font-semibold text-gray-900 leading-snug">
+                  {selected.name}
+                </h1>
+              </div>
 
-              {/* Product Details */}
-              <motion.div
-                layout
-                className="relative flex-1 pt-4 flex flex-col justify-between"
-              >
-                <div className="pb-3">
-                  <h2 className="text-lg font-semibold mb-3 border-b-2 border-blue-500 w-fit">
+              {/* Body (Scrollable) */}
+              <div className="flex-1 overflow-y-auto bg-gray-50/40">
+                {/* Image Section */}
+                <motion.div
+                  layoutId={`new-image-${selected.id}`}
+                  className="relative bg-white p-5 border-b"
+                >
+                  <div className="absolute left-8 top-8 z-20">
+                    <ConditionBadge condition={selected.condition} />
+                  </div>
+                  <ImageSelector images={selected.images} />
+                </motion.div>
+
+                {/* Product Info */}
+                <div className="px-6 py-5 bg-white">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">
                     Product Details
                   </h2>
 
-                  <ul className="text-sm text-gray-700 space-y-3">
-                    <li>
-                      <span className="font-semibold text-gray-900">
-                        Product ID:
-                      </span>{" "}
-                      V-1771960
-                    </li>
-                    <li>
-                      <span className="font-semibold text-gray-900">
-                        Brand:
-                      </span>{" "}
-                      STEARNS
-                    </li>
-                    <li>
-                      <span className="font-semibold text-gray-900">
-                        Model:
-                      </span>{" "}
-                      5-66-6409-33
-                    </li>
-
-                    <li>
-                      <span className="font-semibold text-gray-900">
-                        Custom Description:
-                      </span>{" "}
-                      STEARNS 5-66-6409-33
-                    </li>
-                  </ul>
+                  <dl className="grid grid-cols-1 lg:grid-cols-2 gap-5 text-[0.9rem]">
+                    <DetailRow label="MPN" value="V-1771960" />
+                    <DetailRow label="Type" value="V-1771960" />
+                    <DetailRow label="Brand" value="STEARNS" />
+                    <DetailRow label="Model" value="5-66-6409-33" />
+                  </dl>
                 </div>
+              </div>
 
-                <div className="flex items-center justify-between border-t pt-3">
-                  <p className="text-sky-600 font-semibold text-lg">
-                    {formatMoney({
-                      amount: selected.price,
-                      currency: "USD",
-                      locale: "en-US",
-                    })}
-                  </p>
+              {/* Footer */}
+              <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between">
+                <p className="text-2xl font-bold text-gray-800">
+                  {formatMoney({
+                    amount: selected.price,
+                    currency: "USD",
+                    locale: "en-US",
+                  })}
+                </p>
+
+                <div className="flex gap-2">
+                  <Link
+                    href={""}
+                    className="rounded-full bg-primary px-5 py-2.5 text-sm 
+                       font-medium text-white hover:bg-primary/80 transition"
+                  >
+                    More detail
+                  </Link>
                   <button
                     onClick={handleClose}
-                    className="rounded-full bg-black px-5 py-2 text-sm text-white"
+                    className="rounded-full bg-gray-900 px-5 py-2.5 text-sm 
+                       font-medium text-white hover:bg-gray-800 transition"
                   >
                     Close
                   </button>
                 </div>
-              </motion.div>
+              </div>
             </motion.div>
           </>
         )}
@@ -184,3 +188,10 @@ export const NewProduct = ({ productData }: { productData: Product[] }) => {
     </div>
   );
 };
+
+const DetailRow = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex justify-start text-gray-700 gap-2">
+    <dt className="font-medium text-gray-900 ">{label}:</dt>
+    <dd>{value}</dd>
+  </div>
+);

@@ -2,7 +2,7 @@
 
 import { CartIcon } from "@/components/cart-icon";
 import { NavMenu } from "@/ui/nav/nav-menu";
-import { SearchNav } from "@/ui/nav/search-nav";
+import { SearchNav } from "./search-nav";
 import Link from "next/link";
 import { useCart } from "@/context/cart-context";
 import { useState, useEffect } from "react";

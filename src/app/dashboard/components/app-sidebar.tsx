@@ -19,7 +19,6 @@ import {
   Settings,
   LogOut,
   FolderTree,
-  BookOpen,
   Boxes,
   MessageSquareMore,
 } from "lucide-react";
@@ -51,11 +50,7 @@ export function AppSidebar() {
           href: "/dashboard/manage-products/categories",
           icon: FolderTree,
         },
-        {
-          name: "Catalog",
-          href: "/dashboard/manage-products/catalog",
-          icon: BookOpen,
-        },
+        
         {
           name: "Product",
           href: "/dashboard/manage-products/products",

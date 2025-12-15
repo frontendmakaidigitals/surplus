@@ -1,8 +1,12 @@
 "use client";
 
 import { z } from "zod";
+import axios from "axios";
+import { toast } from "sonner";
+import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -27,48 +31,142 @@ export default function CategoryForm({
   editing,
   cancelEdit,
 }: CategoryFormProps) {
-  const form = useForm({
+  const [status, setStatus] = useState<null | string>();
+  const form = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
-    defaultValues: editing || { name: "", image: "" },
+    defaultValues: {
+      name: "",
+      description: "",
+      image: "",
+    },
   });
-  const watchedImage = useWatch({ control: form.control, name: "image" });
-  const submitHandler = (data: CategoryFormData) => onSubmit(data);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    control,
+    formState: { errors, isSubmitting },
+  } = form;
+
+  // populate form on edit
+  useEffect(() => {
+    if (editing) reset(editing);
+  }, [editing, reset]);
+
+  const watchedImage = useWatch({ control, name: "image" });
+
+  const submitHandler = async (data: CategoryFormData) => {
+    try {
+      await axios.post("/api/categories", data);
+
+      toast.success(
+        editing
+          ? "Category updated successfully"
+          : "Category added successfully",
+        { id: "category" }
+      );
+
+      onSubmit(data);
+      setStatus("success");
+      toast.success("Request Submitted!", {
+        className:
+          "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+      });
+      reset();
+    } catch (err: any) {
+      setStatus("error");
+      toast.error("Something went wrong.", {
+        className:
+          "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+      });
+    }
+  };
+
+  const showFormErrors = (errors: any) => {
+    Object.values(errors).forEach((err: any, index) => {
+      if (!err?.message) return;
+
+      toast.error(err.message, {
+        id: `form-error-${index}`, // prevents duplicates
+        className:
+          "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+      });
+    });
+  };
 
   return (
     <form
-      onSubmit={form.handleSubmit(submitHandler)}
+      onSubmit={handleSubmit(submitHandler, showFormErrors)}
       className="border p-4 rounded-xl space-y-4 bg-white"
     >
-      <h2 className="text-lg font-semibold">
-        {editing ? "Edit Category" : "Add Category"}
-      </h2>
-
-      <div className="space-y-2">
+      {/* ===== NAME ===== */}
+      <div className="space-y-1">
         <Label>Name</Label>
         <Input
-          className="mt-1"
           placeholder="Electronics"
-          {...form.register("name")}
+          {...register("name")}
+          className={` border border-slate-400/30 ${
+            errors.name
+              ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
+              : ""
+          }`}
         />
       </div>
-      <div className="space-y-2">
+
+      {/* ===== DESCRIPTION ===== */}
+      <div className="space-y-1">
         <Label>Description</Label>
         <Input
-          className="mt-1"
-          placeholder="Something about the product"
-          {...form.register("description")}
+          placeholder="Something about the category"
+          className={` border border-slate-400/30 ${
+            errors.description
+              ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
+              : ""
+          }`}
+          {...register("description")}
         />
       </div>
 
-      <ImageUpload
-        image={watchedImage}
-        onChangeAction={(url) => form.setValue("image", url)}
-      />
+      {/* ===== IMAGE ===== */}
+      <div className="space-y-1">
+        <Label>Image</Label>
 
-      <div className="flex gap-3">
-        <Button type="submit">{editing ? "Update" : "Add"} Category</Button>
+        <ImageUpload
+          image={watchedImage}
+          error={errors.image?.message}
+          onChangeAction={(url) =>
+            setValue("image", url, { shouldValidate: true })
+          }
+        />
+      </div>
+
+      {/* ===== ACTIONS ===== */}
+      <div className="flex gap-3 pt-2">
+        <Button
+          isLoading={isSubmitting}
+          className={cn(
+            "w-full h-11 text-white transition",
+
+            !status
+              ? "bg-secondary hover:bg-secondary/80"
+              : status === "success"
+              ? "bg-green-600 hover:bg-green-500"
+              : "bg-red-500 hover:bg-red-400"
+          )}
+          type="submit"
+        >
+          {editing ? "Update" : "Add"} Category
+        </Button>
+
         {editing && (
-          <Button type="button" variant="outline" onClick={cancelEdit}>
+          <Button
+            className="h-11"
+            type="button"
+            variant="outline"
+            onClick={cancelEdit}
+          >
             Cancel
           </Button>
         )}

@@ -22,9 +22,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/ui/pagination";
-import CategoryCards from "@/app/(store)/category/CategoryCards";
+import ProductCard from "@/ui/product-card";
+
 import { products } from "../../../../../data";
 import ProductCount from "@/ui/product-count";
+import PageFilter from "./pageFilter";
 export default async function Page(props: {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ variant?: string; image?: string }>;
@@ -36,7 +38,7 @@ export default async function Page(props: {
       p.category.split(" ").join("-").toLowerCase() ===
       categoryName.toLowerCase()
   );
-  console.log(categoryProducts, "categoryProducts");
+
   if (categoryProducts.length === 0) {
     return <h1>Category not found</h1>;
   }
@@ -51,7 +53,7 @@ export default async function Page(props: {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Catalog</BreadcrumbPage>
+              <BreadcrumbPage>Category</BreadcrumbPage>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -60,7 +62,7 @@ export default async function Page(props: {
           </BreadcrumbList>
         </Breadcrumb>
       </RootLayoutWrapper>
-      <section className="bg-white shadow py-6 mt-4 mb-5">
+      <section className="bg-white border border-slate-500/10 py-6 mt-4 mb-5">
         <RootLayoutWrapper>
           <div className=" lg:flex justify-between items-center">
             <h1 className="text-xl font-[700]">
@@ -82,12 +84,29 @@ export default async function Page(props: {
           </div>
         </RootLayoutWrapper>
       </section>
-      <section className="container mb-10">
+      <section className="container mb-10 ">
         <ProductCount dataArray={categoryProducts} />
       </section>
       <RootLayoutWrapper>
-        <CategoryCards data={categoryProducts} />
-        <section className="mt-14 ">
+        <div className="grid grid-cols-[.5fr_1.5fr] gap-5 ">
+          <div className="">
+            <PageFilter products={categoryProducts} />
+          </div>
+
+          {categoryProducts.length > 0 && (
+            <div className="relative grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-4 lg:gap-4">
+              {categoryProducts.slice(0, 5).map((product) => (
+                <ProductCard
+                  key={product.id}
+                  resizeable
+                  product={product}
+                  layoutName="category"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+        <section className="mt-14 mb-12">
           <Pagination>
             <PaginationContent>
               <PaginationItem>

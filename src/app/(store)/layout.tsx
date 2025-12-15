@@ -9,9 +9,9 @@ export default async function StoreLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
     <CartProvider>
+     
       <Nav />
       <TooltipProvider>
         <main className="pt-2">{children}</main>

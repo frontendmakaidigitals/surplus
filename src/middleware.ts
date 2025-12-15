@@ -8,7 +8,7 @@ export function middleware(req: NextRequest) {
   const authPages = ["/login"];
 
   // Protected routes
-  const protectedRoutes = ["/dashboard", "/my-account"];
+  const protectedRoutes = ["/my-account"];
 
   // 1️⃣ If user has token AND visits login/register → redirect to home
   if (token && authPages.includes(pathname)) {

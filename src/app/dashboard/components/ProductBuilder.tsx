@@ -4,6 +4,7 @@ import ProductView from "./ProductView";
 import ImageDialog from "./Image-Dialog";
 import { ProductBuilderProvider } from "../context/ProductFormContext";
 import ProductForm from "./Product-Form";
+import { Button } from "@/components/ui/button";
 // --------------------------------
 // ZOD SCHEMA
 // --------------------------------
@@ -25,16 +26,21 @@ export type ProductBuilderValues = z.infer<typeof productSchema>;
 export default function ProductBuilder() {
   return (
     <ProductBuilderProvider>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-10">
         {/* ---------------- FORM  ---------------- */}
-        <ProductForm />
+        <div className="col-span-4">
+          <ProductForm />
+        </div>
 
         {/* ---------------- LIVE PREVIEW ---------------- */}
-        <div className="sticky top-10 w-full bg-slate-100 rounded-lg p-4">
+        <div className="sticky top-10 w-full col-span-2 rounded-lg p-4">
           <h2 className="text-lg font-semibold mb-4">Live Preview</h2>
           <div className="">
             <ProductView />
           </div>
+          <Button className="mt-4 bg-black !h-11 w-full">
+            View Full Product
+          </Button>
         </div>
 
         {/* Image Dialog Start */}

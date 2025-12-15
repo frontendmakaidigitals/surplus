@@ -44,7 +44,7 @@ export default function ReviewsSection({ reviews }: { reviews: Reviews }) {
 
   return (
     <section className="py-16">
-      <h2 className="text-left ml-5 text-2xl lg:text-3xl font-semibold mb-7">
+      <h2 className="text-center ml-5 text-2xl lg:text-3xl font-semibold mb-7">
         What Our Customers Say
       </h2>
 
@@ -63,7 +63,7 @@ export default function ReviewsSection({ reviews }: { reviews: Reviews }) {
                 key={i}
                 className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4"
               >
-                <Card className="border border-gray-200 shadow-sm rounded-xl h-full">
+                <Card className="border border-gray-300/80 shadow-none rounded-xl h-full">
                   <CardContent className="p-6 flex flex-col h-full">
                     {/* Top */}
                     <div className="flex justify-between items-center mb-2">

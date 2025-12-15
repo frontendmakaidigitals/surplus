@@ -1,19 +1,24 @@
 "use client";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { SearchIcon, XIcon } from "lucide-react";
-
+import { SearchIcon, X } from "lucide-react";
+import { products } from "../../../data";
+import Image from "next/image";
+import Link from "next/link";
+import type { Product } from "../../../data";
 interface SearchNavProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
 export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
   const [query, setQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: any) => {
       if (e.key === "Escape") {
         setOpen(false);
+        setQuery("");
       }
     };
 
@@ -21,11 +26,28 @@ export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
       window.addEventListener("keydown", handleKeyDown);
     }
 
-    // Cleanup when unmounted or when closed
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [open, setOpen]);
+  }, [open]);
+
+  useEffect(() => {
+    if (query.length > 0) {
+      const filteredProducts = products.filter((product) =>
+        product.name.toLowerCase().includes(query.toLowerCase())
+      );
+      setTimeout(() => {
+        setSearchResults(filteredProducts);
+      }, 500);
+    } else {
+      setSearchResults([]);
+    }
+  }, [query]);
+
+  const handleClose = () => {
+    setOpen(false);
+    setQuery("");
+  };
 
   return (
     <>
@@ -48,14 +70,15 @@ export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
             className="fixed w-screen h-screen inset-0 z-[9999999] flex flex-col items-center justify-center p-6
-							bg-white/40 backdrop-blur backdrop-saturate-100 backdrop-contrast-100"
+							bg-white/40 backdrop-blur-2xl backdrop-saturate-100 backdrop-contrast-100"
+            onClick={handleClose}
           >
             <button
-              onClick={() => setOpen(false)}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-neutral-100"
+              onClick={handleClose}
+              className="absolute top-6 right-6 p-2 rounded-full hover:bg-white/20 transition"
               aria-label="Close search"
             >
-              <XIcon className="h-6 w-6 text-neutral-700" />
+              <X className="h-6 w-6 text-red-500" />
             </button>
 
             <motion.div
@@ -76,59 +99,105 @@ export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
                 ease: [0.19, 1, 0.22, 1],
                 duration: 0.7,
               }}
+              onClick={(e) => e.stopPropagation()}
             >
-              {/* Input */}
-              <div className="w-full relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2">
-                  <SearchIcon className="text-neutral-500" />
-                </span>
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="w-full pl-12 pr-5 py-[.9rem] text-base rounded-full outline-none"
-                  placeholder="Search for products..."
-                  autoFocus
-                />
-              </div>
+              {/* Search Input Container - Always rounded-3xl */}
+              <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+                {/* Input */}
+                <div className="relative">
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2">
+                    <SearchIcon className="text-neutral-400 h-5 w-5" />
+                  </span>
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    className="w-full pl-14 pr-5 py-5 text-base outline-none bg-transparent"
+                    placeholder="Search for products..."
+                    autoFocus
+                  />
+                </div>
 
-              {/* ✅ AnimatePresence controls the results area */}
-              <AnimatePresence mode="sync">
-                {query.length > 0 && (
-                  <motion.div
-                    key="results"
-                    initial={{
-                      opacity: 0,
-                      y: -10,
-                      height: 0,
-                      boxShadow: "0 0 0 rgba(0,0,0,0)",
-                    }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      height: "fit-content",
-                      boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
-                    }}
-                    exit={{
-                      opacity: 0,
-                      y: -10,
-                      height: 0,
-                      boxShadow: "0 0 0 rgba(0,0,0,0)",
-                    }}
-                    transition={{
-                      duration: 0.5,
-                      ease: [0.19, 1, 0.22, 1],
-                    }}
-                    className="px-5 rounded-b-3xl text-sm text-neutral-600 border-t border-slate-100 bg-white overflow-y-auto"
-                  >
-                    <div className="space-y-2 px-5 py-3">
-                      <p>Showing results for “{query}”</p>
-                      {Array.from({ length: 10 }).map((_, i) => (
-                        <p key={i}>Product {i + 1}</p>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                {/* Results */}
+                <AnimatePresence>
+                  {query.length > 0 && (
+                    <motion.div
+                      key="results"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{
+                        duration: 0.2,
+                        ease: "easeOut",
+                      }}
+                      className="border-t border-slate-200 overflow-hidden"
+                    >
+                      <div className="px-6 py-4 max-h-[400px] overflow-y-auto">
+                        <div className="flex justify-between items-center mb-4">
+                          <p className="text-sm text-neutral-500 ">
+                            {searchResults.length} results for "{query}"
+                          </p>
+                          {searchResults.length > 3 ? (
+                            <Link
+                              onClick={handleClose}
+                              href={`/search?q=${query}`}
+                              className="text-xs bg-secondary/90 px-3 py-[.3rem] rounded-full text-slate-50"
+                            >
+                              view all
+                            </Link>
+                          ) : null}
+                        </div>
+                        <ul className="space-y-1">
+                          {searchResults.map((product, index) => (
+                            <motion.li
+                              key={product.id}
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{
+                                delay: index * 0.05,
+                                ease: "easeOut",
+                                duration: 0.4,
+                              }}
+                            >
+                              <Link
+                                onClick={handleClose}
+                                href={`/product/${product.name
+                                  .split(" ")
+                                  .join("-")
+                                  .toLowerCase()}`}
+                                className="w-full flex gap-4 items-center p-3 rounded-xl hover:bg-slate-50  text-left"
+                              >
+                                <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                  <Image
+                                    src={`/products/${product.images[0]}`}
+                                    alt={product.name}
+                                    width={24}
+                                    height={24}
+                                    unoptimized
+                                    className="object-cover w-full h-full"
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-neutral-900 truncate">
+                                    {product.name}
+                                  </p>
+                                  <p className="text-xs text-neutral-500">
+                                    {product.category}
+                                  </p>
+                                </div>
+                              </Link>
+                            </motion.li>
+                          ))}
+                        </ul>
+                        {searchResults.length === 0 && (
+                          <p className="text-sm text-neutral-400 text-center py-8">
+                            No products found
+                          </p>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </motion.div>
           </motion.div>
         )}

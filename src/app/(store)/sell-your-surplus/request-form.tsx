@@ -3,36 +3,55 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch, FieldErrors } from "react-hook-form";
 import SelectBox from "@/app/dashboard/components/Select";
 import { ImageThumbnail } from "@/app/dashboard/components/Image-Thumbnail";
 import ImageDialog from "@/app/dashboard/components/Image-Dialog";
-
+import { toast } from "sonner";
 import { useProductBuilder } from "@/app/dashboard/context/ProductFormContext";
+import { useState } from "react";
+import axios from "axios";
+import { cn } from "@/lib/utils";
+import SubmitSucess from "@/ui/Submit-sucess";
 interface SurplusRequestFormValues {
   name: string;
   phone: string;
   email: string;
-  businessName: string;
+  business: string;
   description: string;
   category: string;
   quantity: string;
   quantityType: string;
   condition: string;
   location: string;
-  createdAt: string;
   images: FileList | File[] | string[];
 }
+
+const fieldOrder: (keyof SurplusRequestFormValues)[] = [
+  "images",
+  "location",
+  "condition",
+  "quantityType",
+  "quantity",
+  "category",
+  "description",
+  "business",
+  "email",
+  "email",
+  "phone",
+  "name",
+];
 
 export default function SurplusRequestForm() {
   const { images, files, openViewer, removeImage, handleImageChange } =
     useProductBuilder();
+  const [successOpen, setSuccessOpen] = useState(false);
   const form = useForm<SurplusRequestFormValues>({
     defaultValues: {
       name: "",
       phone: "",
       email: "",
-      businessName: "",
+      business: "",
       description: "",
       category: "",
       quantity: "",
@@ -41,20 +60,84 @@ export default function SurplusRequestForm() {
       location: "",
     },
   });
+  const [status, setStatus] = useState<null | string>();
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = form;
 
-  const { register, handleSubmit } = form;
+  const quantityType = useWatch({
+    control: form.control,
+    name: "quantityType",
+  });
+  const condition = useWatch({
+    control: form.control,
+    name: "condition",
+  });
 
-  const onSubmit = (data: SurplusRequestFormValues) => {
-    console.log("FORM DATA:", data);
+  const onError = async (errors: FieldErrors<SurplusRequestFormValues>) => {
+    for (const field of fieldOrder) {
+      const err = errors[field];
+      if (err?.message) {
+        toast.error(err.message, {
+          className:
+            "!bg-red-600/40 backdrop-blur-xl !text-slate-100 border !border-red-400/60",
+        });
+      }
+    }
+  };
+
+  const onSubmit = async (data: SurplusRequestFormValues) => {
+    try {
+      const formData = new FormData();
+
+      Object.entries(data).forEach(([key, value]) => {
+        if (key !== "images") {
+          formData.append(key, value as string);
+        }
+      });
+
+      files.forEach((img: File, index: number) => {
+        formData.append("images", img, img.name || `image-${index}.jpg`);
+      });
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/surplus-requests`,
+        {
+          body: formData,
+        }
+      );
+
+      if (res.data.status === "success") {
+        toast.success("Request Submitted!", {
+          className:
+            "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+        });
+        setSuccessOpen(true);
+      } else {
+        toast.error("Something went wrong.", {
+          className:
+            "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+        });
+      }
+      setStatus(res.data.status);
+    } catch (err) {
+      console.error("Error:", err);
+      toast.error("Something went wrong.", {
+        className:
+          "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+      });
+      setStatus("error");
+    }
   };
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit, onError)}
       className="grid grid-cols-2 bg-white border border-neutral-300/30 rounded-lg p-5 gap-6 mt-4"
     >
+      <SubmitSucess successOpen={successOpen} setSuccessOpen={setSuccessOpen} />
       <ImageDialog />
-      {/* NAME */}
       <Field important label="Name">
         <Input placeholder="Full name" {...register("name")} />
       </Field>
@@ -71,7 +154,7 @@ export default function SurplusRequestForm() {
 
       {/* BUSINESS */}
       <Field important label="Business">
-        <Input placeholder="Your Company" {...register("businessName")} />
+        <Input placeholder="Your Company" {...register("business")} />
       </Field>
 
       {/* CATEGORY */}
@@ -91,9 +174,8 @@ export default function SurplusRequestForm() {
             {...register("quantity")}
             className="w-full col-span-3"
           />
-
           <SelectBox
-            value={form.watch("quantityType")}
+            value={quantityType}
             onChange={(v) => form.setValue("quantityType", v)}
             categories={["Pcs", "Kg", "Lbs"]}
           />
@@ -102,20 +184,18 @@ export default function SurplusRequestForm() {
 
       {/* CONDITION */}
       <Field important label="Condition">
-        <Input placeholder="Product Condition" {...register("condition")} />
+        <SelectBox
+          value={condition}
+          onChange={(v) => form.setValue("condition", v)}
+          categories={["New", "Used", "Open box"]}
+          placeholder="Select Condition"
+        />
       </Field>
 
       {/* LOCATION */}
       <Field important label="Location">
         <Input placeholder="Complete Address" {...register("location")} />
       </Field>
-
-      {/* SUBMITTED ON */}
-      <div className="col-span-2">
-        <Field important label="Submitted On">
-          <Input {...register("createdAt")} />
-        </Field>
-      </div>
 
       {/* DESCRIPTION */}
       <div className="col-span-2">
@@ -172,18 +252,34 @@ export default function SurplusRequestForm() {
             </label>
           </div>
 
-          <ImageThumbnail
-            removeImage={removeImage}
-            images={images}
-            files={files}
-            openViewer={openViewer}
-          />
+          <div className="mt-4">
+            <ImageThumbnail
+              removeImage={removeImage}
+              images={images}
+              files={files}
+              openViewer={openViewer}
+            />
+          </div>
         </div>
       </div>
 
       {/* SUBMIT BUTTON */}
       <div className="col-span-2 flex justify-end">
-        <Button type="submit">Submit Request</Button>
+        <Button
+          isLoading={isSubmitting}
+          className={cn(
+            "w-fit h-11 text-white transition",
+
+            !status
+              ? "bg-secondary hover:bg-secondary/80"
+              : status === "success"
+              ? "bg-green-600 hover:bg-green-500"
+              : "bg-red-500 hover:bg-red-400"
+          )}
+          type="submit"
+        >
+          Submit Request
+        </Button>
       </div>
     </form>
   );

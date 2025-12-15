@@ -8,7 +8,9 @@ import Searchbar from "../../components/searchbar";
 import { PaginationWrapper } from "@/ui/PaginationWrapper";
 import { DeleteConfirmDialog } from "@/ui/DeleteDialogWrapper";
 import { StatsGrid } from "../../components/Info-Cards";
+import { useRouter } from "next/navigation";
 const Page = () => {
+  const router = useRouter();
   return (
     <RootLayoutWrapper>
       <ProductProvider products={products}>
@@ -29,7 +31,8 @@ const Page = () => {
               catalogs={3}
               actionCard={{
                 title: "Add Product",
-                onClick: () => window.alert("Propmpt triggered"),
+                onClick: () =>
+                  router.push("/dashboard/manage-products/products/add"),
               }}
             />
           </div>

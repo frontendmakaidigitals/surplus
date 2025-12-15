@@ -1,91 +1,133 @@
 "use server";
 
-import type { Cart } from "commerce-kit";
-import { clearCartId, getCartId, setCartId } from "@/lib/cart-cookies";
-import { commerce } from "@/lib/commerce";
+import { getCartId, setCartId, clearCartId } from "@/lib/cart-cookies";
 
+export interface CartItem {
+  variantId: string;
+  quantity: number;
+}
+
+export interface Cart {
+  id: string;
+  items: CartItem[];
+}
+
+/**
+ * Get the cart from cookies (simple in-memory or cookie-based storage)
+ */
 export async function getCartAction(): Promise<Cart | null> {
-	const cartId = await getCartId();
-	if (!cartId) return null;
+  const cartId = await getCartId();
+  if (!cartId) return null;
 
-	try {
-		const cart = await commerce.cart.get({ cartId });
-		return cart;
-	} catch (error) {
-		console.error("Error fetching cart:", error);
-		return null;
-	}
+  // Example: Fetch cart from server-side database if needed
+  // For demo, we use a placeholder
+  const storedCart = await fetchCartFromStorage(cartId);
+  return storedCart;
 }
 
-export async function addToCartAction(variantId: string, quantity = 1): Promise<Cart | null> {
-	try {
-		let cartId = await getCartId();
+/**
+ * Add an item to the cart
+ */
+export async function addToCartAction(
+  variantId: string,
+  quantity = 1
+): Promise<Cart> {
+  let cartId = await getCartId();
+  let cart: Cart | null = null;
 
-		const cart = await commerce.cart.add({
-			cartId: cartId || undefined,
-			variantId,
-			quantity,
-		});
+  if (cartId) {
+    cart = await fetchCartFromStorage(cartId);
+  }
 
-		// Store cart ID if this was the first item
-		if (!cartId && cart.id) {
-			await setCartId(cart.id);
-		}
+  if (!cart) {
+    cartId = crypto.randomUUID(); // create a new cart ID
+    cart = { id: cartId, items: [] };
+    await setCartId(cartId);
+  }
 
-		return cart;
-	} catch (error) {
-		console.error("Error adding to cart:", error);
-		throw error;
-	}
+  const existingItem = cart.items.find((item) => item.variantId === variantId);
+  if (existingItem) {
+    existingItem.quantity += quantity;
+  } else {
+    cart.items.push({ variantId, quantity });
+  }
+
+  await saveCartToStorage(cart);
+  return cart;
 }
 
-export async function updateCartItemAction(variantId: string, quantity: number): Promise<Cart | null> {
-	const cartId = await getCartId();
-	if (!cartId) return null;
+/**
+ * Update quantity of an item in the cart
+ */
+export async function updateCartItemAction(
+  variantId: string,
+  quantity: number
+): Promise<Cart | null> {
+  const cartId = await getCartId();
+  if (!cartId) return null;
 
-	try {
-		const cart = await commerce.cart.update({
-			cartId,
-			variantId,
-			quantity,
-		});
-		return cart;
-	} catch (error) {
-		console.error("Error updating cart item:", error);
-		throw error;
-	}
+  const cart = await fetchCartFromStorage(cartId);
+  if (!cart) return null;
+
+  const item = cart.items.find((i) => i.variantId === variantId);
+  if (item) item.quantity = quantity;
+
+  await saveCartToStorage(cart);
+  return cart;
 }
 
-export async function removeFromCartAction(variantId: string): Promise<Cart | null> {
-	const cartId = await getCartId();
-	if (!cartId) return null;
+/**
+ * Remove an item from the cart
+ */
+export async function removeFromCartAction(
+  variantId: string
+): Promise<Cart | null> {
+  const cartId = await getCartId();
+  if (!cartId) return null;
 
-	try {
-		const cart = await commerce.cart.remove({
-			cartId,
-			variantId,
-		});
-		return cart;
-	} catch (error) {
-		console.error("Error removing from cart:", error);
-		throw error;
-	}
+  const cart = await fetchCartFromStorage(cartId);
+  if (!cart) return null;
+
+  cart.items = cart.items.filter((i) => i.variantId !== variantId);
+
+  await saveCartToStorage(cart);
+  return cart;
 }
 
+/**
+ * Clear the cart completely
+ */
 export async function clearCartAction(): Promise<void> {
-	const cartId = await getCartId();
-	if (!cartId) return;
+  const cartId = await getCartId();
+  if (!cartId) return;
 
-	try {
-		await commerce.cart.clear({ cartId });
-		await clearCartId();
-	} catch (error) {
-		console.error("Error clearing cart:", error);
-		throw error;
-	}
+  await removeCartFromStorage(cartId);
+  await clearCartId();
 }
 
+/**
+ * Get total item count
+ */
 export async function getCartItemCount(): Promise<number> {
-	const cart = await getCartAction();
-	return cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const cart = await getCartAction();
+  return cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
+}
+
+/* ----------------------
+   Mock storage functions
+-------------------------*/
+
+// These can be replaced with your database or in-memory store
+const cartStorage: Record<string, Cart> = {};
+
+async function fetchCartFromStorage(cartId: string): Promise<Cart | null> {
+  return cartStorage[cartId] || null;
+}
+
+async function saveCartToStorage(cart: Cart) {
+  cartStorage[cart.id] = cart;
+}
+
+async function removeCartFromStorage(cartId: string) {
+  delete cartStorage[cartId];
 }

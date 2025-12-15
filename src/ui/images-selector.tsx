@@ -19,13 +19,13 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({ images = [] }) => {
 
   return (
     <div className="lg:col-span-7 lg:row-span-3 lg:row-start-1 flex flex-col gap-4">
-      {/* Main large image */}
-      <div className="relative w-full aspect-video bg-white rounded-xl overflow-hidden border">
+      <div className="relative w-full aspect-video bg-white rounded-lg overflow-hidden border">
         <Image
-          src={selectedImage || 'https://png.pngtree.com/png-vector/20220608/ourmid/pngtree-shopping-bag-icon-design-vector-templates-white-on-background-png-image_4900872.png'}
+          src={`/products/${selectedImage}`}
           alt="Selected product image"
           fill
-          className="object-contain transition-transform duration-300 hover:scale-105"
+          unoptimized
+          className="object-contain transition-transform duration-300"
         />
       </div>
 
@@ -38,14 +38,15 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({ images = [] }) => {
               onClick={() => setSelectedImage(image)}
               className={`relative w-20 h-20 rounded-lg border overflow-hidden flex-shrink-0 transition-all ${
                 selectedImage === image
-                  ? "ring-2 ring-blue-500 border-blue-500"
-                  : "border-gray-200 hover:border-blue-400"
+                  ? " border-primary" 
+                  : "border-gray-200 hover:border-primary/80"
               }`}
             >
               <Image
-                src={image}
+                src={`/products/${image}`}
                 alt={`Thumbnail ${i + 1}`}
                 fill
+                unoptimized
                 className="object-cover"
               />
             </button>

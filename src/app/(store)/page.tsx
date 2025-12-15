@@ -1,14 +1,15 @@
 import type { Metadata } from "next/types";
 import { publicUrl } from "@/env.mjs";
-import { ProductList } from "@/ui/products/product-list";
+
 import { HeroSlider } from "@/ui/hero-slider";
-import { NewProduct } from "@/ui/new-product";
+
 import ShopByCategory from "@/ui/shopby-category";
 import Image from "next/image";
 import ReviewsSection from "@/ui/Testimonial";
 import { products, categories } from "../../../data";
 import RootLayoutWrapper from "@/ui/rootlayout";
-
+import { ArrowUpRight } from "lucide-react";
+import ProductCard from "@/ui/product-card";
 export const metadata: Metadata = {
   alternates: { canonical: publicUrl },
 };
@@ -151,8 +152,9 @@ export default async function Home() {
                         <Image
                           src={item.image}
                           alt={item.title}
-                          fill
-                          className="object-contain"
+                          width={1200}
+                          height={800}
+                          className="object-contain w-full h-full"
                         />
                       </div>
                     </div>
@@ -177,19 +179,80 @@ export default async function Home() {
             <span className="absolute left-0 -bottom-1 h-[3px] w-24 bg-gradient-to-r from-red-500 to-orange-400 rounded-full"></span>
           </h2>
 
-          <ProductList productData={productList} />
+          <div className="relative grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-5 lg:gap-4">
+            {productList.slice(0, 5).map((product) => (
+              <ProductCard
+                key={product.id}
+                resizeable
+                product={product}
+                layoutName="new"
+              />
+            ))}
+          </div>
         </section>
         <section className="mt-14">
           <h2 className="relative mb-6 text-3xl font-semibold tracking-tight text-gray-900">
             New Products
             <span className="absolute left-0 -bottom-1 h-[3px] w-24 bg-gradient-to-r from-green-500 to-lime-400 rounded-full"></span>
           </h2>
-          <NewProduct productData={productList} />
+          <div className="relative grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-5 lg:gap-4">
+            {productList.slice(5, 10).map((product) => (
+              <ProductCard
+                key={product.id}
+                resizeable
+                product={product}
+                layoutName="hot"
+              />
+            ))}
+          </div>
         </section>
         {/* Banner Image */}
-        <div className="bg-slate-200 rounded-lg mt-14 h-[200px] lg:h-[320px] flex justify-center items-center w-full">
-          <p className="text-gray-800 text-xl font-[500]">Banner Image</p>
+        <div className="grid grid-cols-2 gap-4">
+          {[
+            {
+              img: "/img1.jpg",
+              title: "Schinder Surplus",
+              desc: "Wide Range of Industrial Products",
+            },
+            {
+              img: "/img2.jpg",
+              title: "Bosch Surplus",
+              desc: "Surplus Heavy and Light Industrial Products",
+            },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className="relative group mt-14 h-[200px] lg:min-h-[420px] w-full overflow-hidden rounded-xl"
+            >
+              <img
+                src={item.img}
+                alt={item.title}
+                className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+              />
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-100 transition-opacity duration-500 " />
+
+              <div className="absolute bottom-0 w-full px-10 py-10 text-white">
+                <div className="  transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100 space-y-3">
+                  <div className="">
+                    <h2 className="text-5xl font-[400] leading-tight !text-[#b5e3e4]">
+                      {item.title}
+                    </h2>
+                    <p className=" mt-1 text-white/80">{item.desc}</p>
+                  </div>
+
+                  <button className="mt-2 inline-flex items-center gap-2 bg-white px-4 py-2 text-xs font-semibold text-black rounded-md transition-all duration-300 hover:bg-black hover:text-white">
+                    Shop now
+                    <span>
+                      <ArrowUpRight className="w-5 h-5" />
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
+
         {/* Banner Image */}
         <section className="mt-14">
           <h2 className="mb-8 text-3xl font-semibold tracking-tight text-gray-900 underline underline-offset-8 decoration-secondary">
@@ -243,7 +306,7 @@ function CTASection() {
             </div>
             <div className="px-5 py-8">
               <div>
-                <h3 className="text-3xl text-center font-[400] mb-3">
+                <h3 className="text-3xl text-center font-[600] mb-3">
                   Sell Your Surplus Inventory
                 </h3>
                 <p className="text-neutral-300 text-center mb-6">

@@ -56,8 +56,8 @@ export function HeroSlider() {
         ))}
       </CarouselContent>
       <div className="hidden lg:flex absolute bottom-5 right-0 justify-end items-center gap-2 px-4 pt-3">
-        <CarouselPrevious className="static translate-y-0 bg-blue-500 hover:bg-blue-400 text-slate-50 disabled:bg-slate-400" />
-        <CarouselNext className="static translate-y-0 bg-blue-500 hover:bg-blue-400 text-slate-50 disabled:bg-slate-400" />
+        <CarouselPrevious className="static translate-y-0 bg-secondary hover:bg-blue-400 text-slate-50 disabled:bg-slate-400" />
+        <CarouselNext className="static translate-y-0 bg-secondary hover:bg-blue-400 text-slate-50 disabled:bg-slate-400" />
       </div>
       <div className="absolute -bottom-6 left-0 right-0 flex justify-center items-center gap-2 z-10">
         {slides.map((_, i) => (
@@ -66,7 +66,7 @@ export function HeroSlider() {
             onClick={() => api?.scrollTo(i)}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
               currentIndex === i
-                ? "bg-blue-600 scale-125"
+                ? "bg-secondary scale-125"
                 : "bg-gray-300 hover:bg-blue-400"
             }`}
           />

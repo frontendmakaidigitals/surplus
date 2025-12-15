@@ -215,7 +215,11 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
         </div>
 
         <SheetFooter className="gap-2">
-          <Button variant="outline" onClick={handleReset} className="flex-1 hover:text-primary-foreground">
+          <Button
+            variant="outline"
+            onClick={handleReset}
+            className="flex-1 hover:text-primary-foreground"
+          >
             <X className="w-4 h-4 mr-2" />
             Reset
           </Button>
