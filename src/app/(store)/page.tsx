@@ -10,6 +10,7 @@ import { products, categories } from "../../../data";
 import RootLayoutWrapper from "@/ui/rootlayout";
 import { ArrowUpRight } from "lucide-react";
 import ProductCard from "@/ui/product-card";
+import Link from "next/link";
 export const metadata: Metadata = {
   alternates: { canonical: publicUrl },
 };
@@ -277,12 +278,19 @@ function CTASection() {
         <div className="grid md:grid-cols-2 gap-8">
           {/* CTA 1 – Buy Products */}
           <div className="bg-orange-500/5 flex flex-col justify-between">
-            <div className="bg-slate-200 h-[200px] lg:h-[320px] flex justify-center items-center w-full">
-              <p className="text-gray-800 text-xl font-[500]">CTA Image</p>
+            <div className="bg-slate-200 relative h-[200px] lg:h-[320px] flex justify-center items-center w-full">
+              <Image
+                src={
+                  "https://images.unsplash.com/photo-1632496497047-706290273235?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                }
+                alt={""}
+                fill
+                className="object-cover"
+              />
             </div>
             <div className="px-5 py-8">
               <div>
-                <h3 className="text-3xl text-center font-[400] mb-3">
+                <h3 className="text-3xl text-center font-[500] mb-3">
                   Get Quality Industrial Parts
                 </h3>
                 <p className="text-neutral-600 text-center mb-6">
@@ -292,20 +300,27 @@ function CTASection() {
                 </p>
               </div>
               <div className="flex justify-center">
-                <a
-                  href="/shop"
+                <Link
+                  href="/"
                   className="mt-auto inline-block text-center px-6 py-3 bg-primary text-white  font-medium hover:bg-primary/90 transition"
                 >
                   Shop Industrial Parts
-                </a>
+                </Link>
               </div>
             </div>
           </div>
 
           {/* CTA 2 – Sell Surplus */}
           <div className="bg-neutral-900 text-white  flex flex-col justify-between">
-            <div className="bg-slate-200 h-[200px] lg:h-[320px] flex justify-center items-center w-full">
-              <p className="text-gray-800 text-xl font-[500]">CTA Image</p>
+            <div className="bg-slate-200 relative h-[200px] lg:h-[320px] flex justify-center items-center w-full">
+              <Image
+                src={
+                  "https://images.unsplash.com/photo-1595246007497-15e0ed4b8d96?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                }
+                alt={""}
+                fill
+                className="object-cover"
+              />
             </div>
             <div className="px-5 py-8">
               <div>
@@ -319,12 +334,12 @@ function CTASection() {
               </div>
 
               <div className="flex justify-center">
-                <a
-                  href="/sell"
+                <Link
+                  href="/sell-your-surplus"
                   className="mt-auto inline-block text-center px-6 py-3 bg-white text-neutral-900 font-medium hover:bg-neutral-200 transition"
                 >
                   Sell Your Products
-                </a>
+                </Link>
               </div>
             </div>
           </div>
