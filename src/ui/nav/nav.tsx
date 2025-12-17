@@ -36,7 +36,6 @@ export const Nav = () => {
     { label: "Product Categories", href: "/categories" },
     { label: "Guarantee & Refunds", href: "/gurantees-and-refunds" },
     { label: "Shipping options", href: "/shipment-overview" },
-    { label: "Resources", href: "/resources" },
     { label: "Sell your surplus", href: "/sell-your-surplus" },
     { label: "Contact Us", href: "/contact" },
   ];

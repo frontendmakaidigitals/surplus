@@ -34,7 +34,7 @@ export default async function ProductPage(props: {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <YnsLink href="/products">All Products</YnsLink>
+                <YnsLink href="/">Home</YnsLink>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <StoreProductView productId={product.id} />
