@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import {
   categories as initialCategories,
   Category,
@@ -13,9 +12,6 @@ import { CategoriesTable } from "../../components/category/CategoriesTable";
 import { CategoriesDialog } from "../../components/category/CategoriesDialog";
 
 export default function CategoriesPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
   const {
     categories,
     addCategory,
@@ -23,17 +19,15 @@ export default function CategoriesPage() {
     deleteCategory,
     addSubCategory,
     deleteSubCategory,
-    updateSubCategory,
+    updateSubCategory, // Make sure to destructure this too!
   } = useCategoryActions(initialCategories);
 
   const [view, setView] = useState<"table" | "card">("table");
-  const [selectedCategory, setSelectedCategory] = useState<
-    Category | SubCategory | null
-  >(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
   const [editing, setEditing] = useState<any>(null);
-  const [manageSubsFor, setManageSubsFor] = useState<
-    Category | SubCategory | null
-  >(null);
+  const [manageSubsFor, setManageSubsFor] = useState<Category | null>(null);
   const [open, setOpen] = useState(false);
 
   // Helper function to find a category/subcategory by ID
@@ -63,22 +57,6 @@ export default function CategoriesPage() {
     return null;
   };
 
-  // Sync state with URL on mount and when URL changes
-  useEffect(() => {
-    const categoryId = searchParams.get("category");
-    if (categoryId) {
-      const category = findItemById(categories, categoryId);
-      if (category) {
-        setSelectedCategory(category);
-      } else {
-        // Category not found, clear URL
-        router.replace("/admin/categories");
-      }
-    } else {
-      setSelectedCategory(null);
-    }
-  }, [searchParams, categories]);
-
   // Sync manageSubsFor with the latest category data whenever categories change
   useEffect(() => {
     if (manageSubsFor) {
@@ -89,20 +67,20 @@ export default function CategoriesPage() {
     }
   }, [categories]);
 
+  // Sync selectedCategory with the latest category data
+  useEffect(() => {
+    if (selectedCategory) {
+      const updated = findItemById(categories, selectedCategory.id);
+      if (updated) {
+        setSelectedCategory(updated as Category);
+      }
+    }
+  }, [categories]);
+
   const handleClose = () => {
     setOpen(false);
     setEditing(null);
     setManageSubsFor(null);
-  };
-
-  // Update URL when selecting a category
-  const handleSelectCategory = (category: Category | SubCategory) => {
-    router.push(`/admin/categories?category=${category.id}`);
-  };
-
-  // Clear selection and URL
-  const handleClearSelection = () => {
-    router.push("/admin/categories");
   };
 
   return (
@@ -118,18 +96,18 @@ export default function CategoriesPage() {
 
       <CategoriesBreadcrumb
         selected={selectedCategory}
-        clear={handleClearSelection}
+        clear={() => setSelectedCategory(null)}
       />
 
       {view === "table" && (
         <CategoriesTable
           data={selectedCategory?.subCategories || categories}
-          onSelect={handleSelectCategory}
+          onSelect={setSelectedCategory}
           onEdit={(row: any) => {
             setEditing(row);
             setOpen(true);
           }}
-          onAddSubs={(cat: Category | SubCategory) => {
+          onAddSubs={(cat: Category) => {
             setManageSubsFor(cat);
             setOpen(true);
           }}
@@ -148,11 +126,11 @@ export default function CategoriesPage() {
         addCategory={addCategory}
         addSubCategory={addSubCategory}
         updateCategory={updateCategory}
-        updateSubCategory={updateSubCategory}
+        updateSubCategory={updateSubCategory} // Pass this prop!
         deleteSubCategory={deleteSubCategory}
         setEditing={setEditing}
         setManageSubsFor={setManageSubsFor}
-        activeCategory={selectedCategory}
+        activeCategory={selectedCategory} // Pass selectedCategory as activeCategory
         setActiveCategory={setSelectedCategory}
         handleClose={handleClose}
       />
