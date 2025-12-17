@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { categories } from "../../../data";
-import { slugify } from "@/app/(store)/product/[slug]/page";
+import { slugify } from "../slugify";
 export const NavMenu = ({
   links,
   loginStatus,

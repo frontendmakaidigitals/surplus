@@ -15,14 +15,7 @@ import { products } from "../../../../../data";
 import RecentItems from "@/ui/recent-items";
 import SimilarItems from "@/ui/similar-items";
 import ProductDetail from "./product-detail";
-export function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/&/g, "and")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
+import { slugify } from "@/ui/slugify";
 export default async function ProductPage(props: {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ variant?: string; image?: string }>;

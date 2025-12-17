@@ -23,7 +23,7 @@ import {
   PaginationPrevious,
 } from "@/ui/pagination";
 import ProductCard from "@/ui/product-card";
-import { slugify } from "../../product/[slug]/page";
+import { slugify } from "@/ui/slugify";
 import { products } from "../../../../../data";
 import ProductCount from "@/ui/product-count";
 import PageFilter from "./pageFilter";
