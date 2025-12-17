@@ -61,9 +61,9 @@ export default function SimilarItems({ currentProductId }: SimilarItemsProps) {
             {similarProducts.map((product) => (
               <CarouselItem
                 key={product.id}
-                className="md:basis-1/2 lg:basis-1/5"
+                className="basis-1/2 lg:basis-1/5"
               >
-                <ProductCard product={product} />
+                <ProductCard layoutName={'similar'} product={product} />
               </CarouselItem>
             ))}
           </CarouselContent>

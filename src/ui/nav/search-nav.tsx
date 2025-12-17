@@ -6,6 +6,7 @@ import { products } from "../../../data";
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "../../../data";
+import { useIsMobile } from "../shadcn/hooks/use-mobile";
 interface SearchNavProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -13,7 +14,7 @@ interface SearchNavProps {
 export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
-
+  const isMobile = useIsMobile();
   useEffect(() => {
     const handleKeyDown = (e: any) => {
       if (e.key === "Escape") {
@@ -69,7 +70,7 @@ export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
-            className="fixed w-screen h-screen inset-0 z-[9999999] flex flex-col items-center justify-center p-6
+            className="fixed w-screen h-screen inset-0 z-[9999999] flex flex-col items-center justify-start p-6
 							bg-white/40 backdrop-blur-2xl backdrop-saturate-100 backdrop-contrast-100"
             onClick={handleClose}
           >
@@ -85,11 +86,11 @@ export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
               className={`w-full ${
                 query.length > 0 ? "rounded-3xl" : "rounded-full"
               } shadow-sm border border-slate-600/10 bg-white overflow-hidden`}
-              initial={{ opacity: 0, y: 150 }}
+              initial={{ opacity: 0, y: 250 }}
               animate={{
                 opacity: 1,
-                y: -150,
-                maxWidth: "50vw",
+                y: isMobile ? 100 : 140,
+                maxWidth: isMobile ? "90vw" : "50vw",
                 boxShadow:
                   query.length > 0
                     ? "0 15px 40px rgba(0,0,0,0.08)"
@@ -98,6 +99,9 @@ export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
               transition={{
                 ease: [0.19, 1, 0.22, 1],
                 duration: 0.7,
+              }}
+              style={{
+                transformOrigin: "top",
               }}
               onClick={(e) => e.stopPropagation()}
             >

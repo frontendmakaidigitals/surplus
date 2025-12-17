@@ -23,11 +23,13 @@ function getRecentlyViewedIds(): string[] {
     return [];
   }
 }
+
 export default function RecentItems() {
   const [recentProducts, setRecentProducts] = useState<Product[]>([]);
   const carouselApi = useRef<CarouselApi | null>(null);
   useEffect(() => {
     const ids = getRecentlyViewedIds();
+
     if (ids.length === 0) return;
     const mapped = ids
       .map((id) => allProducts.find((p) => p.id === id))
@@ -37,6 +39,7 @@ export default function RecentItems() {
   }, []);
 
   if (recentProducts.length === 0) return null;
+  console.log(recentProducts);
   return (
     <section className="py-12 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4">
@@ -57,11 +60,8 @@ export default function RecentItems() {
         >
           <CarouselContent>
             {recentProducts.map((product) => (
-              <CarouselItem
-                key={product.id}
-                className="md:basis-1/2 lg:basis-1/5"
-              >
-                <ProductCard product={product} />
+              <CarouselItem key={product.id} className="basis-1/2 lg:basis-1/5">
+                <ProductCard layoutName={'recent'} product={product}  />
               </CarouselItem>
             ))}
           </CarouselContent>

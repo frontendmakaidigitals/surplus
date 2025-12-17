@@ -11,16 +11,16 @@ const ProductDetail = ({ product }: { product: Product }) => {
   return (
     <>
       {/* MAIN PRODUCT GRID */}
-      <div className="dmt-10 grid gap-12 lg:grid-cols-[1.5fr_1fr]">
+      <div className="mt-10 grid gap- grid-cols-1 lg:grid-cols-[1.5fr_1fr]">
         {/* LEFT — IMAGES */}
-        <div className="sticky top-24">
+        <div className=" lg:sticky top-24">
           <ImageSelector images={product.images} />
         </div>
 
         {/* RIGHT — PRODUCT INFO */}
         <div>
           {/* TITLE */}
-          <h1 className="text-3xl font-bold leading-tight text-foreground">
+          <h1 className="text-3xl mt-7 lg:mt-0 font-bold leading-tight text-foreground">
             {product.name}
           </h1>
 
