@@ -11,7 +11,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({ images = [] }) => {
 
   if (!images || images.length === 0) {
     return (
-      <div className="w-full aspect-video bg-white rounded-xl flex items-center justify-center border text-neutral-500">
+      <div className="w-full aspect-square bg-white rounded-xl flex items-center justify-center border text-neutral-500">
         No images available
       </div>
     );
@@ -19,7 +19,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({ images = [] }) => {
 
   return (
     <div className="lg:col-span-7 lg:row-span-3 lg:row-start-1 flex flex-col gap-4">
-      <div className="relative w-full aspect-video bg-white rounded-lg overflow-hidden border">
+      <div className="relative w-full aspect-[4/3] bg-slate-200/40 rounded-lg overflow-hidden border">
         <Image
           src={`/products/${selectedImage}`}
           alt="Selected product image"

@@ -10,34 +10,36 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import ImageUpload from "./imageUpload";
+import ImageUpload from "../imageUpload";
 
 const categorySchema = z.object({
-  name: z.string().min(1, "Category name is required"),
+  title: z.string().min(1, "Category name is required"),
   description: z.string().optional(),
-  image: z.string().min(1, "Image is required"),
+  img: z.string().min(1, "Image is required"),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
 
 type CategoryFormProps = {
-  onSubmit: (data: CategoryFormData) => void;
-  editing?: CategoryFormData | null;
+  action: (data: CategoryFormData & { parentId?: string }) => void;
+  editing?: Partial<CategoryFormData> | null;
   cancelEdit?: () => void;
+  parentId?: string;
 };
 
 export default function CategoryForm({
-  onSubmit,
+  action,
   editing,
   cancelEdit,
+  parentId,
 }: CategoryFormProps) {
-  const [status, setStatus] = useState<null | string>();
+  const [status, setStatus] = useState<null | string>(null);
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
-      name: "",
+      title: "",
       description: "",
-      image: "",
+      img: "",
     },
   });
 
@@ -55,28 +57,35 @@ export default function CategoryForm({
     if (editing) reset(editing);
   }, [editing, reset]);
 
-  const watchedImage = useWatch({ control, name: "image" });
+  const watchedImage = useWatch({ control, name: "img" });
 
   const submitHandler = async (data: CategoryFormData) => {
     try {
-      await axios.post("/api/categories", data);
+      const payload = {
+        ...data,
+        ...(parentId ? { parentId } : {}), // 👈 magic line
+      };
+
+      await axios.post("/api/categories", payload);
 
       toast.success(
         editing
           ? "Category updated successfully"
+          : parentId
+          ? "Sub category added successfully"
           : "Category added successfully",
         { id: "category" }
       );
 
-      onSubmit(data);
+      action(payload);
       setStatus("success");
       toast.success("Request Submitted!", {
         className:
           "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
       });
+
       reset();
     } catch (err: any) {
-      setStatus("error");
       toast.error("Something went wrong.", {
         className:
           "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
@@ -106,9 +115,9 @@ export default function CategoryForm({
         <Label>Name</Label>
         <Input
           placeholder="Electronics"
-          {...register("name")}
+          {...register("title")}
           className={` border border-slate-400/30 ${
-            errors.name
+            errors.title
               ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
               : ""
           }`}
@@ -135,9 +144,9 @@ export default function CategoryForm({
 
         <ImageUpload
           image={watchedImage}
-          error={errors.image?.message}
+          error={errors.img?.message}
           onChangeAction={(url) =>
-            setValue("image", url, { shouldValidate: true })
+            setValue("img", url, { shouldValidate: true })
           }
         />
       </div>

@@ -2,7 +2,7 @@ import React from "react";
 import RootLayoutWrapper from "@/ui/rootlayout";
 import { ProductProvider } from "@/app/dashboard/context/ProductContext";
 import { products } from "../../../../../../data";
-import ProductBuilder from "@/app/dashboard/components/ProductBuilder";
+import ProductBuilder from "@/app/dashboard/components/product/ProductBuilder";
 
 const Page = () => {
   return (

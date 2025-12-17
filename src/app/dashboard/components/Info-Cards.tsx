@@ -4,7 +4,6 @@ import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 
-// --- Reusable Stat Card -----------------------------------------
 export const StatCard = ({
   title,
   value,

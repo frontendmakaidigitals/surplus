@@ -7,7 +7,7 @@ import {
   useCallback,
 } from "react";
 
-import type { ProductFilters } from "../components/product-filter";
+import type { ProductFilters } from "../components/product/product-filter";
 import type { Product } from "../../../../data";
 
 interface ProductContextType {

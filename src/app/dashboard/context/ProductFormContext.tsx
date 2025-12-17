@@ -1,8 +1,8 @@
 import { createContext, useContext, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ProductBuilderValues } from "../components/Product-Form";
-import { productSchema } from "../components/ProductBuilder";
+import { ProductBuilderValues } from "../components/product/Product-Form";
+import { productSchema } from "../components/product/ProductBuilder";
 interface ProductBuilderContextType {
   form: any;
   watchAll: any;

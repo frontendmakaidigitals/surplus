@@ -6,8 +6,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { ImageThumbnail } from "./Image-Thumbnail";
-import { useProductBuilder } from "../context/ProductFormContext";
+import { ImageThumbnail } from "../Image-Thumbnail";
+import { useProductBuilder } from "../../context/ProductFormContext";
 
 const ImageDialog = () => {
   const {

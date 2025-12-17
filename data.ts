@@ -138,11 +138,11 @@ export const products = [
       "An item that has been used previously. The item may have some signs of cosmetic wear, but is fully operational and functions as intended. This item may be a floor model or store return that has been used. See the seller’s listing for full details and description of any imperfections",
     price: 299,
     images: [
+      "/s-l1600 (8).webp",
+      "/s-l1600 (10).webp",
       "/air in micro mano 1.webp",
       "/air micro 4.webp",
       "/s-l1600 (7).webp",
-      "/s-l1600 (8).webp",
-      "/s-l1600 (10).webp",
     ],
     category: "Consumer Electronics",
     condition: "Used",
@@ -169,11 +169,11 @@ export const products = [
       "An item in excellent, new condition with no wear. The item may be missing the original packaging or protective wrapping, or may be in the original packaging but not sealed. The item includes original accessories. The item may be a factory second. See the seller's listing for full details and description.",
     price: 375,
     images: [
+      "/s-l1600.webp",
       "/s-l1600 (2).webp",
       "/s-l1600 (3).webp",
       "/s-l1600 (4).webp",
       "/s-l1600 (5).webp",
-      "/s-l1600.webp",
     ],
     category: "Consumer Electronics",
     condition: "Open box",
@@ -440,8 +440,19 @@ export type Category = {
   title: string; // e.g. "Electrical"
   img: string;
   count?: number;
+  subCategories?: SubCategory[];
+  description?: string;
 };
 
+export type SubCategory = {
+  id: string;
+  title: string;
+  description?: string;
+  img: string;
+  count?: number;
+  parentId?: string;
+  subCategories?: SubCategory[];
+};
 export type Catalog = {
   id: string;
   title: string; // e.g. "Pepperl Fuchs Proximity Sensors"

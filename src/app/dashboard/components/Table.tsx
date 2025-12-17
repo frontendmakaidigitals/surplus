@@ -12,12 +12,16 @@ type TableProps<T> = {
   columns: Column<T>[];
   data: T[];
   emptyMessage?: string;
+  onRowClick?: (row: T) => void;
+  getRowClassName?: (row: T) => string;
 };
 
 export function Table<T>({
   columns,
   data,
   emptyMessage = "No records found",
+  onRowClick,
+  getRowClassName,
 }: TableProps<T>) {
   return (
     <table className="w-full table-auto">
@@ -36,10 +40,13 @@ export function Table<T>({
           data.map((row, rowIndex) => (
             <tr
               key={rowIndex}
-              className="border-b hover:bg-slate-50 transition"
+              className={`border-b hover:bg-slate-50 transition ${getRowClassName?.(
+                row
+              )}`}
+              onClick={() => onRowClick && onRowClick(row)} // call
             >
               {columns.map((col, colIndex) => (
-                <td key={colIndex} className={`p-4 ${col.className || ""}`}>
+                <td key={colIndex} className={`p-4  ${col.className || ""}`}>
                   {col.render
                     ? col.render(row)
                     : (row[col.accessor as keyof T] as any)}

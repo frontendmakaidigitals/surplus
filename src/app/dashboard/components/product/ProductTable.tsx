@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useProductContext } from "../context/ProductContext";
+import { useProductContext } from "../../context/ProductContext";
 
 const ProductTable = () => {
   const {
@@ -73,7 +73,11 @@ const ProductTable = () => {
               <TableCell>
                 <div className="flex items-center gap-3">
                   <div className="w-16 h-12 bg-gray-100 rounded flex items-center justify-center">
-                    <img src={product.images[0]} className="w-full h-full object-contain" alt={product.name} />
+                    <img
+                      src={product.images[0]}
+                      className="w-full h-full object-contain"
+                      alt={product.name}
+                    />
                   </div>
                   <div className="max-w-xs">
                     <div className="font-medium truncate">{product.name}</div>

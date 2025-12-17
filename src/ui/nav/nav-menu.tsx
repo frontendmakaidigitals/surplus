@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { categories } from "../../../data";
 
 export const NavMenu = ({
   links,
@@ -15,56 +16,84 @@ export const NavMenu = ({
   const moreLinks = links.slice(visibleCount);
 
   const [showMore, setShowMore] = useState(false);
+
   return (
-    <>
-      <div className="sm:block hidden">
-        <ul className="flex flex-row items-center justify-center gap-x-1 relative">
-          {visibleLinks.map((link) => (
+    <div className="hidden sm:block">
+      <ul className="flex items-center justify-center gap-x-1 relative">
+        {visibleLinks.map((link) =>
+          link.label === "Product Categories" ? (
+            /* ---------- PRODUCT CATEGORIES (HOVER) ---------- */
+            <li key={link.label} className="relative group">
+              <p className="inline-flex h-9 items-center gap-1 rounded-md px-4 py-2 text-sm font-medium hover:bg-neutral-100">
+                {link.label}
+                <ChevronDown size={14} />
+              </p>
+
+              {/* Dropdown */}
+              <div className="absolute left-0 top-full z-50 hidden group-hover:block">
+                <div className="mt-2 w-56 rounded-lg border bg-white shadow-xl">
+                  <ul className="py-2">
+                    {categories.map((cat) => (
+                      <li key={cat.id}>
+                        <Link
+                          href={`/category/${cat.title.split(" ").join("-")}`}
+                          className="block px-4 py-2 text-sm text-gray-800 hover:bg-neutral-100"
+                        >
+                          {cat.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </li>
+          ) : (
+            /* ---------- NORMAL LINKS ---------- */
             <li key={link.label}>
               <Link
                 href={link.href}
-                className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-neutral-100"
+                className="inline-flex h-9 items-center rounded-md px-4 py-2 text-sm font-medium hover:bg-neutral-100"
               >
                 {link.label}
               </Link>
             </li>
-          ))} 
+          )
+        )}
 
-          {/* “More” dropdown */}
-          {moreLinks.length > 0 && (
-            <li className="relative ">
-              <button
-                onClick={() => setShowMore((prev) => !prev)}
-                className="group inline-flex h-9 items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium hover:bg-neutral-100"
-              >
-                More
-                <ChevronDown
-                  size={16}
-                  className={`ml-1 transition-transform duration-300 ${
-                    showMore ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
+        {/* ---------- MORE DROPDOWN ---------- */}
+        {moreLinks.length > 0 && (
+          <li className="relative">
+            <button
+              onClick={() => setShowMore((prev) => !prev)}
+              className="inline-flex h-9 items-center rounded-md px-4 py-2 text-sm font-medium hover:bg-neutral-100"
+            >
+              More
+              <ChevronDown
+                size={16}
+                className={`ml-1 transition-transform ${
+                  showMore ? "rotate-180" : ""
+                }`}
+              />
+            </button>
 
-              {showMore && (
-                <ul className="absolute top-full left-0 w-48 rounded-lg border border-slate-200 bg-white shadow-xl py-2 z-50">
-                  {moreLinks.map((link) => (
-                    <li key={link.label}>
-                      <Link
-                        href={link.href}
-                        className="block px-4 py-2 text-sm hover:bg-neutral-100"
-                        onClick={() => setShowMore(false)}
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          )}
-        </ul>
-      </div>
-    </>
+            {showMore && (
+              <ul className="absolute left-0 top-full z-50 mt-2 w-48 rounded-lg border bg-white shadow-xl py-2">
+                {moreLinks.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="block px-4 py-2 text-sm hover:bg-neutral-100"
+                      onClick={() => setShowMore(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        )}
+      </ul>
+    </div>
   );
 };

@@ -44,7 +44,7 @@ export default function ReviewsSection({ reviews }: { reviews: Reviews }) {
 
   return (
     <section className="py-16">
-      <h2 className="text-center ml-5 text-2xl lg:text-3xl font-semibold mb-7">
+      <h2 className="text-center text-2xl lg:text-3xl font-semibold mb-7">
         What Our Customers Say
       </h2>
 
@@ -106,13 +106,13 @@ export default function ReviewsSection({ reviews }: { reviews: Reviews }) {
         <div className="flex justify-end gap-3">
           <button
             onClick={() => carouselApi.current?.scrollPrev()}
-            className="p-2 bg-black text-slate-100 "
+            className="p-2 bg-black rounded-md text-slate-100 "
           >
             <ArrowLeft />
           </button>
           <button
             onClick={() => carouselApi.current?.scrollNext()}
-            className="p-2 bg-black text-slate-100 "
+            className="p-2 bg-black rounded-md text-slate-100 "
           >
             <ArrowRight />
           </button>

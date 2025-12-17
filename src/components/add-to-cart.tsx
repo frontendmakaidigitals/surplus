@@ -26,7 +26,7 @@ export function AddToCart({ product, className, children }: AddToCartProps) {
   const handleIncrease = () => {
     addToCart(product, 1);
     toast.message("Product Quantity increased", {
-      className: "!bg-sky-500 cursor-grab text-white",
+      className: "!bg-sky-500 cursor-grab !text-white",
     });
   };
 
@@ -34,12 +34,12 @@ export function AddToCart({ product, className, children }: AddToCartProps) {
     if (cartItem && cartItem.quantity > 1) {
       addToCart(product, -1);
       toast.message("product Quantity decreased", {
-        className: "!bg-amber-500 cursor-grab text-white",
+        className: "!bg-amber-500  cursor-grab !text-white",
       });
     } else {
       removeFromCart(product.id);
       toast.message("Item Removed from cart", {
-        className: "!bg-rose-600 cursor-grab text-white",
+        className: "!bg-rose-600 !text-white cursor-grab ",
       });
     }
   };
@@ -91,9 +91,10 @@ export function AddToCart({ product, className, children }: AddToCartProps) {
           initial={{ opacity: 0, scaleX: 0 }}
           animate={{ opacity: 1, scaleX: 1 }}
           exit={{ opacity: 0, scaleX: 0 }}
+          whileHover={{ background: "black" }}
           transition={{ duration: 0.5, type: "spring" }}
           onClick={handleAdd}
-          className={`rounded-lg origin-left cursor-pointer bg-black px-6 py-3 text-white hover:bg-gray-800 ${className}`}
+          className={`rounded-lg origin-left cursor-pointer border border-black px-6 py-3 text-gray-900 hover:text-white ${className}`}
           disabled={(product?.stock ?? 0) <= 0}
         >
           {children}

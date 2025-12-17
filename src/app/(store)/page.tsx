@@ -1,8 +1,8 @@
 import type { Metadata } from "next/types";
 import { publicUrl } from "@/env.mjs";
-
+import PageLoader from "@/ui/pageLoader";
 import { HeroSlider } from "@/ui/hero-slider";
-
+import RecentItems from "@/ui/recent-items";
 import ShopByCategory from "@/ui/shopby-category";
 import Image from "next/image";
 import ReviewsSection from "@/ui/Testimonial";
@@ -134,136 +134,139 @@ export default async function Home() {
   const productList = products;
   const categoriesList = categories;
   return (
-    <section>
-      <div className="lg:container">
-        <HeroSlider />
-        <section className="rounded ">
-          <section className="hidden lg:block relative mt-3 ">
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.03)_0%,transparent_70%)]"></div>
-            <div className="max-w-6xl mx-auto px-6 relative z-10">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                {services.map((item, index) => (
-                  <div
-                    key={index}
-                    className={`flex flex-col sm:flex-row items-center gap-4 border border-slate-600/10 px-4 py-3 rounded-2xl shadow-sm cursor-pointer transition-all duration-300 relative overflow-visible`}
-                  >
-                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 overflow-visible">
-                      <div className="absolute inset-0 scale-[1.2] ">
-                        <Image
-                          src={item.image}
-                          alt={item.title}
-                          width={1200}
-                          height={800}
-                          className="object-contain w-full h-full"
-                        />
+    <PageLoader>
+      <section>
+        <div className="lg:container">
+          <HeroSlider />
+          <section className="rounded ">
+            <section className="hidden lg:block relative mt-3 ">
+              <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.03)_0%,transparent_70%)]"></div>
+              <div className="max-w-6xl mx-auto px-6 relative z-10">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  {services.map((item, index) => (
+                    <div
+                      key={index}
+                      className={`flex flex-col sm:flex-row items-center gap-4 border border-slate-600/10 px-4 py-3 rounded-2xl shadow-sm cursor-pointer transition-all duration-300 relative overflow-visible`}
+                    >
+                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 overflow-visible">
+                        <div className="absolute inset-0 scale-[1.2] ">
+                          <Image
+                            src={item.image}
+                            alt={item.title}
+                            width={1200}
+                            height={800}
+                            className="object-contain w-full h-full"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="text-center sm:text-left">
+                        <h3 className="text-xl font-[700] text-cyan-700 tracking-wide leading-tight">
+                          {item.title}
+                        </h3>
+                        <p className="text-sm text-gray-600">{item.desc}</p>
                       </div>
                     </div>
-
-                    <div className="text-center sm:text-left">
-                      <h3 className="text-xl font-[700] text-cyan-700 tracking-wide leading-tight">
-                        {item.title}
-                      </h3>
-                      <p className="text-sm text-gray-600">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        </section>
-      </div>
-      <RootLayoutWrapper>
-        <section className="mt-20">
-          <h2 className="relative mb-6 text-3xl font-semibold tracking-tight text-gray-900">
-            Hot Buy Products
-            <span className="absolute left-0 -bottom-1 h-[3px] w-24 bg-gradient-to-r from-red-500 to-orange-400 rounded-full"></span>
-          </h2>
-
-          <div className="relative grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-5 lg:gap-4">
-            {productList.slice(0, 5).map((product) => (
-              <ProductCard
-                key={product.id}
-                resizeable
-                product={product}
-                layoutName="new"
-              />
-            ))}
-          </div>
-        </section>
-        <section className="mt-14">
-          <h2 className="relative mb-6 text-3xl font-semibold tracking-tight text-gray-900">
-            New Products
-            <span className="absolute left-0 -bottom-1 h-[3px] w-24 bg-gradient-to-r from-green-500 to-lime-400 rounded-full"></span>
-          </h2>
-          <div className="relative grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-5 lg:gap-4">
-            {productList.slice(5, 10).map((product) => (
-              <ProductCard
-                key={product.id}
-                resizeable
-                product={product}
-                layoutName="hot"
-              />
-            ))}
-          </div>
-        </section>
-        {/* Banner Image */}
-        <div className="grid grid-cols-2 gap-4">
-          {[
-            {
-              img: "/img1.jpg",
-              title: "Schinder Surplus",
-              desc: "Wide Range of Industrial Products",
-            },
-            {
-              img: "/img2.jpg",
-              title: "Bosch Surplus",
-              desc: "Surplus Heavy and Light Industrial Products",
-            },
-          ].map((item, i) => (
-            <div
-              key={i}
-              className="relative group mt-14 h-[200px] lg:min-h-[420px] w-full overflow-hidden rounded-xl"
-            >
-              <img
-                src={item.img}
-                alt={item.title}
-                className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-              />
-
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-100 transition-opacity duration-500 " />
-
-              <div className="absolute bottom-0 w-full px-10 py-10 text-white">
-                <div className="  transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100 space-y-3">
-                  <div className="">
-                    <h2 className="text-5xl font-[400] leading-tight !text-[#b5e3e4]">
-                      {item.title}
-                    </h2>
-                    <p className=" mt-1 text-white/80">{item.desc}</p>
-                  </div>
-
-                  <button className="mt-2 inline-flex items-center gap-2 bg-white px-4 py-2 text-xs font-semibold text-black rounded-md transition-all duration-300 hover:bg-black hover:text-white">
-                    Shop now
-                    <span>
-                      <ArrowUpRight className="w-5 h-5" />
-                    </span>
-                  </button>
+                  ))}
                 </div>
               </div>
-            </div>
-          ))}
+            </section>
+          </section>
         </div>
+        <RootLayoutWrapper>
+          <section className="mt-20">
+            <h2 className="relative mb-6 text-3xl font-semibold tracking-tight text-gray-900">
+              Hot Buy Products
+              <span className="absolute left-0 -bottom-1 h-[3px] w-24 bg-gradient-to-r from-red-500 to-orange-400 rounded-full"></span>
+            </h2>
 
-        {/* Banner Image */}
-        <section className="mt-14">
-          <h2 className="mb-8 text-3xl font-semibold tracking-tight text-gray-900 underline underline-offset-8 decoration-secondary">
-            Shop by Category
-          </h2>
-          <ShopByCategory categories={categoriesList} />
-        </section>
-        <ReviewsSection reviews={reviews} />
-        <CTASection />
-      </RootLayoutWrapper>
-    </section>
+            <div className="relative grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-5 lg:gap-4">
+              {productList.slice(0, 5).map((product) => (
+                <ProductCard
+                  key={product.id}
+                  resizeable
+                  product={product}
+                  layoutName="new"
+                />
+              ))}
+            </div>
+          </section>
+          <section className="mt-14">
+            <h2 className="relative mb-6 text-3xl font-semibold tracking-tight text-gray-900">
+              New Products
+              <span className="absolute left-0 -bottom-1 h-[3px] w-24 bg-gradient-to-r from-green-500 to-lime-400 rounded-full"></span>
+            </h2>
+            <div className="relative grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-5 lg:gap-4">
+              {productList.slice(5, 10).map((product) => (
+                <ProductCard
+                  key={product.id}
+                  resizeable
+                  product={product}
+                  layoutName="hot"
+                />
+              ))}
+            </div>
+          </section>
+          {/* Banner Image */}
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              {
+                img: "/img1.jpg",
+                title: "Schinder Surplus",
+                desc: "Wide Range of Industrial Products",
+              },
+              {
+                img: "/img2.jpg",
+                title: "Bosch Surplus",
+                desc: "Surplus Heavy and Light Industrial Products",
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="relative group mt-14 h-[200px] lg:min-h-[420px] w-full overflow-hidden rounded-xl"
+              >
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-100 transition-opacity duration-500 " />
+
+                <div className="absolute bottom-0 w-full px-10 py-10 text-white">
+                  <div className="  transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100 space-y-3">
+                    <div className="">
+                      <h2 className="text-5xl font-[400] leading-tight !text-[#b5e3e4]">
+                        {item.title}
+                      </h2>
+                      <p className=" mt-1 text-white/80">{item.desc}</p>
+                    </div>
+
+                    <button className="mt-2 inline-flex items-center gap-2 bg-white px-4 py-2 text-xs font-semibold text-black rounded-md transition-all duration-300 hover:bg-black hover:text-white">
+                      Shop now
+                      <span>
+                        <ArrowUpRight className="w-5 h-5" />
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Banner Image */}
+          <section className="mt-14">
+            <h2 className="mb-8 text-3xl font-semibold tracking-tight text-gray-900 underline underline-offset-8 decoration-secondary">
+              Shop by Category
+            </h2>
+            <ShopByCategory categories={categoriesList} />
+          </section>
+          <ReviewsSection reviews={reviews} />
+          <RecentItems />
+          <CTASection />
+        </RootLayoutWrapper>
+      </section>
+    </PageLoader>
   );
 }
 

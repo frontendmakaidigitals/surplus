@@ -2,7 +2,7 @@
 
 import { Table } from "../components/Table";
 import { JSX, useState } from "react";
-import { ViewRequestDialog } from "../components/ViewRequestDialog";
+import { ViewRequestDialog } from "../components/surplus-request/ViewRequestDialog";
 import { StatCard } from "../components/Info-Cards";
 
 type Column<T> = {

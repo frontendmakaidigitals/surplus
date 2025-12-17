@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useForm, useWatch, FieldErrors } from "react-hook-form";
 import SelectBox from "@/app/dashboard/components/Select";
 import { ImageThumbnail } from "@/app/dashboard/components/Image-Thumbnail";
-import ImageDialog from "@/app/dashboard/components/Image-Dialog";
+import ImageDialog from "@/app/dashboard/components/product/Image-Dialog";
 import { toast } from "sonner";
 import { useProductBuilder } from "@/app/dashboard/context/ProductFormContext";
 import { useState } from "react";

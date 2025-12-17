@@ -42,15 +42,17 @@ export const ImageThumbnail: React.FC<ImageThumbnailProps> = ({
             alt={`Image ${i + 1}`}
           />
 
-          <div className="absolute bottom-0">
+          <div className="absolute bottom-1 left-0 w-full px-1">
             <Tooltip>
-              <TooltipTrigger className="px-1">
-                <span className="bg-black/70 text-white text-xs px-1.5 py-0.5 rounded line-clamp-1">
+              <TooltipTrigger asChild>
+                <span className="bg-black/70 text-white text-xs px-2 py-1 rounded-md block truncate">
                   {files?.[i]?.name ?? "image"}
                 </span>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{files?.[i]?.name ?? "image"}</p>
+                <p className="break-words max-w-[200px]">
+                  {files?.[i]?.name ?? "image"}
+                </p>
               </TooltipContent>
             </Tooltip>
           </div>

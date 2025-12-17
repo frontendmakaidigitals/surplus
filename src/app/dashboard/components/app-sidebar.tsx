@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { ChevronDown, Circle } from "lucide-react";
+import { ChevronDown, Circle, Contact, ShoppingCart } from "lucide-react";
 import {
   Home,
   Package,
@@ -50,7 +50,7 @@ export function AppSidebar() {
           href: "/dashboard/manage-products/categories",
           icon: FolderTree,
         },
-        
+
         {
           name: "Product",
           href: "/dashboard/manage-products/products",
@@ -63,6 +63,16 @@ export function AppSidebar() {
       href: "/dashboard/surplus-requests",
       icon: MessageSquareMore,
       badge: true,
+    },
+    {
+      name: "Contact Forms",
+      href: "/dashboard/contact",
+      icon: Contact,
+    },
+    {
+      name: "Orders",
+      href: "/dashboard/orders",
+      icon: ShoppingCart,
     },
     {
       name: "Settings",

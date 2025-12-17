@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Input } from "@/ui/shadcn/input";
 import { Search, Trash2, Upload } from "lucide-react";
 import { Button } from "@/ui/shadcn/button";
-import { ProductFilter } from "./product-filter";
-import { ExportDialog } from "./ExportDialog";
+import { ProductFilter } from "./product/product-filter";
+import { ExportDialog } from "./product/ExportDialog";
 import { useProductContext } from "../context/ProductContext";
 import ViewToggle from "./View-Toggle";
 const Searchbar = () => {

@@ -13,6 +13,7 @@ import axios from "axios";
 import { usePathname } from "next/navigation";
 import UserMenu from "./user-menu";
 import { toast } from "sonner";
+
 interface User {
   id: number;
   first_name: string;
@@ -26,7 +27,6 @@ export const Nav = () => {
   const [open, setOpen] = useState(false);
   const { isCartOpen } = useCart();
 
-  // User authentication states
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User>();
 

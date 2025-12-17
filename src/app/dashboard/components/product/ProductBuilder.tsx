@@ -2,9 +2,9 @@
 import { z } from "zod";
 import ProductView from "./ProductView";
 import ImageDialog from "./Image-Dialog";
-import { ProductBuilderProvider } from "../context/ProductFormContext";
+import { ProductBuilderProvider } from "../../context/ProductFormContext";
 import ProductForm from "./Product-Form";
-import { Button } from "@/components/ui/button";
+
 // --------------------------------
 // ZOD SCHEMA
 // --------------------------------
@@ -38,12 +38,7 @@ export default function ProductBuilder() {
           <div className="">
             <ProductView />
           </div>
-          <Button className="mt-4 bg-black !h-11 w-full">
-            View Full Product
-          </Button>
         </div>
-
-        {/* Image Dialog Start */}
         <ImageDialog />
       </div>
     </ProductBuilderProvider>

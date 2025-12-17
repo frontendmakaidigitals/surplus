@@ -2,7 +2,7 @@
 import React from "react";
 import { products } from "../../../../../data";
 import { ProductProvider } from "../../context/ProductContext";
-import ProductTable from "../../components/ProductTable";
+import ProductTable from "../../components/product/ProductTable";
 import RootLayoutWrapper from "@/ui/rootlayout";
 import Searchbar from "../../components/searchbar";
 import { PaginationWrapper } from "@/ui/PaginationWrapper";

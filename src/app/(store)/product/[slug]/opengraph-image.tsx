@@ -69,6 +69,7 @@ export default async function Image(props: {
               {formatMoney({
                 amount: product.price,
                 currency: product.currency,
+                locale: "en-US",
               })}
             </p>
             <p tw="font-normal text-xl max-h-[7rem]">{product.summary || ""}</p>
