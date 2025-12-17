@@ -63,8 +63,8 @@ const ProductRender = ({
         <ProductCount dataArray={products} />
       </section>
       <RootLayoutWrapper>
-        <div className="grid grid-cols-[.5fr_1.5fr] gap-5 ">
-          <div className="">
+        <div className="grid grid-cols-1 lg:grid-cols-[.5fr_1.5fr] gap-5 ">
+          <div className="hidden lg:block">
             <ProductFilter
               onApplyFilters={(filters) => {
                 console.log("Applied filters:", filters);

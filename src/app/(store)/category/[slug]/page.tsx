@@ -23,7 +23,7 @@ import {
   PaginationPrevious,
 } from "@/ui/pagination";
 import ProductCard from "@/ui/product-card";
-
+import { slugify } from "../../product/[slug]/page";
 import { products } from "../../../../../data";
 import ProductCount from "@/ui/product-count";
 import PageFilter from "./pageFilter";
@@ -34,9 +34,7 @@ export default async function Page(props: {
   const params = await props.params;
   const categoryName = decodeURIComponent(params.slug);
   const categoryProducts = products.filter(
-    (p) =>
-      p.category.split(" ").join("-").toLowerCase() ===
-      categoryName.toLowerCase()
+    (p) => slugify(p.category).toLowerCase() === slugify(categoryName)
   );
 
   if (categoryProducts.length === 0) {
@@ -88,8 +86,8 @@ export default async function Page(props: {
         <ProductCount dataArray={categoryProducts} />
       </section>
       <RootLayoutWrapper>
-        <div className="grid grid-cols-[.5fr_1.5fr] gap-5 ">
-          <div className="">
+        <div className="grid grid-cols-1 lg:grid-cols-[.5fr_1.5fr] gap-5 ">
+          <div className="hidden lg:block">
             <PageFilter products={categoryProducts} />
           </div>
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { categories } from "../../../data";
-
+import { slugify } from "@/app/(store)/product/[slug]/page";
 export const NavMenu = ({
   links,
   loginStatus,
@@ -36,7 +36,7 @@ export const NavMenu = ({
                     {categories.map((cat) => (
                       <li key={cat.id}>
                         <Link
-                          href={`/category/${cat.title.split(" ").join("-")}`}
+                          href={`/category/${slugify(cat.title)}`}
                           className="block px-4 py-2 text-sm text-gray-800 hover:bg-neutral-100"
                         >
                           {cat.title}

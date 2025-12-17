@@ -11,7 +11,7 @@ const ProductDetail = ({ product }: { product: Product }) => {
   return (
     <>
       {/* MAIN PRODUCT GRID */}
-      <div className="mt-10 grid gap- grid-cols-1 lg:grid-cols-[1.5fr_1fr]">
+      <div className="mt-10 grid gap-9 grid-cols-1 lg:grid-cols-[1.5fr_1fr]">
         {/* LEFT — IMAGES */}
         <div className=" lg:sticky top-24">
           <ImageSelector images={product.images} />
@@ -26,7 +26,6 @@ const ProductDetail = ({ product }: { product: Product }) => {
 
           {/* PRICE */}
           <p className="mt-3 text-3xl tracking-tight font-bold text-secondary">
-
             {formatMoney({
               amount: Math.round(Number(product.price || 0)),
               currency: "USD",

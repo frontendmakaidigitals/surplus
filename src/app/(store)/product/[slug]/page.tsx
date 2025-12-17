@@ -9,12 +9,20 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { YnsLink } from "@/ui/yns-link";
-import { deslugify } from "@/lib/utils";
+import Link from "next/link";
 import RootLayoutWrapper from "@/ui/rootlayout";
 import { products } from "../../../../../data";
 import RecentItems from "@/ui/recent-items";
 import SimilarItems from "@/ui/similar-items";
 import ProductDetail from "./product-detail";
+export function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 export default async function ProductPage(props: {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ variant?: string; image?: string }>;
@@ -42,9 +50,9 @@ export default async function ProductPage(props: {
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
-                    <YnsLink href={`/category/${product.category}`}>
-                      {deslugify(product.category)}
-                    </YnsLink>
+                    <Link href={`/category/${slugify(product.category)}`}>
+                      {product.category}
+                    </Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
               </>

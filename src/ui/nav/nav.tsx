@@ -120,10 +120,6 @@ export const Nav = () => {
             <UserMenu logout={logout} isLoggedIn={isLoggedIn} user={user} />
           </div>
 
-          {/* ========================================================= */}
-          {/* ======================  MOBILE VIEW  ==================== */}
-          {/* ========================================================= */}
-
           <div className="flex sm:hidden items-center justify-between w-full">
             {/* ---- LEFT: Menu + Search ---- */}
             <div className="flex items-center gap-3">
