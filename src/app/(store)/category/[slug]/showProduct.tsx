@@ -4,7 +4,7 @@ import ProductCard from "@/ui/product-card";
 import { Product } from "@/lib/types";
 import { ProductFilter } from "@/ui/filterComponent";
 import { availableConditions } from "@/app/dashboard/components/product/Product-Form";
-import { CartProvider } from "@/context/cart-context";
+
 const ShowProduct = ({
   products,
   availableCategories,

@@ -1,5 +1,5 @@
 "use client";
-
+import { availableConditions } from "@/app/dashboard/components/product/Product-Form";
 import React from "react";
 import { ProductFilter } from "@/ui/filterComponent";
 
@@ -12,7 +12,7 @@ const PageFilter = ({ products }: { products: any }) => {
       availableCategories={Array.from(
         new Set(products.map((p: { category: string }) => p.category))
       )}
-      availableConditions={["New", "Used", "Surplus"]}
+      availableConditions={availableConditions}
     />
   );
 };

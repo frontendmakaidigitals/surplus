@@ -11,7 +11,6 @@ import {
 import { YnsLink } from "@/ui/yns-link";
 import Link from "next/link";
 import RootLayoutWrapper from "@/ui/rootlayout";
-import { buildCategoryChain } from "@/lib/buildcategorychain";
 import RecentItems from "@/ui/recent-items";
 import SimilarItems from "@/ui/similar-items";
 import ProductDetail from "./product-detail";
