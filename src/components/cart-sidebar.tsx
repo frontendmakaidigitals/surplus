@@ -123,9 +123,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                             <button
                               className="rounded-full p-1 hover:bg-gray-200"
                               disabled={item.quantity <= 1}
-                              onClick={
-                                () => addToCart(item, -1) // reduce qty
-                              }
+                              onClick={() => addToCart(item.quantity, -1)}
                             >
                               <Minus className="h-3 w-3" />
                             </button>
@@ -134,7 +132,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                             </span>
                             <button
                               className="rounded-full p-1 hover:bg-gray-200"
-                              onClick={() => addToCart(item, 1)}
+                              onClick={() => addToCart(item.quantity, 1)}
                             >
                               <Plus className="h-3 w-3" />
                             </button>
