@@ -16,18 +16,7 @@ export default function AdminDashboard() {
     cancelledOrders: 112, // ⭐ NEW
   };
 
-  const topProducts = [
-    { id: "p1", sold: 320 },
-    { id: "p2", sold: 278 },
-    { id: "p3", sold: 240 },
-    { id: "p4", sold: 225 },
-    { id: "p5", sold: 215 },
-    { id: "p6", sold: 190 },
-    { id: "p7", sold: 178 },
-    { id: "p8", sold: 166 },
-    { id: "p9", sold: 150 },
-    { id: "p10", sold: 142 },
-  ];
+  const topProducts =  products.slice(0, 5).map((p) => ({ id: p.id, sold: p.stock_quantity }));
   const graphData = {
     todaySales: [
       { value: 20 },
