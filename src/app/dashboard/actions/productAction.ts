@@ -65,7 +65,7 @@ export async function toggleFeaturedAction({
 }
 
 export async function deleteProductAction(productId: number) {
-  const res = await fetch(
+  await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/products/${productId}`,
     {
       method: "DELETE",
