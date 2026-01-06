@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { formatMoney } from "@/lib/utils";
-import type { Product } from "../../../data";
+import { Product } from "@/lib/types";
 import { ConditionBadge } from "@/ui/condition-colors";
 import ImageSelector from "@/ui/images-selector";
 import { cn } from "@/lib/utils";
