@@ -62,8 +62,8 @@ export const ProductList = ({ productData }: { productData: Product[] }) => {
             {/* Product Info */}
             <motion.div layout className="pb-2 pt-1">
               <div className="flex mb-2 justify-between items-center">
-                <span>{RenderStockStatus(Number(product.stock))}</span>
-                {product.freeShipping && (
+                <span>{RenderStockStatus(Number(product.stock_quantity))}</span>
+                {product.free_shipping && (
                   <span className="text-xs">Free Shipping</span>
                 )}
               </div>
