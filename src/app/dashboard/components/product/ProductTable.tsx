@@ -1,8 +1,7 @@
 import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ConditionBadge } from "@/ui/condition-colors";
-import { Button } from "@/ui/shadcn/button";
-import { Eye, Edit, MoreVertical } from "lucide-react";
+import ProductAction from "./Product-action";
 import {
   Table,
   TableBody,
@@ -23,12 +22,12 @@ const ProductTable = () => {
     isSomeSelected,
     handleSelectProduct,
   } = useProductContext();
+
   return (
     <Table>
       <TableCaption>
-        {filteredProducts.length === 0
-          ? "No products found"
-          : `Showing ${filteredProducts.length} of ${filteredProducts.length} products`}
+        {filteredProducts.length > 0 &&
+          `Showing ${filteredProducts.length} of ${filteredProducts.length} products`}
       </TableCaption>
       <TableHeader>
         <TableRow>
@@ -74,7 +73,11 @@ const ProductTable = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-16 h-12 bg-gray-100 rounded flex items-center justify-center">
                     <img
-                      src={product.images[0]}
+                      src={
+                        product.images?.length
+                          ? `${process.env.NEXT_PUBLIC_SERVER_URL}${product.images[0]}`
+                          : "/placeholder.png"
+                      }
                       className="w-full h-full object-contain"
                       alt={product.name}
                     />
@@ -89,22 +92,16 @@ const ProductTable = () => {
               <TableCell className="font-medium">
                 ${product.price.toFixed(2)}
               </TableCell>
-              <TableCell>{product.stock}</TableCell>
+              <TableCell>{product.stock_quantity}</TableCell>
               <TableCell>
                 <ConditionBadge condition={product.condition} />
               </TableCell>
               <TableCell className="text-right">
-                <div className="flex items-center justify-end gap-1">
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
-                </div>
+                <ProductAction
+                  id={product.id}
+                  active={product.is_active}
+                  featured={product.is_featured}
+                />
               </TableCell>
             </TableRow>
           ))

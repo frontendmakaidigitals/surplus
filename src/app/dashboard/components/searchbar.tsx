@@ -1,11 +1,13 @@
+'use client'
 import React, { useState } from "react";
 import { Input } from "@/ui/shadcn/input";
 import { Search, Trash2, Upload } from "lucide-react";
 import { Button } from "@/ui/shadcn/button";
-import { ProductFilter } from "./product/product-filter";
+import { ProductFilter, ProductFilters } from "./product/product-filter";
 import { ExportDialog } from "./product/ExportDialog";
 import { useProductContext } from "../context/ProductContext";
 import ViewToggle from "./View-Toggle";
+
 const Searchbar = () => {
   const [view, setView] = useState<"table" | "card">("table");
   const {
@@ -18,7 +20,19 @@ const Searchbar = () => {
     filteredProducts,
     selectedProductObjects,
     setShowDeleteDialog,
+    setPage, // Add this to reset page on filter/search
   } = useProductContext();
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setPage(1); // Reset to first page when searching
+  };
+
+  const handleApplyFilters = (filters: ProductFilters) => {
+    setActiveFilters(filters);
+    setPage(1); // Reset to first page when filters change
+  };
+
   return (
     <div className="flex justify-between items-center gap-3">
       <div className="flex flex-1 items-center gap-4">
@@ -26,14 +40,14 @@ const Searchbar = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input
             type="text"
-            placeholder="Search products by name, SKU, or category..."
+            placeholder="Search products by name, SKU, brand, or tags..."
             className="pl-10"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
           />
         </div>
         <ProductFilter
-          onApplyFilters={setActiveFilters}
+          onApplyFilters={handleApplyFilters}
           availableCategories={availableCategories}
           availableConditions={availableConditions}
         />

@@ -10,7 +10,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/ui/shadcn/button";
 import Link from "next/link";
 import { toast } from "sonner";
-
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { loginAction } from "@/actions/login-action";
@@ -42,7 +41,12 @@ const Login = () => {
           className:
             "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
         });
-        router.push("/my-account");
+        if (res.role === "admin") {
+          router.push("/dashboard");
+        } else {
+          router.push("/my-account");
+        }
+
         return;
       }
       setStatus("Username or password is incorrect");

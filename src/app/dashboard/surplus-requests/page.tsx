@@ -1,10 +1,9 @@
 "use client";
-
 import { Table } from "../components/Table";
-import { JSX, useState } from "react";
+import { JSX, useState, useEffect } from "react";
 import { ViewRequestDialog } from "../components/surplus-request/ViewRequestDialog";
 import { StatCard } from "../components/Info-Cards";
-
+import axios from "axios";
 type Column<T> = {
   label: string;
   accessor?: keyof T;
@@ -22,35 +21,33 @@ export type SurplusRequest = {
   quantity: string;
   condition: string;
   location: string;
-  images?: string[];
+  images: string[];
   message?: string;
-  createdAt: string;
+  submitted_at: string;
 };
 
-const surplusRequests: SurplusRequest[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    phone: "9876543210",
-    email: "john@example.com",
-    businessName: "JD Traders",
-    description: "Surplus steel rods available",
-    category: "Metals",
-    quantity: "500 kg",
-    condition: "New",
-    location: "Mumbai, India",
-    images: [],
-    message: "Need pickup within 7 days",
-    createdAt: "2025-01-02",
-  },
-];
 export default function SurplesRequestPage() {
-  const [requests] = useState<SurplusRequest[]>(surplusRequests);
+  const [requests, setRequests] = useState<SurplusRequest[]>([]);
+
+  useEffect(() => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/surplus-requests`)
+      .then((res) => {
+        setRequests(res.data.data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, []);
+
   const columns: Column<SurplusRequest>[] = [
     {
       label: "Date",
-      accessor: "createdAt",
+      accessor: `submitted_at`,
       className: "w-32",
+      render: (row) => (
+        <span>{new Date(row.submitted_at).toLocaleDateString()}</span>
+      ),
     },
     {
       label: "Name",
@@ -88,15 +85,27 @@ export default function SurplesRequestPage() {
       render: (row) => <ViewRequestDialog request={row} />,
     },
   ];
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-semibold mb-3">Surplus Requests</h1>
       <div className="mb-6 flex">
-        <StatCard title="Total Requests" value={requests.length} />
+        <StatCard
+          title="Total Requests"
+          value={requests !== null ? requests.length : 0}
+        />
       </div>
-      <div className="overflow-hidden rounded-xl border ">
-        <Table columns={columns} data={requests} />
-      </div>
+      {requests == null ? (
+        <div className="w-full min-h-[40dvh] flex justify-center items-center">
+          <h1 className="text-2xl font-[500] text-slate-500">
+            No Request Found
+          </h1>
+        </div>
+      ) : requests.length > 0 ? (
+        <div className="overflow-hidden text-sm rounded-xl border ">
+          <Table columns={columns} data={requests} />
+        </div>
+      ) : null}
     </div>
   );
 }

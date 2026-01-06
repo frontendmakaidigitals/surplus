@@ -13,6 +13,7 @@ import { useState } from "react";
 import axios from "axios";
 import { cn } from "@/lib/utils";
 import SubmitSucess from "@/ui/Submit-sucess";
+import Captcha from "@/ui/Captcha";
 interface SurplusRequestFormValues {
   name: string;
   phone: string;
@@ -43,6 +44,7 @@ const fieldOrder: (keyof SurplusRequestFormValues)[] = [
 ];
 
 export default function SurplusRequestForm() {
+  const [captcha, setCaptcha] = useState(false);
   const { images, files, openViewer, removeImage, handleImageChange } =
     useProductBuilder();
   const [successOpen, setSuccessOpen] = useState(false);
@@ -92,35 +94,40 @@ export default function SurplusRequestForm() {
     try {
       const formData = new FormData();
 
-      Object.entries(data).forEach(([key, value]) => {
-        if (key !== "images") {
-          formData.append(key, value as string);
+      const { quantityType, images, ...submitData } = data;
+
+      Object.entries(submitData).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, String(value));
         }
       });
 
+      // Append images
       files.forEach((img: File, index: number) => {
         formData.append("images", img, img.name || `image-${index}.jpg`);
       });
+
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/surplus-requests`,
+        formData,
         {
-          body: formData,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
 
-      if (res.data.status === "success") {
+      if (res.data.status === "ok") {
         toast.success("Request Submitted!", {
           className:
             "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
         });
         setSuccessOpen(true);
+        setStatus("success");
+        form.reset();
       } else {
-        toast.error("Something went wrong.", {
-          className:
-            "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
-        });
+        throw new Error("Submission failed");
       }
-      setStatus(res.data.status);
     } catch (err) {
       console.error("Error:", err);
       toast.error("Something went wrong.", {
@@ -170,6 +177,7 @@ export default function SurplusRequestForm() {
 
         <div className="grid grid-cols-4 gap-2">
           <Input
+            type="number"
             placeholder="Quantity"
             {...register("quantity")}
             className="w-full col-span-3"
@@ -177,7 +185,11 @@ export default function SurplusRequestForm() {
           <SelectBox
             value={quantityType}
             onChange={(v) => form.setValue("quantityType", v)}
-            categories={["Pcs", "Kg", "Lbs"]}
+            options={[
+              { key: "Pcs", value: "Pcs" },
+              { key: "Kg", value: "Kg" },
+              { key: "Lbs", value: "Lbs" },
+            ]}
           />
         </div>
       </div>
@@ -187,7 +199,11 @@ export default function SurplusRequestForm() {
         <SelectBox
           value={condition}
           onChange={(v) => form.setValue("condition", v)}
-          categories={["New", "Used", "Open box"]}
+          options={[
+            { key: "New", value: "New" },
+            { key: "Used", value: "Used" },
+            { key: "Surplus", value: "Surplus" },
+          ]}
           placeholder="Select Condition"
         />
       </Field>
@@ -256,19 +272,28 @@ export default function SurplusRequestForm() {
             <ImageThumbnail
               removeImage={removeImage}
               images={images}
-              files={files}
               openViewer={openViewer}
             />
           </div>
         </div>
       </div>
 
+      <div className="col-span-2">
+        <Captcha
+          onVerify={(valid) => {
+            setCaptcha(valid);
+          }}
+          inline={true}
+          status={captcha}
+        />
+      </div>
       {/* SUBMIT BUTTON */}
-      <div className="col-span-2 flex justify-end">
+      <div className="col-span-2 w-full">
         <Button
           isLoading={isSubmitting}
+          disabled={!captcha}
           className={cn(
-            "w-fit h-11 text-white transition",
+            "w-full h-11 text-white transition",
 
             !status
               ? "bg-secondary hover:bg-secondary/80"

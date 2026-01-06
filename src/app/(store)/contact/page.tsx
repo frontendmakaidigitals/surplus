@@ -8,33 +8,35 @@ import axios from "axios";
 import { toast } from "sonner";
 import { Button } from "@/ui/shadcn/button";
 import { cn } from "@/lib/utils";
+import SubmitSuccess from "@/ui/Submit-sucess";
 const contactSchema = z.object({
-  firstName: z.string().min(2, "First name is required"),
-  lastName: z.string().min(2, "Last name is required"),
+  first_name: z.string().min(2, "First name is required"),
+  last_name: z.string().min(2, "Last name is required"),
   email: z.string().email("Enter a valid email"),
-  phone: z.string().min(8, "Enter a valid phone number"),
+  phone_number: z.string().min(8, "Enter a valid phone number"),
   message: z.string().min(10, "Message is too short").max(300),
 });
 
 type ContactFormValues = z.infer<typeof contactSchema>;
 const fieldOrder: (keyof ContactFormValues)[] = [
   "message",
-  "phone",
+  "phone_number",
   "email",
-  "lastName",
-  "firstName",
+  "last_name",
+  "first_name",
 ];
 
 export default function Page() {
   const limit = 300;
   const [status, setStatus] = useState<string | null>(null);
+  const [successOpen, setSuccessOpen] = useState(false);
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      first_name: "",
+      last_name: "",
       email: "",
-      phone: "",
+      phone_number: "",
       message: "",
     },
   });
@@ -49,10 +51,8 @@ export default function Page() {
   const onSubmit = async (data: ContactFormValues) => {
     try {
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/surplus-requests`,
-        {
-          body: data,
-        }
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inquiries`,
+        data
       );
       if (res.data.status === "success") {
         toast.success("Request Submitted!", {
@@ -66,7 +66,7 @@ export default function Page() {
         });
       }
       setStatus(res.data.status);
-
+      setSuccessOpen(true);
       form.reset();
     } catch (error) {
       toast.error("Something went wrong.", {
@@ -91,7 +91,10 @@ export default function Page() {
 
   return (
     <>
-      {/* HEADER SECTION */}
+      <SubmitSuccess
+        successOpen={successOpen}
+        setSuccessOpen={setSuccessOpen}
+      />
       <section className="relative bg-[#E8F0FF] py-20 ">
         <RootLayoutWrapper className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-12 items-center">
           {/* LEFT SIDE */}
@@ -149,11 +152,11 @@ export default function Page() {
                     type="text"
                     placeholder="First Name"
                     className={`px-4 py-[.7rem] rounded-full border border-slate-400/30 ${
-                      error.firstName
+                      error.first_name
                         ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
                         : ""
                     }`}
-                    {...form.register("firstName")}
+                    {...form.register("first_name")}
                   />
                 </div>
 
@@ -162,11 +165,11 @@ export default function Page() {
                     type="text"
                     placeholder="Last Name"
                     className={`px-4 py-[.7rem] rounded-full border border-slate-400/30 ${
-                      error.lastName
+                      error.last_name
                         ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
                         : ""
                     }`}
-                    {...form.register("lastName")}
+                    {...form.register("last_name")}
                   />
                 </div>
               </div>
@@ -191,11 +194,11 @@ export default function Page() {
                   type="tel"
                   placeholder="Phone Number"
                   className={`w-full px-4 py-[.7rem] rounded-full border border-slate-400/30 ${
-                    error.phone
+                    error.phone_number
                       ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
                       : ""
                   }`}
-                  {...form.register("phone")}
+                  {...form.register("phone_number")}
                 />
               </div>
 
@@ -223,18 +226,13 @@ export default function Page() {
               {/* SUBMIT BUTTON */}
               <Button
                 isLoading={isSubmitting}
+                disabled={status === "success" || isSubmitting}
                 className={cn(
-                  "w-full h-11 rounded-full text-white transition",
-
-                  !status
-                    ? "bg-secondary hover:bg-secondary/80"
-                    : status === "success"
-                    ? "bg-green-600 hover:bg-green-500"
-                    : "bg-red-500 hover:bg-red-400"
+                  "w-full h-11 rounded-full text-white transition bg-secondary hover:bg-secondary/90"
                 )}
                 type="submit"
               >
-                Sign Up
+                Submit Form
               </Button>
             </form>
 

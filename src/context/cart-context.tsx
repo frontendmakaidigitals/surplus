@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  getCartAction,
+  addToCartAction,
+  removeCartItemAction,
+  clearCartAction,
+} from "@/actions/cart-actions";
 import React, {
   createContext,
   useContext,
@@ -8,155 +14,138 @@ import React, {
   startTransition,
   ReactNode,
 } from "react";
-import type { addtocart } from "../../data";
-// ---------------------------
-// Types
-// ---------------------------
+import { addtocart } from "@/lib/types";
 
 export interface CartItem extends addtocart {
   quantity: number;
 }
 
 interface CartContextType {
-  cart: CartItem[];
-  addToCart: (product: addtocart, quantity?: number) => void;
-  removeFromCart: (id: string) => void;
-  clearCart: () => void;
+  cart: CartItem[]
+  addToCart: (productId: number, quantity?: number) => Promise<void>;
+  removeFromCart: (productId: number) => Promise<void>;
+  clearCart: () => Promise<void>;
   totalItems: number;
   totalPrice: number;
   openCart: () => void;
-  isCartOpen: boolean;
   closeCart: () => void;
-  optimisticAdd: (variantId: string, quantity: number) => Promise<void>;
+  isCartOpen: boolean;
 }
 
-// ---------------------------
-// Context setup
-// ---------------------------
-
-const CartContext = createContext<CartContextType | undefined>(undefined);
-
-// ---------------------------
-// Provider
-// ---------------------------
+const CartContext = createContext<CartContextType | null>(null);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Load cart from localStorage on mount
+  /* ---------------------------
+     Load cart on mount
+  ---------------------------- */
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("cart");
-      if (stored) {
-        startTransition(() => {
-          setCart(JSON.parse(stored) as CartItem[]);
-        });
+    const loadCart = async () => {
+      try {
+        const res = await getCartAction();
+        setCart(res.data.items ?? []);
+      } catch (err) {
+        console.error("Failed to load cart", err);
       }
-    } catch (err) {
-      console.error("Failed to load cart:", err);
-    }
+    };
+    loadCart();
   }, []);
 
-  // Save cart whenever it changes
-  useEffect(() => {
-    try {
-      localStorage.setItem("cart", JSON.stringify(cart));
-    } catch (err) {
-      console.error("Failed to save cart:", err);
-    }
-  }, [cart]);
+  /* ---------------------------
+     Cart actions
+  ---------------------------- */
 
-  // ---------------------------
-  // Cart actions
-  // ---------------------------
-
-  const addToCart = (product: addtocart, quantity = 1) => {
+  const addToCart = async (productId: number, quantity = 1) => {
+    // Optimistic update
     startTransition(() => {
       setCart((prev) => {
-        const existing = prev.find((item) => item.id === product.id);
+        const existing = prev.find((p) => p.id === productId);
         if (existing) {
-          return prev.map((item) =>
-            item.id === product.id
-              ? { ...item, quantity: item.quantity + quantity }
-              : item
+          return prev.map((p) =>
+            p.id === productId ? { ...p, quantity: p.quantity + quantity } : p
           );
         }
-        return [...prev, { ...product, quantity }];
+        return [...prev, { id: productId, quantity } as CartItem];
       });
     });
-  };
 
-  const optimisticAdd = async (variantId: string, quantity: number) => {
-    // Simulate adding a product based on an ID (you can replace this with real fetch)
     try {
-      // Example: Fetch the product details (mock)
-      const product: addtocart = {
-        id: variantId,
-        name: "Sample Product",
-        images: [],
-        price: 100,
-        category: "",
-        model: "",
-        condition:""
-      };
-
-      addToCart(product, quantity);
+      await addToCartAction(productId, quantity);
     } catch (err) {
-      console.error("Failed to optimistically add product:", err);
-      throw err;
+      console.error("Add to cart failed", err);
+      // Rollback
+      startTransition(() => {
+        setCart((prev) =>
+          prev
+            .map((p) =>
+              p.id === productId
+                ? { ...p, quantity: Math.max(p.quantity - quantity, 0) }
+                : p
+            )
+            .filter((p) => p.quantity > 0)
+        );
+      });
     }
   };
 
-  const removeFromCart = (id: string) => {
-    startTransition(() => {
-      setCart((prev) => prev.filter((item) => item.id !== id));
-    });
-  };
-  const closeCart = () => {
-    startTransition(() => setIsCartOpen(false));
+  const removeFromCart = async (productId: number) => {
+    const previousCart = [...cart];
+    startTransition(() =>
+      setCart((prev) => prev.filter((p) => p.id !== productId))
+    );
+
+    try {
+      await removeCartItemAction(productId);
+    } catch (err) {
+      console.error("Remove from cart failed", err);
+      startTransition(() => setCart(previousCart));
+    }
   };
 
-  const clearCart = () => {
-    startTransition(() => {
-      setCart([]);
-    });
+  const clearCart = async () => {
+    const previousCart = [...cart];
+    startTransition(() => setCart([]));
+
+    try {
+      await clearCartAction();
+    } catch (err) {
+      console.error("Clear cart failed", err);
+      startTransition(() => setCart(previousCart));
+    }
   };
 
-  const openCart = () => {
-    startTransition(() => setIsCartOpen(true));
-  };
+  const openCart = () => setIsCartOpen(true);
+  const closeCart = () => setIsCartOpen(false);
 
-  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cart.reduce(
-    (acc, item) => acc + item.quantity * item.price,
+    (sum, item) => sum + item.quantity * (item.price ?? 0),
     0
   );
 
-  const value: CartContextType = {
-    cart,
-    addToCart,
-    removeFromCart,
-    clearCart,
-    totalItems,
-    totalPrice,
-    openCart,
-    isCartOpen,
-    closeCart,
-    optimisticAdd,
-  };
-
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  return (
+    <CartContext.Provider
+      value={{
+        cart,
+        addToCart,
+        removeFromCart,
+        clearCart,
+        totalItems,
+        totalPrice,
+        openCart,
+        closeCart,
+        isCartOpen,
+      }}
+    >
+      {children}
+    </CartContext.Provider>
+  );
 };
 
-// ---------------------------
-// Hook
-// ---------------------------
-
-export const useCart = (): CartContextType => {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error("useCart must be used within a CartProvider");
-  }
-  return context;
+export const useCart = () => {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be used within a CartProvider");
+  return ctx;
 };

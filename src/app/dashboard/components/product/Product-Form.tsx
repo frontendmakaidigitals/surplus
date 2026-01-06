@@ -9,54 +9,129 @@ import { Checkbox } from "@/components/ui/checkbox";
 import SelectBox from "../Select";
 import { useProductBuilder } from "../../context/ProductFormContext";
 import { ImageThumbnail } from "../Image-Thumbnail";
-
-const productSchema = z.object({
+import { getCategoriesAction } from "../../actions/useCategoryActions";
+import { useEffect, useState } from "react";
+import type { Category } from "../../actions/useCategoryActions";
+import { FieldErrors } from "react-hook-form";
+import { toast } from "sonner";
+export const productSchema = z.object({
   name: z.string().min(1, "Product name is required"),
-  price: z.coerce.number().min(1, "Price must be at least 1"),
+  price: z.preprocess(
+    (val) => (val === "" || val === null ? undefined : Number(val)),
+    z.number().min(1, "Price must be at least 1")
+  ),
+
   category: z.string().min(1, "Select a category"),
   condition: z.string().min(1, "Select a condition"),
-  stock: z.coerce.number().min(0),
-  description: z.string().optional(),
+  stock_quantity: z.preprocess(
+    (val) => (val === "" || val === null ? undefined : Number(val)),
+    z.number().min(0)
+  ),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .min(20, "Add a more detailed description"),
   images: z
     .array(z.any())
     .min(2, "Minimum 2 images required")
-    .max(6, "Maximum 6 images allowed"),
+    .max(6, "Maximum 6 images allowed")
+    .default([]),
   model: z.string().optional(),
   brand: z.string().optional(),
-  countryOfOrigin: z.string().optional(),
+  country_of_origin: z.string().optional(),
   discountPercentage: z.coerce.number().min(0).max(100).optional(),
   discountStartDate: z.string().optional(),
   discountEndDate: z.string().optional(),
-  freeShipping: z.boolean().default(false),
-  metaTitle: z.string().optional(),
-  metaDescription: z.string().optional(),
-  weight: z.string().optional(),
-  dimension: z.string().optional(),
+  free_shipping: z.boolean().default(false),
+  meta_title: z.string().min(10, "Meta title is Required"),
+  meta_description: z.string().min(10, "Meta Description is Required"),
+  weight: z.string().min(3, "Weight is required"),
+  dimension: z.string().min(3, "Dimensions are required"),
   SKU: z.string().optional(),
-  featured: z.boolean().default(false),
-  active: z.boolean().default(true),
-  type: z.string().optional(),
-  mpn: z.string().optional(),
+  is_featured: z.boolean().default(false),
+  is_active: z.boolean().default(true),
+  type: z.string().min(3, "Type is required"),
+  mpn: z.string().min(3, "MPN is required"),
+  slug: z.string().min(2, "Slug is required"),
 });
 
 export type ProductBuilderValues = z.infer<typeof productSchema>;
 
-const availableCategories = ["Electronics", "Clothing", "Furniture", "Other"];
-const availableConditions = ["New", "Used", "Refurbished"];
-
+export const availableConditions = [
+  { key: "New", value: "New" },
+  { key: "New Open-box", value: "New open-box" },
+  { key: "Used", value: "Used" },
+  { key: "Refusrbished", value: "Refusrbished" },
+];
+const fieldOrder: (keyof ProductBuilderValues)[] = [
+  "name",
+  "price",
+  "category",
+  "condition",
+  "stock_quantity",
+  "description",
+  "images",
+  "free_shipping",
+  "is_featured",
+  "is_active",
+  "meta_title",
+  "meta_description",
+  "weight",
+  "dimension",
+  "SKU",
+  "mpn",
+  "slug",
+  "type",
+  "discountPercentage",
+];
 const ProductForm = () => {
   const {
     form,
     images,
-    files,
+    watchAll,
     openViewer,
     removeImage,
     handleImageChange,
     onSubmit,
+    isSubmitting,
   } = useProductBuilder();
+  const [availableCategories, setAvailableCategories] = useState<Category[]>(
+    []
+  );
 
+  useEffect(() => {
+    getCategoriesAction().then(setAvailableCategories).catch(console.error);
+  }, []);
+
+  interface SelectOption {
+    key: string;
+    value: string;
+    subCategories?: SelectOption[];
+  }
+
+  const mapToSelectOptions = (categories: Category[]): SelectOption[] => {
+    return categories.map((cat) => ({
+      key: String(cat.slug),
+      value: cat.name,
+      subCategories: cat.subcategories
+        ? mapToSelectOptions(cat.subcategories)
+        : undefined,
+    }));
+  };
+  const categoryOptions = mapToSelectOptions(availableCategories);
+  const onError = async (errors: FieldErrors<ProductBuilderValues>) => {
+    for (const field of fieldOrder) {
+      const err = errors[field];
+      if (err?.message) {
+        toast.error(err.message, {
+          className:
+            "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-400/60",
+        });
+      }
+    }
+  };
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-6">
       {/* Basic Information Section */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold border-b pb-2">
@@ -64,81 +139,105 @@ const ProductForm = () => {
         </h3>
 
         <div className="space-y-2">
-          <Label>Product Name *</Label>
-          <Input {...form.register("name")} placeholder="Enter product name" />
-          {form.formState.errors.name && (
-            <p className="text-sm text-red-500">
-              {form.formState.errors.name.message}
-            </p>
-          )}
+          <Label>
+            Product Name <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            {...form.register("name")}
+            placeholder="Enter product name"
+            className={`${
+              form.formState.errors.name
+                ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
+                : ""
+            }`}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Price ($) *</Label>
+            <Label>
+              Price ($) <span className="text-red-500">*</span>
+            </Label>
             <Input
               type="number"
               {...form.register("price", { valueAsNumber: true })}
               placeholder="1000"
+              className={`${
+                form.formState.errors.price
+                  ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
+                  : ""
+              }`}
             />
-            {form.formState.errors.price && (
-              <p className="text-sm text-red-500">
-                {form.formState.errors.price.message}
-              </p>
-            )}
           </div>
 
           <div className="space-y-2">
-            <Label>Stock *</Label>
+            <Label>Stock</Label>
             <Input
               type="number"
-              {...form.register("stock", { valueAsNumber: true })}
+              className={`${
+                form.formState.errors.stock_quantity
+                  ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
+                  : ""
+              }`}
+              {...form.register("stock_quantity", { valueAsNumber: true })}
               placeholder="0"
             />
-            {form.formState.errors.stock && (
-              <p className="text-sm text-red-500">
-                {form.formState.errors.stock.message}
-              </p>
-            )}
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Category *</Label>
+            <Label>
+              Category <span className="text-red-500">*</span>
+            </Label>
             <SelectBox
-              value={form.watch("category")}
-              onChange={(v) => form.setValue("category", v)}
-              categories={availableCategories}
+              value={watchAll.category}
+              onChange={(key) => form.setValue("category", key)}
+              options={categoryOptions}
+              error={form.formState.errors.category ? true : false}
             />
-            {form.formState.errors.category && (
-              <p className="text-sm text-red-500">
-                {form.formState.errors.category.message}
-              </p>
-            )}
           </div>
 
           <div className="space-y-2">
-            <Label>Condition *</Label>
+            <Label>
+              Condition <span className="text-red-500">*</span>
+            </Label>
             <SelectBox
-              value={form.watch("condition")}
+              value={watchAll.condition}
               onChange={(v) => form.setValue("condition", v)}
-              categories={availableConditions}
+              options={availableConditions}
+              error={form.formState.errors.condition ? true : false}
             />
-            {form.formState.errors.condition && (
-              <p className="text-sm text-red-500">
-                {form.formState.errors.condition.message}
-              </p>
-            )}
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label>Description</Label>
+          <Label>
+            Description <span className="text-red-500">*</span>
+          </Label>
           <Textarea
             {...form.register("description")}
             placeholder="Short description..."
             rows={4}
+            className={`${
+              form.formState.errors.description
+                ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
+                : ""
+            }`}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>
+            Slug <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            className={`${
+              form.formState.errors.slug
+                ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
+                : ""
+            }`}
+            {...form.register("slug")}
+            placeholder="Product Slug"
           />
         </div>
       </div>
@@ -161,14 +260,24 @@ const ProductForm = () => {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Type</Label>
-            <Input {...form.register("type")} placeholder="product type" />
+            <Label>
+              Type <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              className={`${
+                form.formState.errors.type
+                  ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
+                  : ""
+              }`}
+              {...form.register("type")}
+              placeholder="product type"
+            />
           </div>
 
           <div className="space-y-2">
             <Label>Country of Origin</Label>
             <Input
-              {...form.register("countryOfOrigin")}
+              {...form.register("country_of_origin")}
               placeholder="e.g., USA, China"
             />
           </div>
@@ -181,8 +290,15 @@ const ProductForm = () => {
           </div>
 
           <div className="space-y-2">
-            <Label>MPN</Label>
+            <Label>
+              MPN <span className="text-red-500">*</span>
+            </Label>
             <Input
+              className={`${
+                form.formState.errors.mpn
+                  ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
+                  : ""
+              }`}
               {...form.register("mpn")}
               placeholder="Manufacturer Part Number"
             />
@@ -198,30 +314,34 @@ const ProductForm = () => {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Weight</Label>
-            <Input {...form.register("weight")} placeholder="e.g., 1.5 kg" />
+            <Label>
+              Weight <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              className={`${
+                form.formState.errors.weight
+                  ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
+                  : ""
+              }`}
+              {...form.register("weight")}
+              placeholder="e.g., 1.5 kg"
+            />
           </div>
 
           <div className="space-y-2">
-            <Label>Dimensions</Label>
+            <Label>
+              Dimensions <span className="text-red-500">*</span>
+            </Label>
             <Input
+              className={`${
+                form.formState.errors.dimension
+                  ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
+                  : ""
+              }`}
               {...form.register("dimension")}
               placeholder="e.g., 10x5x2 cm"
             />
           </div>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="freeShipping"
-            checked={form.watch("freeShipping")}
-            onCheckedChange={(checked) =>
-              form.setValue("freeShipping", checked as boolean)
-            }
-          />
-          <Label htmlFor="freeShipping" className="cursor-pointer">
-            Free Shipping
-          </Label>
         </div>
       </div>
 
@@ -261,9 +381,16 @@ const ProductForm = () => {
         <h3 className="text-lg font-semibold border-b pb-2">SEO Settings</h3>
 
         <div className="space-y-2">
-          <Label>Meta Title</Label>
+          <Label>
+            Meta Title <span className="text-red-500">*</span>
+          </Label>
           <Input
-            {...form.register("metaTitle")}
+            className={`${
+              form.formState.errors.meta_title
+                ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
+                : ""
+            }`}
+            {...form.register("meta_title")}
             placeholder="SEO-friendly title"
             maxLength={60}
           />
@@ -273,9 +400,16 @@ const ProductForm = () => {
         </div>
 
         <div className="space-y-2">
-          <Label>Meta Description</Label>
+          <Label>
+            Meta Description <span className="text-red-500">*</span>
+          </Label>
           <Textarea
-            {...form.register("metaDescription")}
+            className={`${
+              form.formState.errors.meta_description
+                ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
+                : ""
+            }`}
+            {...form.register("meta_description")}
             placeholder="SEO-friendly description"
             rows={3}
             maxLength={160}
@@ -294,9 +428,9 @@ const ProductForm = () => {
           <div className="flex items-center space-x-2">
             <Checkbox
               id="featured"
-              checked={form.watch("featured")}
+              checked={watchAll.is_featured}
               onCheckedChange={(checked) =>
-                form.setValue("featured", checked as boolean)
+                form.setValue("is_featured", checked as boolean)
               }
             />
             <Label htmlFor="featured" className="cursor-pointer">
@@ -306,14 +440,26 @@ const ProductForm = () => {
 
           <div className="flex items-center space-x-2">
             <Checkbox
-              id="active"
-              checked={form.watch("active")}
+              id="is_active"
+              checked={watchAll.is_active}
               onCheckedChange={(checked) =>
-                form.setValue("active", checked as boolean)
+                form.setValue("is_active", checked as boolean)
               }
             />
-            <Label htmlFor="active" className="cursor-pointer">
+            <Label htmlFor="is_active" className="cursor-pointer">
               Active (Visible to customers)
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="freeShipping"
+              checked={watchAll.free_shipping}
+              onCheckedChange={(checked) =>
+                form.setValue("free_shipping", checked as boolean)
+              }
+            />
+            <Label htmlFor="freeShipping" className="cursor-pointer">
+              Free Shipping
             </Label>
           </div>
         </div>
@@ -330,6 +476,8 @@ const ProductForm = () => {
             images.length === 6
               ? "bg-slate-200 cursor-not-allowed"
               : "bg-slate-100 cursor-pointer"
+          } ${
+            form.formState.errors.images ? "border-red-500/20 !bg-red-200" : ""
           }`}
         >
           <Input
@@ -345,40 +493,38 @@ const ProductForm = () => {
             htmlFor={images.length < 6 ? "product-images" : ""}
             className={`text-center ${
               images.length === 6 ? "cursor-not-allowed" : "cursor-pointer"
-            }`}
+            } `}
           >
             <p
               className={`text-sm ${
                 images.length === 6 ? "text-slate-500" : "text-gray-600"
-              }`}
+              } ${form.formState.errors.images ? "!text-red-500" : ""}`}
             >
               Click to upload images ({images.length}/6)
             </p>
             <p
               className={`text-xs ${
                 images.length === 6 ? "text-slate-400" : "text-gray-400"
-              }`}
+              } ${form.formState.errors.images ? "!text-red-400" : ""}`}
             >
               You can upload multiple images (.jpg, .png, .jpeg, .webp)
             </p>
           </label>
         </div>
 
-        {form.formState.errors.images && (
-          <p className="text-sm text-red-500">
-            {form.formState.errors.images.message}
-          </p>
-        )}
-
         <ImageThumbnail
           removeImage={removeImage}
           images={images}
-          files={files}
           openViewer={openViewer}
         />
       </div>
 
-      <Button type="submit" className="w-full mb-5" size="lg">
+      <Button
+        isLoading={isSubmitting}
+        type="submit"
+        className="w-full cursor-pointer mb-5"
+        size="lg"
+      >
         Add Product
       </Button>
     </form>

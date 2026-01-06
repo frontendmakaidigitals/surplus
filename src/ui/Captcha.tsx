@@ -2,17 +2,21 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./shadcn/button";
 import { toast } from "sonner";
+import { RefreshCw } from "lucide-react";
 export default function Captcha({
   onVerify,
+  inline = false,
+  status,
 }: {
   onVerify: (valid: boolean) => void;
+  inline?: boolean;
+  status: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [captchaText, setCaptchaText] = useState("");
   const [input, setInput] = useState("");
   const [isInvalid, setIsInvalid] = useState(false);
 
-  // Generate random captcha
   const generateCaptcha = () => {
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     let text = "";
@@ -97,18 +101,32 @@ export default function Captcha({
     setIsInvalid(!isValid);
 
     if (!isValid) {
+      generateCaptcha();
       toast.error("Invalid Captcha", {
         className:
           "!bg-red-600/40 backdrop-blur-xl !text-slate-100 border !border-red-400/60",
       });
+      return
     }
 
     onVerify(isValid);
+    toast.success("Captcha verified!", {
+      className:
+        "!bg-green-600 backdrop-blur-xl !text-slate-100 border !border-green-400/60",
+    });
   };
   return (
-    <div className="space-y-2 select-none min-w-full">
+    <div
+      className={`space-y-2 select-none min-w-full flex ${
+        inline ? "flex-row gap-4" : "flex-col"
+      }`}
+    >
       {/* Canvas */}
-      <div className="flex flex-col lg:flex-row w-full gap-3 ">
+      <div
+        className={`flex flex-col lg:flex-row w-full gap-3  ${
+          inline ? "" : ""
+        }`}
+      >
         <canvas
           ref={canvasRef}
           width={150}
@@ -134,26 +152,29 @@ export default function Captcha({
           />
 
           {/* Refresh Button */}
-          <button
+          <Button
             type="button"
+            disabled={status}
             onClick={() => {
               generateCaptcha();
               setInput("");
             }}
-            className="px-3  py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+            className=" bg-gray-200 text-black !h-[38px] rounded-md hover:bg-gray-300"
           >
-            ↻
-          </button>
+            <RefreshCw />
+          </Button>
         </div>
       </div>
 
       <Button
         type="button"
-        disabled={input.trim().length === 0}
+        disabled={input.trim().length === 0 || status}
         onClick={handleVerify}
-        className="w-full bg-primary text-white py-2 rounded-md font-medium hover:bg-primary/80"
+        className={`${
+          inline ? "" : "w-full"
+        } bg-primary text-white  rounded-md font-[500]  !h-[38px]  hover:bg-primary/80`}
       >
-        Verify Captcha
+        {status ? "Captcha Verified" : "Verify Captcha"}
       </Button>
     </div>
   );

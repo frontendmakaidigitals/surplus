@@ -1,6 +1,5 @@
 import { ChevronRight } from "lucide-react";
-import type { Category } from "../../../../../data";
-
+import { Category } from "../../actions/useCategoryActions";
 export function CategoriesBreadcrumb({
   selected,
   clear,
@@ -16,7 +15,7 @@ export function CategoriesBreadcrumb({
         Categories
       </button>
       <ChevronRight className="w-4 h-4" />
-      <span>{selected.title}</span>
+      <span>{selected.name}</span>
     </div>
   );
 }

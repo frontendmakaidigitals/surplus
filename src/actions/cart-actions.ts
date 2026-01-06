@@ -1,133 +1,166 @@
 "use server";
 
-import { getCartId, setCartId, clearCartId } from "@/lib/cart-cookies";
+import { cookies } from "next/headers";
+
+const API_URL = "https://ecom-9npd.onrender.com";
+
+/* ---------------- TYPES ---------------- */
 
 export interface CartItem {
-  variantId: string;
+  id: number;
+  product_id: number;
+  product_name: string;
+  product_slug: string;
+  image_url: string;
   quantity: number;
+  unit_price: number;
+  line_total: number;
 }
 
 export interface Cart {
-  id: string;
+  id: number;
   items: CartItem[];
+  subtotal: number;
+  total_items: number;
+  item_count: number;
+  created_at: string;
+  updated_at: string;
 }
 
-/**
- * Get the cart from cookies (simple in-memory or cookie-based storage)
- */
-export async function getCartAction(): Promise<Cart | null> {
-  const cartId = await getCartId();
-  if (!cartId) return null;
+/* ---------------- HELPERS ---------------- */
 
-  // Example: Fetch cart from server-side database if needed
-  // For demo, we use a placeholder
-  const storedCart = await fetchCartFromStorage(cartId);
-  return storedCart;
-}
+async function getAuthHeaders() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  let sessionId = cookieStore.get("cart_session")?.value;
 
-/**
- * Add an item to the cart
- */
-export async function addToCartAction(
-  variantId: string,
-  quantity = 1
-): Promise<Cart> {
-  let cartId = await getCartId();
-  let cart: Cart | null = null;
-
-  if (cartId) {
-    cart = await fetchCartFromStorage(cartId);
+  if (!token && !sessionId) {
+    sessionId = crypto.randomUUID();
+    cookieStore.set("cart_session", sessionId, {
+      httpOnly: true,
+      path: "/",
+      secure: false,
+    });
   }
 
-  if (!cart) {
-    cartId = crypto.randomUUID(); // create a new cart ID
-    cart = { id: cartId, items: [] };
-    await setCartId(cartId);
-  }
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
 
-  const existingItem = cart.items.find((item) => item.variantId === variantId);
-  if (existingItem) {
-    existingItem.quantity += quantity;
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
   } else {
-    cart.items.push({ variantId, quantity });
+    headers["X-Session-ID"] = sessionId!;
   }
 
-  await saveCartToStorage(cart);
-  return cart;
+  return headers;
 }
 
-/**
- * Update quantity of an item in the cart
- */
-export async function updateCartItemAction(
-  variantId: string,
+/* ---------------- ACTIONS ---------------- */
+/** GET CART */
+export async function getCartAction(): Promise<Cart> {
+  const headers = await getAuthHeaders();
+
+  const res = await fetch(`${API_URL}/api/cart`, {
+    headers,
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch cart");
+  }
+
+  const text = await res.text();
+  return JSON.parse(text) as Cart;
+}
+
+/** ADD ITEM */
+export async function addToCartAction(
+  productId: number,
   quantity: number
-): Promise<Cart | null> {
-  const cartId = await getCartId();
-  if (!cartId) return null;
+): Promise<Cart> {
+  // Ensure they're numbers (Next.js might serialize them)
+  const cleanProductId = Number(productId);
+  const cleanQuantity = Number(quantity);
 
-  const cart = await fetchCartFromStorage(cartId);
-  if (!cart) return null;
+  const headers = await getAuthHeaders();
 
-  const item = cart.items.find((i) => i.variantId === variantId);
-  if (item) item.quantity = quantity;
+  const payload = {
+    product_id: cleanProductId,
+    quantity: cleanQuantity,
+  };
 
-  await saveCartToStorage(cart);
-  return cart;
+  console.log("Sending to API:", payload);
+
+  const res = await fetch(`${API_URL}/api/cart/items`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payload),
+    cache: "no-store",
+  });
+
+  const text = await res.text();
+  console.log("API Response:", text);
+
+  if (!res.ok) {
+    console.error("Add cart error:", text);
+    throw new Error(`Failed to add item to cart: ${text}`);
+  }
+
+  return JSON.parse(text) as Cart;
 }
 
-/**
- * Remove an item from the cart
- */
-export async function removeFromCartAction(
-  variantId: string
-): Promise<Cart | null> {
-  const cartId = await getCartId();
-  if (!cartId) return null;
+/** UPDATE QUANTITY */
+export async function updateCartItemAction(
+  cartItemId: number,
+  quantity: number
+): Promise<Cart> {
+  const headers = await getAuthHeaders();
+  const res = await fetch(`${API_URL}/api/cart/items/${cartItemId}`, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify({ quantity: Number(quantity) }),
+    cache: "no-store",
+  });
 
-  const cart = await fetchCartFromStorage(cartId);
-  if (!cart) return null;
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Failed to update cart item: ${text}`);
+  }
 
-  cart.items = cart.items.filter((i) => i.variantId !== variantId);
-
-  await saveCartToStorage(cart);
-  return cart;
+  const text = await res.text();
+  return JSON.parse(text) as Cart;
 }
 
-/**
- * Clear the cart completely
- */
+/** REMOVE ITEM */
+export async function removeCartItemAction(cartItemId: number): Promise<Cart> {
+  const headers = await getAuthHeaders();
+  const res = await fetch(`${API_URL}/api/cart/items/${Number(cartItemId)}`, {
+    method: "DELETE",
+    headers,
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Failed to remove cart item: ${text}`);
+  }
+
+  const text = await res.text();
+  return JSON.parse(text) as Cart;
+}
+
+/** CLEAR CART */
 export async function clearCartAction(): Promise<void> {
-  const cartId = await getCartId();
-  if (!cartId) return;
+  const headers = await getAuthHeaders();
+  const res = await fetch(`${API_URL}/api/cart`, {
+    method: "DELETE",
+    headers,
+    cache: "no-store",
+  });
 
-  await removeCartFromStorage(cartId);
-  await clearCartId();
-}
-
-/**
- * Get total item count
- */
-export async function getCartItemCount(): Promise<number> {
-  const cart = await getCartAction();
-  return cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
-}
-
-/* ----------------------
-   Mock storage functions
--------------------------*/
-
-// These can be replaced with your database or in-memory store
-const cartStorage: Record<string, Cart> = {};
-
-async function fetchCartFromStorage(cartId: string): Promise<Cart | null> {
-  return cartStorage[cartId] || null;
-}
-
-async function saveCartToStorage(cart: Cart) {
-  cartStorage[cart.id] = cart;
-}
-
-async function removeCartFromStorage(cartId: string) {
-  delete cartStorage[cartId];
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Failed to clear cart: ${text}`);
+  }
 }

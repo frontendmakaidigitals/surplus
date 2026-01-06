@@ -8,6 +8,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/ui/pagination";
+import clsx from "clsx";
 
 interface PaginationWrapperProps {
   currentPage: number;
@@ -20,25 +21,52 @@ export function PaginationWrapper({
   totalPages,
   onPageChange,
 }: PaginationWrapperProps) {
+  const isFirstPage = currentPage === 1;
+  const isLastPage = currentPage === totalPages;
+
   return (
     <section className="mt-5">
       <Pagination>
         <PaginationContent>
+          {/* Previous */}
           <PaginationItem>
             <PaginationPrevious
               href="#"
-              onClick={() => onPageChange?.(Math.max(1, currentPage - 1))}
+              onClick={(e) => {
+                if (isFirstPage) {
+                  e.preventDefault();
+                  return;
+                }
+                onPageChange?.(currentPage - 1);
+              }}
+              className={clsx(
+                "transition",
+                isFirstPage &&
+                  "pointer-events-none opacity-50 cursor-not-allowed"
+              )}
             />
           </PaginationItem>
 
+          {/* Page numbers */}
           {[...Array(totalPages)].map((_, index) => {
             const page = index + 1;
+            const isActive = page === currentPage;
+
             return (
               <PaginationItem key={page}>
                 <PaginationLink
                   href="#"
-                  isActive={page === currentPage}
-                  onClick={() => onPageChange?.(page)}
+                  isActive={isActive}
+                  onClick={(e) => {
+                    if (isActive) {
+                      e.preventDefault();
+                      return;
+                    }
+                    onPageChange?.(page);
+                  }}
+                  className={clsx(
+                    isActive && "pointer-events-none cursor-default"
+                  )}
                 >
                   {page}
                 </PaginationLink>
@@ -48,12 +76,22 @@ export function PaginationWrapper({
 
           {totalPages > 5 && <PaginationEllipsis />}
 
+          {/* Next */}
           <PaginationItem>
             <PaginationNext
               href="#"
-              onClick={() =>
-                onPageChange?.(Math.min(totalPages, currentPage + 1))
-              }
+              onClick={(e) => {
+                if (isLastPage) {
+                  e.preventDefault();
+                  return;
+                }
+                onPageChange?.(currentPage + 1);
+              }}
+              className={clsx(
+                "transition",
+                isLastPage &&
+                  "pointer-events-none opacity-50 cursor-not-allowed"
+              )}
             />
           </PaginationItem>
         </PaginationContent>

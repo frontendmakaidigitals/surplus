@@ -7,40 +7,45 @@ import {
   BreadcrumbSeparator,
   BreadcrumbPage,
 } from "@/ui/shadcn/breadcrumb";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/ui/pagination";
-import ProductCard from "@/ui/product-card";
-import { slugify } from "@/ui/slugify";
-import { products } from "../../../../../data";
-import ProductCount from "@/ui/product-count";
-import PageFilter from "./pageFilter";
+import ShowProduct from "./showProduct";
+import axios from "axios";
+import { cookies } from "next/headers";
 export default async function Page(props: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ variant?: string; image?: string }>;
 }) {
-  const params = await props.params;
-  const categoryName = decodeURIComponent(params.slug);
-  const categoryProducts = products.filter(
-    (p) => slugify(p.category).toLowerCase() === slugify(categoryName)
-  );
+  const { slug } = await props.params;
+  const categorySlug = decodeURIComponent(slug);
 
-  if (categoryProducts.length === 0) {
+  let category: any;
+  let completeCategory: any;
+  let products: any;
+
+  try {
+    const categoryRes = await axios.get(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/categories-by-slug/${categorySlug}`
+    );
+
+    category = categoryRes.data.data;
+
+    const completeRes = await axios.get(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/categories/${category.id}`
+    );
+
+    const productRes = await axios.get(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/categories-by-slug/${category.slug}/products`
+    );
+
+    completeCategory = completeRes.data.data;
+
+    products = productRes.data.data;
+  } catch {
     return <h1>Category not found</h1>;
   }
 
+  const subcategories = completeCategory.subcategories ?? [];
+  const availableCategories = subcategories.map((sub: any) => sub.name);
+  const cookie = await cookies();
+  const token = cookie.get("token");
   return (
     <>
       <RootLayoutWrapper>
@@ -55,72 +60,50 @@ export default async function Page(props: {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>{params.slug}</BreadcrumbPage>
+              <BreadcrumbPage>{categorySlug}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </RootLayoutWrapper>
+
       <section className="bg-white border border-slate-500/10 py-6 mt-4 mb-5">
         <RootLayoutWrapper>
-          <div className=" lg:flex justify-between items-center">
-            <h1 className="text-xl font-[700]">
-              New, Surplus & Used {params.slug} For Sale
-            </h1>
-            <div className="mt-10 lg:mt-0 flex items-center gap-3">
-              <label>Sort by:</label>
-              <Select>
-                <SelectTrigger className="w-[200px] bg-white">
-                  <SelectValue placeholder="Select a filter" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="apple">Most Recent</SelectItem>
-                  <SelectItem value="banana">Highest Price</SelectItem>
-                  <SelectItem value="pineapple">Lowest Price</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <h1 className="text-xl font-[700]">
+            {subcategories.length > 0
+              ? `Subcategories of ${categorySlug}`
+              : `Products in ${categorySlug}`}
+          </h1>
         </RootLayoutWrapper>
       </section>
-      <section className="container mb-10 ">
-        <ProductCount dataArray={categoryProducts} />
-      </section>
       <RootLayoutWrapper>
-        <div className="grid grid-cols-1 lg:grid-cols-[.5fr_1.5fr] gap-5 ">
-          <div className="hidden lg:block">
-            <PageFilter products={categoryProducts} />
-          </div>
-
-          {categoryProducts.length > 0 && (
-            <div className="relative grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-4 lg:gap-4">
-              {categoryProducts.slice(0, 5).map((product) => (
-                <ProductCard
-                  key={product.id}
-                  resizeable
-                  product={product}
-                  layoutName="category"
-                />
+        <div>
+          {subcategories.length > 0 ? (
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {subcategories.map((sub: any) => (
+                <div
+                  key={sub.id}
+                  className="border p-4 rounded hover:shadow cursor-pointer"
+                >
+                  <div className="aspect-square w-full">
+                    <img
+                      alt={""}
+                      src={`${process.env.NEXT_PUBLIC_SERVER_URL}${sub.thumbnail_url}`}
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                    />
+                  </div>
+                  <h2 className="font-semibold mt-2 text-center">{sub.name}</h2>
+                </div>
               ))}
             </div>
+          ) : (
+            <>
+              <ShowProduct
+                availableCategories={availableCategories}
+                products={products}
+              />
+            </>
           )}
         </div>
-        <section className="mt-14 mb-12">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious href="#" />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink aria-disabled href="#" isActive>
-                  1
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext href="#" />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </section>
       </RootLayoutWrapper>
     </>
   );

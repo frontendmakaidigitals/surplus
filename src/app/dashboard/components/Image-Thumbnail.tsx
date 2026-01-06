@@ -9,7 +9,6 @@ import { motion } from "framer-motion";
 
 export interface ImageThumbnailProps {
   images: string[];
-  files: File[];
   openViewer: (index: number) => void;
   removeImage: (index: number) => void;
   currentIndex?: number;
@@ -17,58 +16,63 @@ export interface ImageThumbnailProps {
 
 export const ImageThumbnail: React.FC<ImageThumbnailProps> = ({
   images,
-  files,
   openViewer,
   removeImage,
   currentIndex,
 }) => {
-  if (!images || images.length === 0) return null;
+  if (!images?.length) return null;
 
   return (
     <div className="flex gap-3 mt-2">
-      {images.map((img, i) => (
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          transition={{ duration: 0.2, type: "spring" }}
-          key={i}
-          onClick={() => openViewer(i)}
-          className={`relative w-32 aspect-square rounded-md border bg-white group cursor-pointer ${
-            i == 0 ? "shadow-[0_0_7px_2px_rgba(245,101,101,.4)]" : ""
-          } ${currentIndex === i ? "border-primary border-2" : ""}`}
-        >
-          <img
-            src={img}
-            className="w-full h-full object-contain"
-            alt={`Image ${i + 1}`}
-          />
+      {images.map((img, i) => {
+        const isBlob = img.startsWith("blob:");
+        const label = isBlob ? "New image" : "Existing image";
 
-          <div className="absolute bottom-1 left-0 w-full px-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="bg-black/70 text-white text-xs px-2 py-1 rounded-md block truncate">
-                  {files?.[i]?.name ?? "image"}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="break-words max-w-[200px]">
-                  {files?.[i]?.name ?? "image"}
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation(); // prevents opening viewer
-              removeImage(i);
-            }}
-            className="absolute -top-1 -right-1 bg-red-600 rounded-full text-white text-xs px-1.5 py-0.5"
+        return (
+          <motion.div
+            key={img}
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.2, type: "spring" }}
+            onClick={() => openViewer(i)}
+            className={`relative w-32 aspect-square rounded-md border bg-white group cursor-pointer
+              ${currentIndex === i ? "border-primary border-2" : ""}
+            `}
           >
-            ✕
-          </button>
-        </motion.div>
-      ))}
+            <img
+              src={`${
+                isBlob ? img : `${process.env.NEXT_PUBLIC_SERVER_URL}${img}`
+              }`}
+              className="w-full h-full object-contain"
+              alt={`Image ${i + 1}`}
+            />
+
+            {/* Label */}
+            <div className="absolute bottom-1 left-0 w-full px-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="bg-black/70 text-white text-xs px-2 py-1 rounded-md block truncate">
+                    {label}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{label}</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                removeImage(i);
+              }}
+              className="absolute -top-1 -right-1 bg-red-600 rounded-full text-white text-xs px-1.5 py-0.5"
+            >
+              ✕
+            </button>
+          </motion.div>
+        );
+      })}
     </div>
   );
 };

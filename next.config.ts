@@ -4,7 +4,7 @@ import type { NextConfig } from "next/types";
 const withMDX = MDX();
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   eslint: {
     ignoreDuringBuilds: true,
   },

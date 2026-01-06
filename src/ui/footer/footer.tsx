@@ -210,11 +210,11 @@ const Footer = () => {
                   <Link
                     href={
                       `/category/` +
-                      category.title.split(" ").join("-").toLowerCase()
+                      category.name.split(" ").join("-").toLowerCase()
                     }
                     className=" transition hover:opacity-75 text-gray-900"
                   >
-                    {category.title}
+                    {category.name}
                   </Link>
                 </li>
               ))}

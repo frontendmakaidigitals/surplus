@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo, useCallback } from "react";
-import type { Product } from "../../../../data";
+import { Product } from "@/lib/types";
 
 interface PriceRange {
   min: number;
@@ -25,7 +25,7 @@ export function useProductFilters(
   STOCK_THRESHOLDS: StockThresholds
 ) {
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>({
     categories: [],
@@ -71,7 +71,7 @@ export function useProductFilters(
     if (activeFilters.stockStatus.length)
       list = list.filter((p) => {
         const s = activeFilters.stockStatus;
-        const stock = p.stock;
+        const stock = p.stock_quantity;
 
         return (
           (s.includes("In Stock") && stock > STOCK_THRESHOLDS.LOW_STOCK) ||
@@ -93,7 +93,7 @@ export function useProductFilters(
     [filteredProducts]
   );
 
-  const handleSelectProduct = useCallback((id: string, checked: boolean) => {
+  const handleSelectProduct = useCallback((id: number, checked: boolean) => {
     setSelectedProducts((prev) =>
       checked ? [...prev, id] : prev.filter((x) => x !== id)
     );
@@ -113,12 +113,10 @@ export function useProductFilters(
     setSelectedProducts,
     showDeleteDialog,
     setShowDeleteDialog,
-
     filteredProducts,
     availableCategories,
     availableConditions,
     selectedProductObjects,
-
     handleSelectAll,
     handleSelectProduct,
   };

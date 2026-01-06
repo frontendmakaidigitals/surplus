@@ -8,12 +8,10 @@ import { Card, CardContent } from "@/ui/shadcn/card";
 import { Button } from "@/ui/shadcn/button";
 import { Input } from "@/ui/shadcn/input";
 import { Label } from "@/ui/shadcn/label";
-import { User, Mail, Lock, Calendar } from "lucide-react";
+import { User, Mail, Lock } from "lucide-react";
 import { Checkbox } from "@/ui/shadcn/checkbox";
 import { toast } from "sonner";
 import axios from "axios";
-import { Calendar as DatePick } from "@/components/ui/calendar";
-import { Popover, PopoverTrigger, PopoverContent } from "@/ui/shadcn/popover";
 import { cn } from "@/lib/utils";
 import Captcha from "@/ui/Captcha";
 import { useRouter } from "next/navigation";
@@ -25,7 +23,10 @@ const signupSchema = z
     password: z.string().min(6, "Minimum 6 characters required"),
     confirmPassword: z.string().min(6, "Confirm your password"),
     agree: z.boolean().refine((val) => val === true, "You must accept terms"),
-    date_of_birth: z.string().min(10, "Date of birth is required"),
+    phone_number: z
+      .string()
+      .min(10, "Phone number is required")
+      .regex(/^[0-9]{10,15}$/, "Invalid phone number"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
@@ -37,7 +38,7 @@ const fieldOrder: (keyof SignupFormType)[] = [
   "agree",
   "confirmPassword",
   "password",
-  "date_of_birth",
+  "phone_number",
   "email",
   "last_name",
   "first_name",
@@ -45,9 +46,8 @@ const fieldOrder: (keyof SignupFormType)[] = [
 
 const Signup = () => {
   const router = useRouter();
-  const [date, setDate] = useState<Date | undefined>();
+
   const redirectTimer = useRef<NodeJS.Timeout | null>(null);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [captcha, setCaptcha] = useState(false);
   const {
@@ -61,11 +61,17 @@ const Signup = () => {
 
   const onSubmit = async (data: SignupFormType) => {
     const { agree, confirmPassword, ...submitData } = data;
-    const payload = { ...submitData };
+    const formData = new FormData();
+
+    Object.entries(submitData).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, String(value));
+      }
+    });
     try {
       await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/register`,
-        payload
+        formData
       );
       toast.success("Account created successfully!", {
         className:
@@ -133,18 +139,6 @@ const Signup = () => {
     }
   };
 
-  const handleDateSelect = (selectedDate: Date | undefined) => {
-    setDate(selectedDate);
-    if (selectedDate) {
-      setValue("date_of_birth", selectedDate.toLocaleDateString(), {
-        shouldValidate: true,
-      });
-      setIsPopoverOpen(false);
-    } else {
-      setValue("date_of_birth", "", { shouldValidate: true });
-    }
-  };
-
   return (
     <Card className="border-0 shadow-none">
       <CardContent className="py-8 lg:p-8 ">
@@ -186,49 +180,22 @@ const Signup = () => {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <div className="space-y-2">
-              <Label className="block">Date of Birth</Label>
-              <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={`w-full ${
-                      errors.date_of_birth
-                        ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
-                        : "bg-transparent hover:bg-transparent border-slate-400"
-                    } !px-3   h-11 justify-start`}
-                  >
-                    <span>
-                      <Calendar className="h-5 w-5 text-gray-500 " />
-                    </span>
-                    {date ? (
-                      <span className="ml-1 text-gray-800 text-sm font-[400]">
-                        {date.toLocaleDateString()}
-                      </span>
-                    ) : (
-                      <span
-                        className={`ml-1 ${
-                          errors.date_of_birth ? " text-red-400 " : ""
-                        } text-gray-500 text-sm font-[400]`}
-                      >
-                        Select Date
-                      </span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <DatePick
-                    mode="single"
-                    selected={date}
-                    onSelect={handleDateSelect}
-                    captionLayout="dropdown"
-                    className="rounded-lg border shadow-sm"
-                    disabled={(date) =>
-                      date > new Date() || date < new Date("1900-01-01")
-                    }
-                  />
-                </PopoverContent>
-              </Popover>
+              <Label>Phone Number</Label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
+                <Input
+                  type="number"
+                  className={`pl-10 h-11 border-slate-400 ${
+                    errors.phone_number
+                      ? "border-red-500/20 bg-red-100 placeholder:text-red-400"
+                      : ""
+                  }`}
+                  placeholder="Enter phone number"
+                  {...register("phone_number")}
+                />
+              </div>
             </div>
+
             {/* Email */}
             <div className="space-y-2">
               <Label>Email</Label>
@@ -295,11 +262,8 @@ const Signup = () => {
           <Captcha
             onVerify={(valid) => {
               setCaptcha(valid);
-              toast.success("Captcha verified!", {
-                className:
-                  "!bg-green-600/40 backdrop-blur-xl !text-slate-100 border !border-green-400/60",
-              });
             }}
+            status={captcha}
           />
           <Button
             isLoading={isSubmitting}

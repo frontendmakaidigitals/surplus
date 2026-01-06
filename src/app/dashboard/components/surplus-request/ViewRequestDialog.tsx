@@ -15,15 +15,15 @@ export type SurplusRequest = {
   name: string;
   phone: string;
   email: string;
-  businessName?: string;
+  business?: string;
   description?: string;
   category: string;
   quantity: string;
   condition: string;
   location: string;
-  images?: string[];
+  images: string[];
   message?: string;
-  createdAt: string;
+  submitted_at: string;
 };
 
 type ViewRequestDialogProps = {
@@ -31,11 +31,6 @@ type ViewRequestDialogProps = {
 };
 
 export function ViewRequestDialog({ request }: ViewRequestDialogProps) {
-  const images = [
-    "/hydraulic_pump/hydraulic_pump_3.jpg",
-    "/hydraulic_pump/hydraulic_pump.jpg",
-    "/hydraulic_pump/hydraulic_pump2.jpg",
-  ];
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -56,12 +51,15 @@ export function ViewRequestDialog({ request }: ViewRequestDialogProps) {
           <Detail label="Name" value={request.name} />
           <Detail label="Phone" value={request.phone} />
           <Detail label="Email" value={request.email} />
-          <Detail label="Business" value={request.businessName || "—"} />
+          <Detail label="Business" value={request.business || "—"} />
           <Detail label="Category" value={request.category} />
           <Detail label="Quantity" value={request.quantity} />
           <Detail label="Condition" value={request.condition} />
           <Detail label="Location" value={request.location} />
-          <Detail label="Submitted On" value={request.createdAt} />
+          <Detail
+            label="Submitted On"
+            value={new Date(request.submitted_at).toLocaleDateString()}
+          />
 
           <div className="col-span-2">
             <Detail label="Description / Message" value={request.description} />
@@ -71,12 +69,12 @@ export function ViewRequestDialog({ request }: ViewRequestDialogProps) {
           <div className="col-span-2 mt-2">
             <p className="text-sm font-semibold mb-2">Images</p>
 
-            {images?.length > 0 ? (
+            {request.images?.length > 0 ? (
               <div className="flex flex-nowrap gap-2">
-                {images.map((img, index) => (
+                {request.images.map((img, index) => (
                   <img
                     key={index}
-                    src={img}
+                    src={`${process.env.NEXT_PUBLIC_SERVER_URL}/${img}`}
                     alt="Upload"
                     className="aspect-square bg-neutral-50 h-24 object-contain rounded border"
                   />

@@ -30,6 +30,15 @@ const profileSchema = z.object({
   country: z.string().optional(),
   password: z.string().optional().or(z.literal("")),
   avatar: z.any().optional(),
+  // Address fields
+  address_line_1: z.string().optional(),
+  address_line_2: z.string().optional(),
+  company: z.string().optional(),
+  postal_code: z.string().optional(),
+  state: z.string().optional(),
+  label: z.string().optional(),
+  type: z.string().optional(),
+  is_default: z.boolean().optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -83,6 +92,14 @@ const UpdateForm = ({
       building: data.building || "",
       country: data.country || "",
       password: "",
+      address_line_1: "",
+      address_line_2: "",
+      company: "",
+      postal_code: "",
+      state: "",
+      label: "Home",
+      type: "shipping",
+      is_default: false,
     },
   });
 
@@ -114,33 +131,77 @@ const UpdateForm = ({
     }
   };
 
+  const createAddress = async (formData: ProfileFormData) => {
+    const addressData = {
+      address_line_1: formData.street || formData.address_line_1,
+      address_line_2: formData.building || formData.address_line_2,
+      city: formData.city,
+      company: formData.company,
+      country: formData.country,
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      phone: formData.phone,
+      postal_code: formData.postal_code,
+      state: formData.state,
+      label: formData.label || "Home",
+      type: formData.type || "shipping",
+      is_default: formData.is_default || false,
+    };
+
+    const response = await fetch("/api/account/addresses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(addressData),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error((error as any).message || "Failed to create address");
+    }
+
+    return await response.json();
+  };
+
   // Form submission
   const onSubmit = async (formData: ProfileFormData) => {
     try {
-      const payload = new FormData();
-      payload.append("first_name", formData.first_name);
-      payload.append("last_name", formData.last_name);
-      payload.append("email", formData.email);
-
-      if (formData.phone) payload.append("phone", formData.phone);
-      if (formData.city) payload.append("city", formData.city);
-      if (formData.street) payload.append("street", formData.street);
-      if (formData.building) payload.append("building", formData.building);
-      if (formData.country) payload.append("country", formData.country);
-
-      // Only include password if it's not empty
-      if (formData.password && formData.password.length > 0) {
-        payload.append("password", formData.password);
-      }
-
-      // Append avatar file if selected
-      if (formData.avatar instanceof File) {
-        payload.append("avatar", formData.avatar);
-      }
-
       startTransition(async () => {
-        const result = await updateProfileAction(payload);
+        // Step 1: Create/Update Address
+        try {
+          await createAddress(formData);
+          toast.success("Address saved successfully!");
+        } catch (addressError: any) {
+          console.error("Address creation error:", addressError);
+          toast.error(addressError.message || "Failed to save address");
+          // Continue with profile update even if address fails
+        }
 
+        // Step 2: Update Profile
+        const profilePayload = new FormData();
+        profilePayload.append("first_name", formData.first_name);
+        profilePayload.append("last_name", formData.last_name);
+        profilePayload.append("email", formData.email);
+
+        if (formData.phone) profilePayload.append("phone", formData.phone);
+        if (formData.city) profilePayload.append("city", formData.city);
+        if (formData.street) profilePayload.append("street", formData.street);
+        if (formData.building)
+          profilePayload.append("building", formData.building);
+        if (formData.country)
+          profilePayload.append("country", formData.country);
+
+        if (formData.password && formData.password.length > 0) {
+          profilePayload.append("password", formData.password);
+        }
+
+        // Append avatar file if selected
+        if (formData.avatar instanceof File) {
+          profilePayload.append("avatar", formData.avatar);
+        }
+
+        const result = await updateProfileAction(profilePayload);
         if (result.success) {
           toast.success("Profile updated successfully!");
           setEditOpen(false);
@@ -152,7 +213,6 @@ const UpdateForm = ({
     } catch (error: any) {
       console.error("Profile update error:", error);
       toast.error(error.response?.data?.message || "Failed to update profile");
-    } finally {
     }
   };
 
@@ -165,7 +225,7 @@ const UpdateForm = ({
       </DialogTrigger>
       <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Profile</DialogTitle>
+          <DialogTitle>Edit Profile & Address</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
@@ -197,7 +257,7 @@ const UpdateForm = ({
               />
             </div>
             <p className="text-xs text-center text-gray-500">
-              Click the + icon to upload a new avatar (Max 2MB)
+              Click the + icon to upload a new avatar (Max 5MB)
             </p>
           </div>
 
@@ -259,26 +319,77 @@ const UpdateForm = ({
             </div>
           </div>
 
-          {/* Address Fields */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-sm font-medium">City</label>
-              <Input {...register("city")} placeholder="Dubai" />
-            </div>
+          {/* Address Section */}
+          <div className="pt-4 border-t">
+            <h3 className="text-sm font-semibold mb-3">Address Information</h3>
 
-            <div>
-              <label className="text-sm font-medium">Street</label>
-              <Input {...register("street")} placeholder="Main Street" />
-            </div>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium">Address Line 1</label>
+                  <Input
+                    {...register("address_line_1")}
+                    placeholder="123 Main St"
+                  />
+                </div>
 
-            <div>
-              <label className="text-sm font-medium">Building / Apt</label>
-              <Input {...register("building")} placeholder="Building 12A" />
-            </div>
+                <div>
+                  <label className="text-sm font-medium">
+                    Address Line 2 / Apt
+                  </label>
+                  <Input {...register("address_line_2")} placeholder="Apt 4B" />
+                </div>
+              </div>
 
-            <div>
-              <label className="text-sm font-medium">Country</label>
-              <Input {...register("country")} placeholder="UAE" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium">City</label>
+                  <Input {...register("city")} placeholder="New York" />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">State</label>
+                  <Input {...register("state")} placeholder="NY" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium">Postal Code</label>
+                  <Input {...register("postal_code")} placeholder="10001" />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Country</label>
+                  <Input {...register("country")} placeholder="USA" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium">
+                    Company (Optional)
+                  </label>
+                  <Input {...register("company")} placeholder="Acme Inc" />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Label</label>
+                  <Input {...register("label")} placeholder="Home" />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="is_default"
+                  {...register("is_default")}
+                  className="w-4 h-4"
+                />
+                <label htmlFor="is_default" className="text-sm">
+                  Set as default address
+                </label>
+              </div>
             </div>
           </div>
 
@@ -307,8 +418,8 @@ const UpdateForm = ({
             >
               Cancel
             </Button>
-            <Button type="submit" isLoading={pending}>
-              Update
+            <Button type="submit" disabled={pending}>
+              {pending ? "Saving..." : "Save All Changes"}
             </Button>
           </DialogFooter>
         </form>

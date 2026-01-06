@@ -18,6 +18,7 @@ import {
   Phone,
   LogOut,
   ChevronDown,
+  List,
 } from "lucide-react";
 
 interface UserMenuProps {
@@ -62,6 +63,19 @@ export default function UserMenu({ isLoggedIn, user, logout }: UserMenuProps) {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent className="w-44">
+          <DropdownMenuItem className="py-[.6rem]">
+            <Link
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2"
+              href={{
+                pathname: "/my-account",
+                query: "edit-profile",
+              }}
+            >
+              <List className="!size-[20px] mr-2 text-secondary" />
+              Wishlist
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem className="py-[.6rem]">
             <Link
               onClick={() => setOpen(false)}

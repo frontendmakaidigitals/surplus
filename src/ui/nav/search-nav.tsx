@@ -5,8 +5,9 @@ import { SearchIcon, X } from "lucide-react";
 import { products } from "../../../data";
 import Image from "next/image";
 import Link from "next/link";
-import type { Product } from "../../../data";
+import { Product } from "@/lib/types";
 import { useIsMobile } from "../shadcn/hooks/use-mobile";
+import axios from "axios";
 interface SearchNavProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -14,6 +15,7 @@ interface SearchNavProps {
 export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
   const isMobile = useIsMobile();
   useEffect(() => {
     const handleKeyDown = (e: any) => {
@@ -33,16 +35,45 @@ export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
   }, [open]);
 
   useEffect(() => {
-    if (query.length > 0) {
-      const filteredProducts = products.filter((product) =>
-        product.name.toLowerCase().includes(query.toLowerCase())
-      );
-      setTimeout(() => {
-        setSearchResults(filteredProducts);
-      }, 500);
-    } else {
+    if (!query) {
       setSearchResults([]);
+      return;
     }
+
+    const controller = new AbortController();
+
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/products/search`,
+          {
+            params: {
+              q: query,
+              page: 1,
+              size: 10,
+              sort_by: "created_at",
+              sort_dir: "desc",
+            },
+            signal: controller.signal,
+          }
+        );
+
+        console.log(res.data.data.content, "searchResults");
+        setSearchResults(res.data.data.content || []); // <-- FIXED
+      } catch (err: any) {
+        if (axios.isCancel(err)) return;
+        setSearchResults([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+
+    return () => {
+      controller.abort(); // cancel the request if query changes
+    };
   }, [query]);
 
   const handleClose = () => {
@@ -83,9 +114,7 @@ export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
             </button>
 
             <motion.div
-              className={`w-full ${
-                query.length > 0 ? "rounded-3xl" : "rounded-full"
-              } shadow-sm border border-slate-600/10 bg-white overflow-hidden`}
+              className={`w-full rounded-[40px] shadow-sm border border-slate-600/10 bg-white overflow-hidden`}
               initial={{ opacity: 0, y: 250 }}
               animate={{
                 opacity: 1,
@@ -106,7 +135,7 @@ export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Search Input Container - Always rounded-3xl */}
-              <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+              <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden">
                 {/* Input */}
                 <div className="relative">
                   <span className="absolute left-5 top-1/2 -translate-y-1/2">
@@ -172,7 +201,9 @@ export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
                               >
                                 <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
                                   <Image
-                                    src={`/products/${product.images[0]}`}
+                                    src={`${
+                                      process.env.NEXT_PUBLIC_SERVER_URL
+                                    }${product.images?.[0] || ""}`}
                                     alt={product.name}
                                     width={24}
                                     height={24}

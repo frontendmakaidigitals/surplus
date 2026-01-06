@@ -9,45 +9,78 @@ import RenderStockStatus from "./products/stock-utility";
 import { Maximize2 } from "lucide-react";
 import { formatMoney } from "@/lib/utils";
 import DiscountUtility from "./products/discount-utility";
-import type { Product } from "../../data";
 import ImageSelector from "./images-selector";
+import { Button } from "./shadcn/button";
+import { Heart, ShoppingCartIcon } from "lucide-react";
+import { useCart } from "@/context/cart-context";
+import { useTransition } from "react";
+import { toast } from "sonner";
+import { useWishlist } from "@/context/wishlist-context";
+import { useRouter } from "next/navigation";
+import { Skeleton } from "./shadcn/skeleton";
+import type { Product } from "@/lib/types";
+
 interface ProductCardProps {
   product: Product;
   resizeable?: boolean;
   layoutName?: string;
+  server?: boolean;
+  token?: string;
 }
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
   resizeable = false,
   layoutName,
+  server = false,
+  token,
 }) => {
   const [selected, setSelected] = useState<Product | null>(null);
   const handleSelect = (product: Product) => setSelected(product);
   const handleClose = () => setSelected(null);
+  const { cart, addToCart, openCart } = useCart();
+  const [pending] = useTransition();
+  const isInCart = cart.some((item) => item.id === product.id);
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const wish = isInWishlist(product.id);
+  const router = useRouter();
+
+  const handleAddtoCart = async () => {
+    try {
+      await addToCart(product.id, 1);
+      toast.success("Added to cart");
+      openCart();
+    } catch {
+      toast.error("Failed to add item");
+    }
+  };
+
   return (
     <>
-      <Link
-        href={"/product/" + product.name.split(" ").join("-").toLowerCase()}
-        className="block"
+      <motion.div
+        layoutId={`${layoutName}-card-${product.id}`}
+        className={cn(
+          "relative cursor-pointer overflow-hidden",
+          selected?.id === product.id && "z-50"
+        )}
       >
-        <motion.div
-          layoutId={`${layoutName}-card-${product.id}`}
-          className={cn(
-            "relative cursor-pointer overflow-hidden",
-            selected?.id === product.id && "z-50"
-          )}
-        >
+        <Link href={"/product/" + product.slug} className="block">
           <motion.div
             layoutId={`${layoutName}-image-${product.id}`}
-            className="relative aspect-[4/5] bg-gray-300/30 border border-gray-300/8"
+            className="relative aspect-[4/5] rounded-lg overflow-hidden bg-gray-300/30 border border-gray-300/8"
           >
-            <div className="absolute z-10 top-2 left-2">
-              <ConditionBadge condition={product.condition} />
-            </div>
+            {product.discountPercentage && product.discountPercentage > 0 ? (
+              <div className="absolute text-sm z-10 top-0 px-3 left-0 bg-orange-500/90 text-slate-50">
+                <p>{product.discountPercentage}% Off</p>
+              </div>
+            ) : null}
             <Image
               fill
               unoptimized
-              src={`/products/${product.images?.[0] || ""}`}
+              src={
+                server
+                  ? `${process.env.NEXT_PUBLIC_SERVER_URL}${product.images?.[0]}`
+                  : `/products/${product.images?.[0]}`
+              }
               alt={product.name}
               className="object-cover object-center"
             />
@@ -65,39 +98,78 @@ const ProductCard: React.FC<ProductCardProps> = ({
               </motion.button>
             ) : null}
           </motion.div>
+        </Link>
+        {/* Product Info */}
+        <motion.div layout className="pb-2 pt-1">
+          <div className="flex mb-2 justify-between items-center">
+            <span>{RenderStockStatus(Number(product.stock_quantity))}</span>
+            {product.free_shipping && (
+              <span className="text-xs">Free Shipping</span>
+            )}
+          </div>
+          <h2 className="text font-medium text-gray-800 line-clamp-1">
+            {product.name}
+          </h2>
+          <div className="mt-1">
+            {product.discountPercentage ? (
+              DiscountUtility(
+                product.discountPercentage,
+                product.discountStartDate,
+                product.discountEndDate,
+                product.price
+              )
+            ) : (
+              <p className=" text-2xl font-[600] text-gray-900">
+                {formatMoney({
+                  amount: product.price,
+                  currency: "USD",
+                  locale: "en-US",
+                })}
+              </p>
+            )}
+          </div>
+          <div className="flex justify-between gap-3 mt-4">
+            <Button
+              onClick={() => handleAddtoCart()}
+              isLoading={pending}
+              className="flex-1 cursor-pointer flex items-center gap-2"
+            >
+              <span>
+                <ShoppingCartIcon />
+              </span>
+              {pending ? "Adding..." : isInCart ? "View Cart" : "Add to Cart"}
+            </Button>
+            <Button
+              onClick={async () => {
+                try {
+                  const action = await toggleWishlist(product.id);
 
-          {/* Product Info */}
-          <motion.div layout className="pb-2 pt-1">
-            <div className="flex mb-2 justify-between items-center">
-              <span>{RenderStockStatus(Number(product.stock))}</span>
-              {product.freeShipping && (
-                <span className="text-xs">Free Shipping</span>
-              )}
-            </div>
-            <h2 className="text font-medium text-gray-800 line-clamp-2">
-              {product.name}
-            </h2>
-            <div>
-              {product.discountPercentage ? (
-                DiscountUtility(
-                  product.discountPercentage,
-                  product.discountStartDate,
-                  product.discountEndDate,
-                  product.price
-                )
-              ) : (
-                <p className="mt-1 text-xl font-semibold">
-                  {formatMoney({
-                    amount: product.price,
-                    currency: "USD",
-                    locale: "en-US",
-                  })}
-                </p>
-              )}
-            </div>
-          </motion.div>
+                  toast.success(
+                    action === "removed"
+                      ? "Removed from wishlist"
+                      : "Added to wishlist"
+                  );
+                } catch {
+                  toast.error("Please login to manage wishlist");
+                  router.push("/login");
+                }
+              }}
+              className={`!p-3 group ${
+                wish
+                  ? "bg-red-100 border-red-200 hover:bg-red-200"
+                  : "hover:bg-red-100 hover:border-red-200"
+              }`}
+              variant="outline"
+            >
+              <Heart
+                className={`stroke-red-500 transition-transform duration-300 ${
+                  wish ? "fill-red-500 scale-110" : "group-hover:scale-110"
+                }`}
+              />
+            </Button>
+          </div>
         </motion.div>
-      </Link>
+      </motion.div>
 
       <AnimatePresence>
         {resizeable && selected && (
@@ -140,7 +212,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   <div className="absolute left-8 top-8 z-20">
                     <ConditionBadge condition={selected.condition} />
                   </div>
-                  <ImageSelector images={selected.images} />
+                  <ImageSelector server={server} images={selected.images} />
                 </motion.div>
 
                 {/* Product Info */}
@@ -201,3 +273,28 @@ const DetailRow = ({ label, value }: { label: string; value: string }) => (
     <dd>{value}</dd>
   </div>
 );
+
+export const ProductCardSkeleton = () => {
+  return (
+    <div className={cn("relative cursor-pointer overflow-hidden")}>
+      <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-gray-300/30 border border-gray-300/8">
+        <Skeleton className="w-full h-full" />
+      </div>
+
+      <div className="pb-2 pt-1">
+        <div className="flex mb-2 justify-between items-center">
+          <Skeleton className="w-14 h-5" />
+          <Skeleton className="w-14 h-5" />
+        </div>
+        <Skeleton className="w-[85%] h-8" />
+        <div className="mt-1">
+          <Skeleton className="w-1/3 h-8" />
+        </div>
+        <div className="flex justify-between gap-3 mt-4">
+          <Skeleton className="flex-1 h-10" />
+          <Skeleton className="w-12 h-10" />
+        </div>
+      </div>
+    </div>
+  );
+};

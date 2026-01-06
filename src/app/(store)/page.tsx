@@ -1,16 +1,20 @@
 import type { Metadata } from "next/types";
 import { publicUrl } from "@/env.mjs";
-import PageLoader from "@/ui/pageLoader";
 import { HeroSlider } from "@/ui/hero-slider";
 import RecentItems from "@/ui/recent-items";
-import ShopByCategory from "@/ui/shopby-category";
+import CategoryCard from "@/ui/CategoryCard";
 import Image from "next/image";
 import ReviewsSection from "@/ui/Testimonial";
-import { products, categories } from "../../../data";
+import { products, categories as categoriesData } from "../../../data";
+import axios from "axios";
 import RootLayoutWrapper from "@/ui/rootlayout";
 import { ArrowUpRight } from "lucide-react";
 import ProductCard from "@/ui/product-card";
 import Link from "next/link";
+import { Product } from "@/lib/types";
+import { Category } from "@/lib/types";
+import { getWishlistAction } from "@/actions/wishlist-action";
+import { WishlistProvider } from "@/context/wishlist-context";
 export const metadata: Metadata = {
   alternates: { canonical: publicUrl },
 };
@@ -133,47 +137,66 @@ const reviews: Reviews = [
 
 export default async function Home() {
   const productList = products;
-  const categoriesList = categories;
-  return (
-    <PageLoader>
-      <section>
-        <div className="lg:container">
-          <HeroSlider />
-          <section className="rounded ">
-            <section className="hidden lg:block relative mt-3 ">
-              <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.03)_0%,transparent_70%)]"></div>
-              <div className="max-w-6xl mx-auto px-6 relative z-10">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  {services.map((item, index) => (
-                    <div
-                      key={index}
-                      className={`flex flex-col sm:flex-row items-center gap-4 border border-slate-600/10 px-4 py-3 rounded-2xl shadow-sm cursor-pointer transition-all duration-300 relative overflow-visible`}
-                    >
-                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 overflow-visible">
-                        <div className="absolute inset-0 scale-[1.2] ">
-                          <Image
-                            src={item.image}
-                            alt={item.title}
-                            width={1200}
-                            height={800}
-                            className="object-contain w-full h-full"
-                          />
-                        </div>
-                      </div>
+  const categoriesList = categoriesData;
+  const getNewProducts = () => {
+    return axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/products/new`);
+  };
+  const getHotProducts = () => {
+    return axios.get(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/products/featured`
+    );
+  };
+  const getCategories = () => {
+    return axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/categories`);
+  };
+  const getWishList = async () => {
+    const res = await getWishlistAction();
+    return res;
+  };
+  const { data: categories } = await getCategories();
+  const { data: newProducts } = await getNewProducts();
+  const { data: hotProducts } = await getHotProducts();
+  const { data: wishlist = [] } = (await getWishList()) ?? {};
 
-                      <div className="text-center sm:text-left">
-                        <h3 className="text-xl font-[700] text-cyan-700 tracking-wide leading-tight">
-                          {item.title}
-                        </h3>
-                        <p className="text-sm text-gray-600">{item.desc}</p>
-                      </div>
+  return (
+    <>
+      <div className="lg:container grid grid-cols-1 lg:grid-cols-[1.5fr_.5fr] gap-5">
+        <HeroSlider />
+        <section className="rounded ">
+          <section className="hidden lg:block relative">
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.03)_0%,transparent_70%)]"></div>
+
+            <div className="grid grid-cols-1 gap-6">
+              {services.map((item, index) => (
+                <div
+                  key={index}
+                  className={`flex flex-col sm:flex-row items-center gap-4 border border-slate-600/10 px-4 py-3 rounded-2xl shadow-sm cursor-pointer transition-all duration-300 relative overflow-visible`}
+                >
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 overflow-visible">
+                    <div className="absolute inset-0 scale-[1.2] ">
+                      <Image
+                        src={item.image}
+                        alt={item.title}
+                        width={1200}
+                        height={800}
+                        className="object-contain w-full h-full"
+                      />
                     </div>
-                  ))}
+                  </div>
+
+                  <div className="text-center sm:text-left">
+                    <h3 className="text-xl font-[700] text-secondary tracking-wide leading-tight">
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-gray-600">{item.desc}</p>
+                  </div>
                 </div>
-              </div>
-            </section>
+              ))}
+            </div>
           </section>
-        </div>
+        </section>
+      </div>
+      <WishlistProvider initialWishlist={wishlist}>
         <RootLayoutWrapper>
           <section className="mt-20">
             <h2 className="relative mb-6 text-3xl font-semibold tracking-tight text-gray-900">
@@ -182,14 +205,26 @@ export default async function Home() {
             </h2>
 
             <div className="relative grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-5 lg:gap-4">
-              {productList.slice(0, 5).map((product) => (
-                <ProductCard
-                  key={product.id}
-                  resizeable
-                  product={product}
-                  layoutName="new"
-                />
-              ))}
+              {hotProducts.data !== null && hotProducts.data.length !== 0
+                ? hotProducts.data.map((product: Product) => (
+                    <ProductCard
+                      key={product.id}
+                      resizeable
+                      server={true}
+                      product={product}
+                      layoutName="hot"
+                    />
+                  ))
+                : productList
+                    .slice(0, 5)
+                    .map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        resizeable
+                        product={product}
+                        layoutName="hot"
+                      />
+                    ))}
             </div>
           </section>
           <section className="mt-14">
@@ -198,16 +233,29 @@ export default async function Home() {
               <span className="absolute left-0 -bottom-1 h-[3px] w-24 bg-gradient-to-r from-green-500 to-lime-400 rounded-full"></span>
             </h2>
             <div className="relative grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-5 lg:gap-4">
-              {productList.slice(5, 10).map((product) => (
-                <ProductCard
-                  key={product.id}
-                  resizeable
-                  product={product}
-                  layoutName="hot"
-                />
-              ))}
+              {newProducts.data !== null && newProducts.data.length !== 0
+                ? newProducts.data.map((product: Product) => (
+                    <ProductCard
+                      key={product.id}
+                      server={true}
+                      resizeable
+                      product={product}
+                      layoutName="new"
+                    />
+                  ))
+                : productList
+                    .slice(0, 5)
+                    .map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        resizeable
+                        product={product}
+                        layoutName="new"
+                      />
+                    ))}
             </div>
           </section>
+
           {/* Banner Image */}
           <div className="grid grid-cols-2 gap-4">
             {[
@@ -255,19 +303,26 @@ export default async function Home() {
             ))}
           </div>
 
-          {/* Banner Image */}
           <section className="mt-14">
             <h2 className="mb-8 text-3xl font-semibold tracking-tight text-gray-900 underline underline-offset-8 decoration-secondary">
               Shop by Category
             </h2>
-            <ShopByCategory categories={categoriesList} />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {categories.data !== null && categories.data.length !== 0
+                ? categories.data.map((cat: Category) => (
+                    <CategoryCard key={cat.id} category={cat} server={true} />
+                  ))
+                : categoriesList.map((cat: Category) => (
+                    <CategoryCard key={cat.id} category={cat} />
+                  ))}
+            </div>
           </section>
           <ReviewsSection reviews={reviews} />
           <RecentItems />
           <CTASection />
         </RootLayoutWrapper>
-      </section>
-    </PageLoader>
+      </WishlistProvider>
+    </>
   );
 }
 

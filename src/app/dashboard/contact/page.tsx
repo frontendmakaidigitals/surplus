@@ -1,49 +1,47 @@
 "use client";
+import ConfirmActionButton from "../components/Dialog-Action";
+import { useState, useEffect } from "react";
+import { Trash2, Info } from "lucide-react";
 
-import { useState } from "react";
-import { Eye, Trash2 } from "lucide-react";
-import { Button } from "@/ui/shadcn/button";
-
+import axios from "axios";
 interface ContactMessage {
   id: string;
-  name: string;
+  first_name: string;
   email: string;
-  subject: string;
+  phone_number: string;
   message: string;
-  createdAt: string;
+  created_at: string;
   status: "new" | "read";
 }
 
 export default function ContactFormsPage() {
-  const [messages, setMessages] = useState<ContactMessage[]>([
-    {
-      id: "1",
-      name: "John Doe",
-      email: "john@example.com",
-      subject: "Product inquiry",
-      message: "I want to know more about bulk pricing.",
-      createdAt: "2025-01-15",
-      status: "new",
-    },
-    {
-      id: "2",
-      name: "Sarah Lee",
-      email: "sarah@example.com",
-      subject: "Shipping question",
-      message: "Do you ship internationally?",
-      createdAt: "2025-01-14",
-      status: "read",
-    },
-  ]);
+  const [contactForms, setContactForms] = useState<ContactMessage[]>([]);
 
-  const markAsRead = (id: string) => {
-    setMessages((prev) =>
-      prev.map((msg) => (msg.id === id ? { ...msg, status: "read" } : msg))
-    );
+  useEffect(() => {
+    fetchContactForms();
+  }, []);
+
+  const fetchContactForms = async () => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/inquiries`)
+      .then((res) => {
+        setContactForms(res.data.data);
+      });
   };
 
-  const deleteMessage = (id: string) => {
-    setMessages((prev) => prev.filter((msg) => msg.id !== id));
+  console.log(contactForms);
+
+  const messages = contactForms.filter((msg) => msg.status === "new");
+
+  const deleteMessage = async (id: string) => {
+    try {
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inquiries/${id}`
+      );
+      fetchContactForms();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -54,11 +52,11 @@ export default function ContactFormsPage() {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b">
             <tr className="text-left">
+              <th className="px-4 py-3">Date</th>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Subject</th>
+              <th className="px-4 py-3">Phone</th>
               <th className="px-4 py-3">Message</th>
-              <th className="px-4 py-3">Date</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3 text-right">Actions</th>
             </tr>
@@ -75,11 +73,32 @@ export default function ContactFormsPage() {
 
             {messages.map((msg) => (
               <tr key={msg.id} className="border-b last:border-none">
-                <td className="px-4 py-3 font-medium">{msg.name}</td>
+                <td className="px-4 py-3">
+                  {new Date(msg.created_at).toLocaleDateString()}
+                </td>
+                <td className="px-4 py-3 font-medium">{msg.first_name}</td>
                 <td className="px-4 py-3">{msg.email}</td>
-                <td className="px-4 py-3">{msg.subject}</td>
-                <td className="px-4 py-3 max-w-xs truncate">{msg.message}</td>
-                <td className="px-4 py-3">{msg.createdAt}</td>
+                <td className="px-4 py-3">{msg.phone_number}</td>
+                <td className="px-4 py-3 max-w-xs truncate ">
+                  {msg.message.length > 50 ? (
+                    <div className="flex items-center gap-2 ">
+                      <span className="truncate">
+                        {msg.message.slice(0, 20)}...
+                      </span>
+                      <div className="relative group">
+                        <button className="w-4 h-4 rounded-full border border-gray-400 text-xs text-gray-600 flex items-center justify-center">
+                          <Info />
+                        </button>
+                        <div className="absolute top-full mb-2 z-[9999999999999999] w-auto bg-gray-800 text-white text-xs p-2 rounded shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                          {msg.message}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <span>{msg.message}</span>
+                  )}
+                </td>
+
                 <td className="px-4 py-3">
                   <span
                     className={`rounded-full px-2 py-1 text-xs font-medium ${
@@ -91,21 +110,21 @@ export default function ContactFormsPage() {
                     {msg.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-right space-x-2">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => markAsRead(msg.id)}
-                  >
-                    <Eye size={16} />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => deleteMessage(msg.id)}
-                  >
-                    <Trash2 size={16} className="text-red-500" />
-                  </Button>
+                <td className="px-4 py-3 text-right">
+                  <ConfirmActionButton
+                    onConfirm={() => deleteMessage(msg.id)}
+                    title="Delete Contact Message?"
+                    description="This will permanently remove the message."
+                    confirmText="Delete"
+                    trigger={
+                      <Trash2
+                        size={16}
+                        className="text-red-500 group-hover:text-red-50"
+                      />
+                    }
+                    triggerVariant="ghost"
+                    buttonClassName="group"
+                  />
                 </td>
               </tr>
             ))}

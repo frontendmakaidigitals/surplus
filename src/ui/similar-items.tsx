@@ -9,10 +9,11 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { ArrowRight, ArrowLeft } from "lucide-react";
-import { products as allProducts, type Product } from "../../data";
+import { products as allProducts } from "../../data";
+import { Product } from "@/lib/types";
 
 interface SimilarItemsProps {
-  currentProductId: string;
+  currentProductId: number;
 }
 
 export default function SimilarItems({ currentProductId }: SimilarItemsProps) {
@@ -59,11 +60,8 @@ export default function SimilarItems({ currentProductId }: SimilarItemsProps) {
         >
           <CarouselContent>
             {similarProducts.map((product) => (
-              <CarouselItem
-                key={product.id}
-                className="basis-1/2 lg:basis-1/5"
-              >
-                <ProductCard layoutName={'similar'} product={product} />
+              <CarouselItem key={product.id} className="basis-1/2 lg:basis-1/5">
+                <ProductCard layoutName={"similar"} product={product} />
               </CarouselItem>
             ))}
           </CarouselContent>

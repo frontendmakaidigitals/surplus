@@ -5,7 +5,7 @@ import { formatMoney } from "@/lib/utils";
 import { ShieldCheck, RotateCcw, Truck } from "lucide-react";
 import { AddToCart } from "@/components/add-to-cart";
 import { Button } from "@/ui/shadcn/button";
-import type { Product } from "../../../../../data";
+import { Product } from "@/lib/types";
 
 const ProductDetail = ({ product }: { product: Product }) => {
   return (
@@ -60,10 +60,10 @@ const ProductDetail = ({ product }: { product: Product }) => {
             <AddToCart
               product={product}
               className={`w-full ${
-                product.stock <= 0 ? "cursor-not-allowed opacity-50" : ""
+                product.stock_quantity <= 0 ? "cursor-not-allowed opacity-50" : ""
               }`}
             >
-              {product.stock <= 0 ? "Out of Stock" : "Add to Cart"}
+              {product.stock_quantity <= 0 ? "Out of Stock" : "Add to Cart"}
             </AddToCart>
           </div>
 
@@ -133,10 +133,10 @@ const ProductDetail = ({ product }: { product: Product }) => {
           {product.category && (
             <DetailRow label="Category" value={product.category} />
           )}
-          {product.countryOfOrigin && (
+          {product.country_of_origin && (
             <DetailRow
               label="Country of Origin"
-              value={product.countryOfOrigin}
+              value={product.country_of_origin}
             />
           )}
           {product.weight && (
@@ -147,7 +147,7 @@ const ProductDetail = ({ product }: { product: Product }) => {
           )}
           <DetailRow
             label="Availability"
-            value={product.stock > 0 ? "In Stock" : "Out of Stock"}
+            value={product.stock_quantity > 0 ? "In Stock" : "Out of Stock"}
           />
         </div>
 

@@ -11,19 +11,31 @@ import {
 import { YnsLink } from "@/ui/yns-link";
 import Link from "next/link";
 import RootLayoutWrapper from "@/ui/rootlayout";
-import { products } from "../../../../../data";
+import { buildCategoryChain } from "@/lib/buildcategorychain";
 import RecentItems from "@/ui/recent-items";
 import SimilarItems from "@/ui/similar-items";
 import ProductDetail from "./product-detail";
 import { slugify } from "@/ui/slugify";
+import axios from "axios";
+const ServerUrl = process.env.NEXT_PUBLIC_SERVER_URL;
 export default async function ProductPage(props: {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ variant?: string; image?: string }>;
 }) {
   const params = await props.params;
-  const product = products.find(
-    (p) => p.name.split(" ").join("-").toLowerCase() === params.slug
-  );
+
+  const getProductData = async () => {
+    const productRes = await axios.get(
+      `${ServerUrl}/api/products-by-slug/${params.slug}`
+    );
+
+    return {
+      product: productRes.data.data,
+    };
+  };
+
+  const { product } = await getProductData();
+
   if (!product) {
     return <h1>Product not found</h1>;
   }
@@ -53,7 +65,7 @@ export default async function ProductPage(props: {
 
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>{product.name}</BreadcrumbPage>
+              <BreadcrumbPage>{product.slug}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

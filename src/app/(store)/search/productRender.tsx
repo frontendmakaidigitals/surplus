@@ -18,7 +18,7 @@ import {
   PaginationPrevious,
 } from "@/ui/pagination";
 import ProductCount from "@/ui/product-count";
-import type { Product } from "../../../../data";
+import { Product } from "@/lib/types";
 import ProductCard from "@/ui/product-card";
 const ProductRender = ({
   products,

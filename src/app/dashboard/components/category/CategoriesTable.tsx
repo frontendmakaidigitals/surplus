@@ -1,6 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Table } from "../Table";
-import type { Category, SubCategory } from "../../../../../data";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,15 +8,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Ellipsis } from "lucide-react";
+import { Category, subcategories } from "@/lib/types";
 
-type Props = {
-  data: (Category | SubCategory)[];
-  onSelect: (row: Category | SubCategory) => void; // Changed to accept SubCategory too
-  onEdit: (row: Category | SubCategory) => void;
-  onDelete: (id: string, parentId?: string) => void;
-  onAddSubs: (cat: Category | SubCategory) => void; // Changed to accept SubCategory too
+interface Props {
+  data: (Category | subcategories)[];
+  onSelect: (row: Category | subcategories) => void;
+  onEdit: (row: Category | subcategories) => void;
+  onDelete: (id: number, parentId?: number) => void;
+  onAddSubs: (row: Category | subcategories) => void;
   animate?: boolean;
-};
+}
 
 export function CategoriesTable({
   data,
@@ -27,37 +27,46 @@ export function CategoriesTable({
   onAddSubs,
   animate = false,
 }: Props) {
-  function hasSubCategories(row: Category | SubCategory): boolean {
-    return row.subCategories ? row.subCategories.length > 0 : false;
+  function hasSubCategories(row: Category | subcategories): boolean {
+    return row.subcategories ? row.subcategories.length > 0 : false;
   }
-
   const columns = [
     {
       label: "Image",
-      render: (row: Category | SubCategory) => (
+      render: (row: Category | subcategories) => (
         <div className="w-20 aspect-square rounded border overflow-hidden">
-          <img src={row.img} className="w-full h-full" alt={row.title} />
+          <img
+            src={`${
+              process.env.NEXT_PUBLIC_SERVER_URL + "/" + row.thumbnail_url
+            }`}
+            className="w-full h-full"
+            alt={row.name}
+          />
         </div>
       ),
     },
     {
       label: "Name",
-      render: (row: Category | SubCategory) => (
+      render: (row: Category | subcategories) => (
         <div className="flex items-center gap-2">
-          <span className="text-black">{row.title}</span>
-          {hasSubCategories(row) && (
-            <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-              {row.subCategories!.length} sub
-              {row.subCategories!.length !== 1 ? "s" : ""}
-            </span>
-          )}
+          <span className="text-black">{row.name}</span>
         </div>
       ),
     },
     {
+      label: "Subcategory",
+      render: (row: Category | subcategories) => (
+        <div>{row.subcategories?.length || 0}</div>
+      ),
+    },
+    {
+      label: "Products",
+      render: (row: Category | subcategories) => <div>{row.product_count}</div>,
+    },
+    {
       label: "Actions",
-      render: (row: Category | SubCategory) => {
-        const isSub = "parentId" in row;
+      render: (row: Category | subcategories) => {
+        const isSub = "parent_id" in row;
         return (
           <div className="flex justify-end gap-2">
             <DropdownMenu>
@@ -69,11 +78,20 @@ export function CategoriesTable({
               <DropdownMenuContent className="w-56" align="end">
                 <DropdownMenuItem
                   className="py-2"
-                  onClick={() => onAddSubs(row)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddSubs(row);
+                  }}
                 >
                   Add Sub-Category
                 </DropdownMenuItem>
-                <DropdownMenuItem className="py-2" onClick={() => onEdit(row)}>
+                <DropdownMenuItem
+                  className="py-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(row);
+                  }}
+                >
                   Edit
                 </DropdownMenuItem>
 
@@ -81,7 +99,7 @@ export function CategoriesTable({
                 <DropdownMenuItem
                   className="py-2 hover:!bg-red-500 hover:text-red-50"
                   onClick={() =>
-                    isSub ? onDelete(row.id, row.parentId!) : onDelete(row.id)
+                    isSub ? onDelete(row.id, row.parent_id!) : onDelete(row.id)
                   }
                 >
                   Delete

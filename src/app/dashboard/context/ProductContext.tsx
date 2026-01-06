@@ -1,19 +1,35 @@
 "use client";
+
 import {
   createContext,
   useContext,
   useMemo,
   useState,
   useCallback,
+  useEffect,
 } from "react";
-
+import axios from "axios";
 import type { ProductFilters } from "../components/product/product-filter";
-import type { Product } from "../../../../data";
+import { getCategoriesAction } from "../actions/useCategoryActions";
+import { Product } from "@/lib/types";
+
+type PaginatedProductsResponse = {
+  data: {
+    content: Product[];
+    page: number;
+    size: number;
+    number_of_elements: number;
+    total_pages: number;
+    first: boolean;
+    last: boolean;
+  };
+};
+
+const PAGE_SIZE = 20;
 
 interface ProductContextType {
   products: Product[];
 
-  // Search + filters
   searchQuery: string;
   setSearchQuery: (q: string) => void;
 
@@ -24,102 +40,190 @@ interface ProductContextType {
   availableCategories: string[];
   availableConditions: string[];
 
-  // Selection logic
-  selectedProducts: string[];
-  setSelectedProducts: (ids: string[]) => void;
+  selectedProducts: number[];
+  setSelectedProducts: (ids: number[]) => void;
 
   isAllSelected: boolean;
   isSomeSelected: boolean;
-  handleSelectProduct: (id: string, checked: boolean) => void;
+  handleSelectProduct: (id: number, checked: boolean) => void;
   handleSelectAll: (checked: boolean) => void;
 
   selectedProductObjects: Product[];
 
-  // Delete dialog
   showDeleteDialog: boolean;
   setShowDeleteDialog: (v: boolean) => void;
 
-  // Bulk delete
+  page: number;
+  setPage: (page: number) => void;
+  totalPages: number;
+  loading: boolean;
+  error: string | null;
+  productCount: number;
   handleBulkDelete: () => void;
+
+  categoryCount: number;
+  getProductById: (id: number) => Product | undefined;
 }
 
 const ProductContext = createContext<ProductContextType | null>(null);
 
 export const useProductContext = () => {
   const ctx = useContext(ProductContext);
-  if (!ctx)
+  if (!ctx) {
     throw new Error("useProductContext must be used inside ProductProvider");
+  }
   return ctx;
 };
 
 export const ProductProvider = ({
-  products,
   children,
 }: {
-  products: Product[];
   children: React.ReactNode;
 }) => {
+  const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Filters WITHOUT price or stock
   const [activeFilters, setActiveFilters] = useState<ProductFilters>({
     categories: [],
     conditions: [],
-    priceRange: undefined as any,
-    stockStatus: undefined as any,
+    priceRange: { min: 0, max: 10000 },
+    stockStatus: [],
   });
 
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  const [productCount, setProductCount] = useState(0);
+
+  const [categoryCount, setCategoryCount] = useState(0);
+  // ------------------------------------------------
+  // Fetch categories once
+  // ------------------------------------------------
+
+  const countCategories = (categories: any[]): number => {
+    return categories.reduce((total, category) => {
+      let count = 1;
+
+      // If category has subcategories, recursively count them
+      if (
+        category.subcategories &&
+        Array.isArray(category.subcategories) &&
+        category.subcategories.length > 0
+      ) {
+        count += countCategories(category.subcategories);
+      }
+
+      return total + count;
+    }, 0);
+  };
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getCategoriesAction();
+        const names = res.map((c: any) => c.name);
+        setAvailableCategories(names);
+        const total = countCategories(res);
+        setCategoryCount(total);
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // ------------------------------------------------
-  // Available Categories & Conditions
+  // Fetch products with search and filters
   // ------------------------------------------------
-  const availableCategories = useMemo(
-    () => Array.from(new Set(products.map((p) => p.category))),
-    [products]
+  const getProductById = (id: number): Product | undefined => {
+    return products.find((p) => p.id === id);
+  };
+  const fetchProducts = useCallback(
+    async (pageNumber: number, search: string, filters: ProductFilters) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const params: any = {
+          page: pageNumber,
+          size: PAGE_SIZE,
+          sort_by: "created_at",
+          sort_dir: "desc",
+        };
+
+        if (search) {
+          params.q = search;
+        }
+
+        // Add filters
+        if (filters) {
+          // Brand filter (categories mapped to brands)
+          if (filters.categories.length > 0) {
+            params.brand = filters.categories[0]; // API supports single brand
+          }
+
+          // Condition filter
+          if (filters.conditions.length > 0) {
+            params.condition = filters.conditions[0]; // API supports single condition
+          }
+
+          // Price range
+          if (filters.priceRange && filters.priceRange.min > 0) {
+            params.min_price = filters.priceRange.min;
+          }
+          if (filters.priceRange && filters.priceRange.max < 10000) {
+            params.max_price = filters.priceRange.max;
+          }
+
+          // Stock status
+          if (filters.stockStatus && filters.stockStatus.includes("In Stock")) {
+            params.in_stock = true;
+          }
+        }
+
+        const res = await axios.get<PaginatedProductsResponse>(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/products/search`,
+          {
+            params,
+            headers: {
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_ADMIN_TOKEN}`,
+            },
+          }
+        );
+        setProducts(res.data.data.content ?? []);
+        setTotalPages(res.data.data.total_pages ?? 1);
+        setProductCount(res.data.data.number_of_elements ?? 0);
+      } catch (err) {
+        console.error("Failed to fetch products", err);
+        setError("Failed to load products. Please try again.");
+        setProducts([]);
+        setTotalPages(1);
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
   );
 
-  const availableConditions = useMemo(
-    () => Array.from(new Set(products.map((p) => p.condition))),
-    [products]
-  );
+  // ------------------------------------------------
+  // Fetch on mount and when dependencies change
+  // ------------------------------------------------
+  useEffect(() => {
+    fetchProducts(page, searchQuery, activeFilters);
+  }, [page, searchQuery, activeFilters, fetchProducts]);
 
   // ------------------------------------------------
-  // Filtering Logic (minimal)
+  // Conditions derived from products
   // ------------------------------------------------
-  const filteredProducts = useMemo(() => {
-    let result = [...products];
+  const availableConditions = useMemo(() => ["New", "Used", "Refurbished"], []);
 
-    const q = searchQuery.trim().toLowerCase();
+  const filteredProducts = products;
 
-    if (q) {
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q)
-      );
-    }
-
-    if (activeFilters.categories.length) {
-      result = result.filter((p) =>
-        activeFilters.categories.includes(p.category)
-      );
-    }
-
-    if (activeFilters.conditions.length) {
-      result = result.filter((p) =>
-        activeFilters.conditions.includes(p.condition)
-      );
-    }
-
-    return result;
-  }, [products, searchQuery, activeFilters]);
-
-  // ------------------------------------------------
-  // Selection Logic
-  // ------------------------------------------------
-  const handleSelectProduct = useCallback((id: string, checked: boolean) => {
+  const handleSelectProduct = useCallback((id: number, checked: boolean) => {
     setSelectedProducts((prev) =>
       checked ? [...prev, id] : prev.filter((x) => x !== id)
     );
@@ -127,8 +231,11 @@ export const ProductProvider = ({
 
   const handleSelectAll = useCallback(
     (checked: boolean) => {
-      if (checked) setSelectedProducts(filteredProducts.map((p) => p.id));
-      else setSelectedProducts([]);
+      if (checked) {
+        setSelectedProducts(filteredProducts.map((p) => p.id));
+      } else {
+        setSelectedProducts([]);
+      }
     },
     [filteredProducts]
   );
@@ -149,13 +256,30 @@ export const ProductProvider = ({
   // ------------------------------------------------
   // Bulk Delete
   // ------------------------------------------------
-  const handleBulkDelete = useCallback(() => {
-    console.log("Deleting:", selectedProducts);
+  const handleBulkDelete = useCallback(async () => {
+    if (!selectedProducts.length) return;
 
-    // TODO: API request
-    setSelectedProducts([]);
-    setShowDeleteDialog(false);
-  }, [selectedProducts]);
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/products/bulk-delete`,
+        { ids: selectedProducts },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_ADMIN_TOKEN}`,
+          },
+        }
+      );
+
+      // Refetch current page after deletion
+      await fetchProducts(page, searchQuery, activeFilters);
+
+      setSelectedProducts([]);
+      setShowDeleteDialog(false);
+    } catch (e) {
+      console.error(e);
+      setError("Failed to delete products. Please try again.");
+    }
+  }, [selectedProducts, page, searchQuery, activeFilters, fetchProducts]);
 
   // ------------------------------------------------
   return (
@@ -178,7 +302,15 @@ export const ProductProvider = ({
         selectedProductObjects,
         showDeleteDialog,
         setShowDeleteDialog,
+        page,
+        setPage,
+        totalPages,
+        loading,
+        error,
         handleBulkDelete,
+        productCount,
+        categoryCount,
+        getProductById,
       }}
     >
       {children}

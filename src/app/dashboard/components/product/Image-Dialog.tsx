@@ -59,7 +59,6 @@ const ImageDialog = () => {
         <ImageThumbnail
           removeImage={removeImage}
           images={images}
-          files={files}
           openViewer={openViewer}
           currentIndex={currentIndex}
         />

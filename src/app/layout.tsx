@@ -6,7 +6,7 @@ import { Suspense } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { publicUrl } from "@/env.mjs";
 import Loading from "./loading";
-
+import { CartProvider } from "@/context/cart-context";
 export const metadata: Metadata = {
   title: "Your Next Store",
   description: "Delightful commerce for everyone.",
@@ -21,14 +21,19 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className="flex min-h-full flex-col bg-white">
-        <div className="flex min-h-full flex-1 flex-col" vaul-drawer-wrapper="">
-          <Suspense fallback={<Loading />}>{children}</Suspense>
-        </div>
+        <CartProvider>
+          <div
+            className="flex min-h-full flex-1 flex-col"
+            vaul-drawer-wrapper=""
+          >
+            <Suspense fallback={<Loading />}>{children}</Suspense>
+          </div>
 
-        <Toaster position="top-right" offset={10} />
+          <Toaster position="top-right" offset={10} />
 
-        <SpeedInsights />
-        <Analytics />
+          <SpeedInsights />
+          <Analytics />
+        </CartProvider>
       </body>
     </html>
   );

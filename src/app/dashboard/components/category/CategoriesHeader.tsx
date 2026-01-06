@@ -7,7 +7,6 @@ export function CategoriesHeader({ view, setView, count, onAdd }: any) {
       <StatsGrid
         products={32}
         categories={count}
-        catalogs={3}
         actionCard={{ title: "Add Category", onClick: onAdd }}
       />
       <ViewToggle view={view} onChange={setView} />

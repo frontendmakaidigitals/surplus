@@ -82,10 +82,11 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                         <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
                           {item.images?.[0] ? (
                             <Image
-                              src={item.images[0]}
+                              src={`/products/${item.images?.[0]}`}
                               alt={item.name || "Product"}
                               width={64}
                               height={64}
+                              unoptimized
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -103,7 +104,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                           <p className="text-sm text-gray-600 mt-1">
                             {formatMoney({
                               amount: item.price,
-                              currency:  "USD",
+                              currency: "USD",
                               locale: "en-US",
                             })}
                           </p>
@@ -122,8 +123,8 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                             <button
                               className="rounded-full p-1 hover:bg-gray-200"
                               disabled={item.quantity <= 1}
-                              onClick={() =>
-                                addToCart(item, -1) // reduce qty
+                              onClick={
+                                () => addToCart(item, -1) // reduce qty
                               }
                             >
                               <Minus className="h-3 w-3" />
@@ -153,7 +154,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     <span>
                       {formatMoney({
                         amount: totalPrice,
-                        currency:  "USD",
+                        currency: "USD",
                         locale: "en-US",
                       })}
                     </span>

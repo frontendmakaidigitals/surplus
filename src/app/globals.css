@@ -3,11 +3,11 @@
 @custom-variant dark (&:is(.dark *));
 @layer base {
   :root {
-    --color-primary: #d2461c;
-    --color-primary-hover: #b93e18;
-    --color-secondary: #0c6074;
+    --color-primary: #89986D;
+    --color-primary-hover: #C5D89D;
+    --color-secondary: #213448;
     --color-secondary-hover: #0b5363;
-    --color-accent: #d0302a;
+    --color-accent: #C5D89D;
     --color-info: #0c5e94;
     --color-brand-dark: #135f99;
 

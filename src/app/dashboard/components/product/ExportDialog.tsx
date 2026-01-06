@@ -14,7 +14,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Download, FileText, Table } from "lucide-react";
 import { exportToCSV, exportToExcel } from "@/lib/exportToCSV";
-import type { Product } from "../../../../../data";
+import { Product } from "@/lib/types";
 
 interface ExportDialogProps {
   products: Product[];

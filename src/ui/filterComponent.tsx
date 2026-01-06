@@ -13,7 +13,7 @@ export interface ProductFilters {
 interface ProductFilterProps {
   onApplyFilters: (filters: ProductFilters) => void;
   availableCategories: string[];
-  availableConditions: string[];
+  availableConditions: { key: string; value: string }[];
 }
 
 export const ProductFilter: React.FC<ProductFilterProps> = ({
@@ -69,35 +69,37 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
       {/* Scrollable Content */}
       <div className="">
         {/* Categories */}
-        <div className="px-6 py-5 border-b border-slate-100">
-          <h3 className="text-sm font-semibold text-slate-900 mb-4">
-            Categories
-          </h3>
-          <div className="space-y-3">
-            {availableCategories.map((category) => (
-              <label
-                key={category}
-                className="flex items-center gap-3 cursor-pointer group"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedCategories.includes(category)}
-                  onChange={() =>
-                    toggleSelection(
-                      category,
-                      selectedCategories,
-                      setSelectedCategories
-                    )
-                  }
-                  className="w-4 h-4 rounded border-slate-300 text-secondary  cursor-pointer"
-                />
-                <span className="text-sm text-slate-700 group-hover:text-slate-900 transition-colors">
-                  {category}
-                </span>
-              </label>
-            ))}
+        {availableCategories.length > 0 && (
+          <div className="px-6 py-5 border-b border-slate-100">
+            <h3 className="text-sm font-semibold text-slate-900 mb-4">
+              Categories
+            </h3>
+            <div className="space-y-3">
+              {availableCategories.map((category) => (
+                <label
+                  key={category}
+                  className="flex items-center gap-3 cursor-pointer group"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedCategories.includes(category)}
+                    onChange={() =>
+                      toggleSelection(
+                        category,
+                        selectedCategories,
+                        setSelectedCategories
+                      )
+                    }
+                    className="w-4 h-4 rounded border-slate-300 text-secondary  cursor-pointer"
+                  />
+                  <span className="text-sm text-slate-700 group-hover:text-slate-900 transition-colors">
+                    {category}
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Conditions */}
         <div className="px-6 py-5 border-b border-slate-100">
@@ -107,7 +109,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
           <div className="space-y-3">
             {availableConditions.map((condition) => (
               <label
-                key={condition}
+                key={condition.key}
                 className="flex items-center gap-3 cursor-pointer group"
               >
                 <input
@@ -115,7 +117,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
                   checked={selectedConditions.includes(condition)}
                   onChange={() =>
                     toggleSelection(
-                      condition,
+                      condition.key,
                       selectedConditions,
                       setSelectedConditions
                     )
@@ -123,7 +125,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
                   className="w-4 h-4 rounded border-slate-300 text-secondary cursor-pointer"
                 />
                 <span className="text-sm text-slate-700 group-hover:text-slate-900 transition-colors">
-                  {condition}
+                  {condition.value}
                 </span>
               </label>
             ))}
@@ -167,7 +169,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
                   type="number"
                   min={0}
                   value={maxPrice}
-                  onChange={(e:any) => setMaxPrice(e.target.value)}
+                  onChange={(e: any) => setMaxPrice(e.target.value)}
                   placeholder="1000"
                   className="w-full pl-7 pr-3 py-2 text-sm border border-slate-300 rounded-lg  "
                 />

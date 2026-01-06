@@ -2,15 +2,15 @@
 
 import { useEffect } from "react";
 
-export function StoreProductView({ productId }: { productId: string }) {
+export function StoreProductView({ productId }: { productId: number }) {
   useEffect(() => {
     const key = "recently_viewed_products";
 
     try {
       const raw = localStorage.getItem(key);
 
-      const existing: string[] = Array.isArray(raw ? JSON.parse(raw) : [])
-        ? (JSON.parse(raw ?? "[]") as string[])
+      const existing: number[] = Array.isArray(raw ? JSON.parse(raw) : [])
+        ? (JSON.parse(raw ?? "[]") as number[])
         : [];
 
       const updated = [

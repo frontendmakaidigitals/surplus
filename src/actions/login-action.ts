@@ -17,7 +17,7 @@ export async function loginAction(data: { email: string; password: string }) {
       path: "/",
     });
 
-    return { success: true };
+    return { success: true, role: res.data.data.user.role };
   } catch (error) {
     return { success: false, message: "Invalid login credentials" };
   }

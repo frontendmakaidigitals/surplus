@@ -1,8 +1,6 @@
-import { Suspense } from "react";
 import axios from "axios";
 import UserDashboard from "@/app/(store)/my-account/user-dashboard";
 import { cookies } from "next/headers";
-
 async function getUser() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
@@ -27,10 +25,5 @@ async function getUser() {
 
 export default async function Page() {
   const user = await getUser();
-
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <UserDashboard userData={user} />
-    </Suspense>
-  );
+  return <UserDashboard userData={user} />;
 }

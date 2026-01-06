@@ -16,7 +16,7 @@ export default function DiscountUtility(
   // Validate start date
   if (startDate) {
     const start = new Date(startDate);
-    if (now < start) return null; // discount not started yet
+    if (now < start) return null;
   }
 
   // Calculate discounted price
@@ -24,20 +24,15 @@ export default function DiscountUtility(
 
   return (
     <div className="flex flex-col gap-0.5">
-      {/* Discount Badge */}
-      <span className="text-primary font-semibold text-sm">
-        {discountPercent}% OFF
-      </span>
-
       {/* Prices */}
       <div className="flex items-baseline gap-2">
         {/* Discounted Price */}
-        <span className="text-xl font-bold text-gray-900">
+        <span className="text-2xl font-[600] text-gray-900">
           ${discountedPrice.toFixed(2)}
         </span>
 
         {/* Original Price */}
-        <span className="text-sm text-gray-500 line-through">
+        <span className="text-sm text-gray-500 font-[500] line-through">
           ${price.toFixed(2)}
         </span>
       </div>

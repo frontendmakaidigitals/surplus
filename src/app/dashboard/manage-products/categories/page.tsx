@@ -1,63 +1,87 @@
 "use client";
 import { useState, useEffect } from "react";
-import {
-  categories as initialCategories,
-  Category,
-  SubCategory,
-} from "../../../../../data";
-import { useCategoryActions } from "../../actions/useCategoryActiions";
 import { CategoriesHeader } from "../../components/category/CategoriesHeader";
 import { CategoriesBreadcrumb } from "../../components/category/CategoriesBreadCrumb";
 import { CategoriesTable } from "../../components/category/CategoriesTable";
 import { CategoriesDialog } from "../../components/category/CategoriesDialog";
-
+import {
+  getCategoriesAction,
+  deleteCategoryAction,
+} from "../../actions/useCategoryActions";
+import { toast } from "sonner";
+import { Category, subcategories } from "@/lib/types";
 export default function CategoriesPage() {
-  const {
-    categories,
-    addCategory,
-    updateCategory,
-    deleteCategory,
-    addSubCategory,
-    deleteSubCategory,
-    updateSubCategory, // Make sure to destructure this too!
-  } = useCategoryActions(initialCategories);
-
   const [view, setView] = useState<"table" | "card">("table");
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
-  const [editing, setEditing] = useState<any>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoryCount, setCategoryCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<Category | null>(null);
   const [manageSubsFor, setManageSubsFor] = useState<Category | null>(null);
   const [open, setOpen] = useState(false);
+  const countCategories = (categories: any[]): number => {
+    return categories.reduce((total, category) => {
+      let count = 1;
 
-  // Helper function to find a category/subcategory by ID
+      // If category has subcategories, recursively count them
+      if (
+        category.subcategories &&
+        Array.isArray(category.subcategories) &&
+        category.subcategories.length > 0
+      ) {
+        count += countCategories(category.subcategories);
+      }
+
+      return total + count;
+    }, 0);
+  };
+  // Fetch categories on mount
+  const fetchCategories = async () => {
+    setLoading(true);
+    try {
+      const data = await getCategoriesAction();
+      setCategories(data);
+      setCategoryCount(countCategories(data));
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+      toast.error("Failed to load categories");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   const findItemById = (
     categories: Category[],
-    id: string
-  ): Category | SubCategory | null => {
+    id: number
+  ): Category | null => {
     for (const cat of categories) {
       if (cat.id === id) return cat;
 
-      const searchInSubs = (subs: SubCategory[]): SubCategory | null => {
+      const searchInSubs = (subs: Category[]): Category | null => {
         for (const sub of subs) {
           if (sub.id === id) return sub;
-          if (sub.subCategories?.length) {
-            const found = searchInSubs(sub.subCategories);
+          if (sub.subcategories?.length) {
+            const found = searchInSubs(sub.subcategories);
             if (found) return found;
           }
         }
         return null;
       };
 
-      if (cat.subCategories?.length) {
-        const found = searchInSubs(cat.subCategories);
+      if (cat.subcategories?.length) {
+        const found = searchInSubs(cat.subcategories);
         if (found) return found;
       }
     }
     return null;
   };
 
-  // Sync manageSubsFor with the latest category data whenever categories change
   useEffect(() => {
     if (manageSubsFor) {
       const updated = findItemById(categories, manageSubsFor.id);
@@ -65,23 +89,53 @@ export default function CategoriesPage() {
         setManageSubsFor(updated);
       }
     }
-  }, [categories]);
-
-  // Sync selectedCategory with the latest category data
+  }, [categories, manageSubsFor]);
+  const [editingSubcategory, setEditingSubcategory] =
+    useState<subcategories | null>(null);
   useEffect(() => {
     if (selectedCategory) {
       const updated = findItemById(categories, selectedCategory.id);
       if (updated) {
-        setSelectedCategory(updated as Category);
+        setSelectedCategory(updated);
       }
     }
-  }, [categories]);
+  }, [categories, selectedCategory]);
 
   const handleClose = () => {
     setOpen(false);
     setEditing(null);
     setManageSubsFor(null);
   };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this category?")) return;
+
+    try {
+      const result = await deleteCategoryAction(id);
+      if (result.success) {
+        toast.success("Category deleted successfully!");
+        fetchCategories();
+      } else {
+        toast.error(result.message || "Failed to delete category");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <h1 className="text-4xl mb-4">Categories</h1>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading categories...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -90,7 +144,7 @@ export default function CategoriesPage() {
       <CategoriesHeader
         view={view}
         setView={setView}
-        count={categories.length}
+        count={categoryCount}
         onAdd={() => setOpen(true)}
       />
 
@@ -101,19 +155,29 @@ export default function CategoriesPage() {
 
       {view === "table" && (
         <CategoriesTable
-          data={selectedCategory?.subCategories || categories}
+          data={selectedCategory?.subcategories || categories}
           onSelect={setSelectedCategory}
-          onEdit={(row: any) => {
+          onEdit={(row: subcategories) => {
             setEditing(row);
+
+            if ("parent_id" in row && row.parent_id > 0) {
+              const parent =
+                categories.find((cat) => cat.id === row.parent_id) ||
+                selectedCategory;
+              setEditingSubcategory(row);
+              setManageSubsFor(parent);
+            } else {
+              setManageSubsFor(null);
+            }
+
             setOpen(true);
           }}
           onAddSubs={(cat: Category) => {
             setManageSubsFor(cat);
+            setEditing(null); // Clear editing when adding new
             setOpen(true);
           }}
-          onDelete={(id: string, parentId?: string) =>
-            parentId ? deleteSubCategory(id) : deleteCategory(id)
-          }
+          onDelete={handleDelete}
           animate={!!selectedCategory}
         />
       )}
@@ -122,17 +186,15 @@ export default function CategoriesPage() {
         open={open}
         setOpen={setOpen}
         editing={editing}
+        editingSubcategory={editingSubcategory}
         manageSubsFor={manageSubsFor}
-        addCategory={addCategory}
-        addSubCategory={addSubCategory}
-        updateCategory={updateCategory}
-        updateSubCategory={updateSubCategory} // Pass this prop!
-        deleteSubCategory={deleteSubCategory}
         setEditing={setEditing}
         setManageSubsFor={setManageSubsFor}
-        activeCategory={selectedCategory} // Pass selectedCategory as activeCategory
+        activeCategory={selectedCategory}
         setActiveCategory={setSelectedCategory}
         handleClose={handleClose}
+        onSuccess={fetchCategories}
+        fetchCategories={fetchCategories}
       />
     </div>
   );

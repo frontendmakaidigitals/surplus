@@ -1,45 +1,47 @@
 "use client";
-
 import { z } from "zod";
-import axios from "axios";
-import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, FieldErrors, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import ImageUpload from "../imageUpload";
+import { toast } from "sonner";
+import {
+  createCategoryAction,
+  updateCategoryAction,
+  type Category,
+} from "../../actions/useCategoryActions";
 
 const categorySchema = z.object({
-  title: z.string().min(1, "Category name is required"),
-  description: z.string().optional(),
-  img: z.string().min(1, "Image is required"),
+  name: z.string().min(1, "Name is required"),
+  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug"),
+  thumbnail: z.union([z.instanceof(File), z.string()]).optional(),
 });
 
-type CategoryFormData = z.infer<typeof categorySchema>;
+export type CategoryFormValues = z.infer<typeof categorySchema>;
+const fieldOrder: (keyof CategoryFormValues)[] = ["thumbnail", "slug", "name"];
 
-type CategoryFormProps = {
-  action: (data: CategoryFormData & { parentId?: string }) => void;
-  editing?: Partial<CategoryFormData> | null;
-  cancelEdit?: () => void;
-  parentId?: string;
-};
+interface Props {
+  editing?: Category | null;
+  handleClose?: () => void;
+  fetchCategories: () => void;
+}
 
-export default function CategoryForm({
-  action,
-  editing,
-  cancelEdit,
-  parentId,
-}: CategoryFormProps) {
-  const [status, setStatus] = useState<null | string>(null);
-  const form = useForm<CategoryFormData>({
+function CategoryFormInner({ editing, handleClose, fetchCategories }: Props) {
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | undefined>(
+    editing?.thumbnail_url
+      ? `${process.env.NEXT_PUBLIC_SERVER_URL}${editing.thumbnail_url}`
+      : undefined
+  );
+  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
+
+  const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
-      title: "",
-      description: "",
-      img: "",
+      name: editing?.name ?? "",
+      slug: editing?.slug ?? "",
+      thumbnail: undefined,
     },
   });
 
@@ -48,138 +50,131 @@ export default function CategoryForm({
     handleSubmit,
     setValue,
     reset,
-    control,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = form;
 
-  // populate form on edit
+  const watchName = useWatch({ control: form.control, name: "name" });
+  const error = form.formState.errors;
+
   useEffect(() => {
-    if (editing) reset(editing);
-  }, [editing, reset]);
+    if (watchName && !isSlugManuallyEdited) {
+      const slug = watchName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
 
-  const watchedImage = useWatch({ control, name: "img" });
+      setValue("slug", slug, { shouldValidate: false, shouldDirty: true });
+    }
+  }, [watchName, isSlugManuallyEdited, setValue]);
 
-  const submitHandler = async (data: CategoryFormData) => {
-    try {
-      const payload = {
-        ...data,
-        ...(parentId ? { parentId } : {}), // 👈 magic line
-      };
+  /* ---------------- SUBMIT ---------------- */
+  const onSubmit = async (data: CategoryFormValues) => {
+    const formData = new FormData();
 
-      await axios.post("/api/categories", payload);
+    formData.append("name", data.name);
+    formData.append("slug", data.slug);
+    formData.append("parent_id", "0");
 
-      toast.success(
-        editing
-          ? "Category updated successfully"
-          : parentId
-          ? "Sub category added successfully"
-          : "Category added successfully",
-        { id: "category" }
+    if (data.thumbnail instanceof File) {
+      formData.append("thumbnail", data.thumbnail);
+    }
+
+    let result;
+
+    if (editing?.id) {
+      result = await updateCategoryAction(editing.id, formData);
+    } else {
+      result = await createCategoryAction(formData);
+    }
+
+    if (!result.success) {
+      toast.error(
+        editing ? "Failed to update Category" : "Failed to create Category",
+        {
+          className:
+            "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-400/60",
+        }
       );
+      return;
+    }
 
-      action(payload);
-      setStatus("success");
-      toast.success("Request Submitted!", {
+    toast.success(
+      editing
+        ? "Category updated successfully!"
+        : "Category created successfully!",
+      {
         className:
-          "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
-      });
+          "!bg-green-600/80 backdrop-blur-xl !text-slate-50 border !border-green-400/60",
+      }
+    );
 
-      reset();
-    } catch (err: any) {
-      toast.error("Something went wrong.", {
-        className:
-          "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
-      });
+    fetchCategories();
+    reset();
+    handleClose?.();
+  };
+
+  const onError = async (errors: FieldErrors<CategoryFormValues>) => {
+    for (const field of fieldOrder) {
+      const err = errors[field];
+      if (err?.message) {
+        toast.error(err.message, {
+          className:
+            "!bg-red-600/40 backdrop-blur-xl !text-slate-100 border !border-red-400/60",
+        });
+      }
     }
   };
 
-  const showFormErrors = (errors: any) => {
-    Object.values(errors).forEach((err: any, index) => {
-      if (!err?.message) return;
-
-      toast.error(err.message, {
-        id: `form-error-${index}`, // prevents duplicates
-        className:
-          "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
-      });
-    });
-  };
-
   return (
-    <form
-      onSubmit={handleSubmit(submitHandler, showFormErrors)}
-      className="border p-4 rounded-xl space-y-4 bg-white"
-    >
-      {/* ===== NAME ===== */}
-      <div className="space-y-1">
-        <Label>Name</Label>
-        <Input
-          placeholder="Electronics"
-          {...register("title")}
-          className={` border border-slate-400/30 ${
-            errors.title
-              ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
-              : ""
-          }`}
-        />
-      </div>
+    <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-4">
+      <Input
+        key={`name-${editing?.id ?? "create"}`}
+        className={`px-4 py-[.7rem] border border-slate-400/30 ${
+          error.name
+            ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
+            : ""
+        }`}
+        placeholder="Category name"
+        {...register("name")}
+      />
+      <Input
+        key={`slug-${editing?.id ?? "create"}`}
+        className={`px-4 py-[.7rem] border border-slate-400/30 ${
+          error.slug
+            ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
+            : ""
+        }`}
+        placeholder="slug-name"
+        {...register("slug", {
+          onChange: () => setIsSlugManuallyEdited(true),
+        })}
+      />
 
-      {/* ===== DESCRIPTION ===== */}
-      <div className="space-y-1">
-        <Label>Description</Label>
-        <Input
-          placeholder="Something about the category"
-          className={` border border-slate-400/30 ${
-            errors.description
-              ? "border-red-500/20 bg-red-100 placeholder:text-red-400 "
-              : ""
-          }`}
-          {...register("description")}
-        />
-      </div>
+      <ImageUpload
+        image={thumbnailPreview}
+        onChangeAction={(file) => {
+          setValue("thumbnail", file ?? undefined);
+          setThumbnailPreview(file ? URL.createObjectURL(file) : undefined);
+        }}
+      />
 
-      {/* ===== IMAGE ===== */}
-      <div className="space-y-1">
-        <Label>Image</Label>
-
-        <ImageUpload
-          image={watchedImage}
-          error={errors.img?.message}
-          onChangeAction={(url) =>
-            setValue("img", url, { shouldValidate: true })
-          }
-        />
-      </div>
-
-      {/* ===== ACTIONS ===== */}
-      <div className="flex gap-3 pt-2">
-        <Button
-          isLoading={isSubmitting}
-          className={cn(
-            "w-full h-11 text-white transition",
-
-            !status
-              ? "bg-secondary hover:bg-secondary/80"
-              : status === "success"
-              ? "bg-green-600 hover:bg-green-500"
-              : "bg-red-500 hover:bg-red-400"
-          )}
-          type="submit"
-        >
-          {editing ? "Update" : "Add"} Category
+      <div className="flex gap-2">
+        <Button isLoading={isSubmitting} type="submit">
+          {editing ? "Update Category" : "Create Category"}
         </Button>
 
-        {editing && (
-          <Button
-            className="h-11"
-            type="button"
-            variant="outline"
-            onClick={cancelEdit}
-          >
-            Cancel
-          </Button>
-        )}
+        <Button type="button" variant="outline" onClick={handleClose}>
+          Cancel
+        </Button>
       </div>
     </form>
   );
+}
+
+// Outer component that remounts inner component when editing changes
+export default function CategoryForm(props: Props) {
+  // Use a key that changes when switching between create/edit or when editing different items
+  const formKey = props.editing?.id ?? "create";
+
+  return <CategoryFormInner key={formKey} {...props} />;
 }
