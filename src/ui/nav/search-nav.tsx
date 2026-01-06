@@ -2,7 +2,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { SearchIcon, X } from "lucide-react";
-import { products } from "../../../data";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/lib/types";
@@ -16,6 +16,7 @@ export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
+  console.log(loading)
   const isMobile = useIsMobile();
   useEffect(() => {
     const handleKeyDown = (e: any) => {

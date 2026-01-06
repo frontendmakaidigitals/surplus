@@ -80,10 +80,10 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                       >
                         {/* Product Image */}
                         <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
-                          {item.images?.[0] ? (
+                          {item.image_url ? (
                             <Image
-                              src={`/products/${item.images?.[0]}`}
-                              alt={item.name || "Product"}
+                              src={`/products/${item.image_url}`}
+                              alt={item.product_name || "Product"}
                               width={64}
                               height={64}
                               unoptimized
@@ -99,11 +99,11 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                         {/* Product Info */}
                         <div className="flex-1 min-w-0">
                           <h3 className="font-medium text-sm text-gray-900 truncate">
-                            {item.name}
+                            {item.product_name}
                           </h3>
                           <p className="text-sm text-gray-600 mt-1">
                             {formatMoney({
-                              amount: item.price,
+                              amount: item.unit_price,
                               currency: "USD",
                               locale: "en-US",
                             })}

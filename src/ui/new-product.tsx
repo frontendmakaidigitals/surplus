@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { formatMoney } from "@/lib/utils";
-import type { Product } from "../../data";
+import { Product } from "@/lib/types";
 import { ConditionBadge } from "@/ui/condition-colors";
 import ImageSelector from "@/ui/images-selector";
 import { cn } from "@/lib/utils";
@@ -63,8 +63,8 @@ export const NewProduct = ({ productData }: { productData: Product[] }) => {
             {/* Product Info */}
             <motion.div layout className="pb-2 pt-1">
               <div className="flex mb-2 justify-between items-center">
-                <span>{RenderStockStatus(Number(product.stock))}</span>
-                {product.freeShipping && (
+                <span>{RenderStockStatus(Number(product.stock_quantity))}</span>
+                {product.free_shipping && (
                   <span className="text-xs">Free Shipping</span>
                 )}
               </div>

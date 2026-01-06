@@ -12,6 +12,7 @@ export function HeroSlider() {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [api, setApi] = React.useState<any>(null);
   const [width, setWidth] = React.useState(0);
+  console.log(width);
   const videos = [
     { src: "vid-1.mp4" },
     { src: "vid-2.mp4" },

@@ -31,10 +31,10 @@ export function MobileProductCategories() {
           {categories.map((cat) => (
             <li key={cat.id}>
               <Link
-                href={`/category/${slugify(cat.title)}`}
+                href={`/category/${slugify(cat.slug)}`}
                 className="block px-6 py-2 text-sm text-gray-700 hover:bg-neutral-100"
               >
-                {cat.title}
+                {cat.name}
               </Link>
             </li>
           ))}

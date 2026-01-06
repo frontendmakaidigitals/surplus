@@ -1,4 +1,4 @@
-import type { Product } from "../../data";
+import { Product } from "./types";
 export const exportToCSV = (products: Product[], filename = "products.csv") => {
   // Define CSV headers
   const headers = ["ID", "Name", "Category", "Price", "Stock", "Condition"];
@@ -9,7 +9,7 @@ export const exportToCSV = (products: Product[], filename = "products.csv") => {
     `"${product.name.replace(/"/g, '""')}"`, // Escape quotes in name
     product.category,
     product.price,
-    product.stock,
+    product.stock_quantity,
     product.condition,
   ]);
 
