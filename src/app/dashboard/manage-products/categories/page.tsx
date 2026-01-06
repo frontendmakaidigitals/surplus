@@ -157,16 +157,18 @@ export default function CategoriesPage() {
         <CategoriesTable
           data={selectedCategory?.subcategories || categories}
           onSelect={setSelectedCategory}
-          onEdit={(row: subcategories) => {
+          onEdit={(row: Category | subcategories) => {
             setEditing(row);
 
-            if ("parent_id" in row && row.parent_id > 0) {
+            if ("parent_id" in row && row.parent_id && row.parent_id > 0) {
               const parent =
                 categories.find((cat) => cat.id === row.parent_id) ||
                 selectedCategory;
-              setEditingSubcategory(row);
+              // Only set as subcategory if it actually is one (has a valid parent_id)
+              setEditingSubcategory(row as subcategories);
               setManageSubsFor(parent);
             } else {
+              setEditingSubcategory(null);
               setManageSubsFor(null);
             }
 
