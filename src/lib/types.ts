@@ -10,6 +10,8 @@ export interface CartItem {
   unit_price: number;
   line_total: number;
 }
+
+// Product type for adding to cart
 export type addtocart = {
   id: number;
   name: string;
@@ -19,6 +21,8 @@ export type addtocart = {
   condition: string;
   category: string;
 };
+
+// Cart object
 export interface Cart {
   id: number;
   items: CartItem[];
@@ -27,6 +31,24 @@ export interface Cart {
   item_count: number;
   created_at: string;
   updated_at: string;
+}
+
+// API Response wrapper for cart
+export interface CartResponse {
+  data: Cart;
+}
+
+// Context type
+export interface CartContextType {
+  cart: CartItem[];
+  addToCart: (productId: number, quantity?: number) => Promise<void>;
+  removeFromCart: (productId: number) => Promise<void>;
+  clearCart: () => Promise<void>;
+  totalItems: number;
+  totalPrice: number;
+  openCart: () => void;
+  closeCart: () => void;
+  isCartOpen: boolean;
 }
 
 export interface Category {

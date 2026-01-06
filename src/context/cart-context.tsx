@@ -1,5 +1,5 @@
 "use client";
-
+import { CartContextType, CartItem } from "@/lib/types";
 import {
   getCartAction,
   addToCartAction,
@@ -14,23 +14,6 @@ import React, {
   startTransition,
   ReactNode,
 } from "react";
-import { addtocart } from "@/lib/types";
-
-export interface CartItem extends addtocart {
-  quantity: number;
-}
-
-interface CartContextType {
-  cart: CartItem[]
-  addToCart: (productId: number, quantity?: number) => Promise<void>;
-  removeFromCart: (productId: number) => Promise<void>;
-  clearCart: () => Promise<void>;
-  totalItems: number;
-  totalPrice: number;
-  openCart: () => void;
-  closeCart: () => void;
-  isCartOpen: boolean;
-}
 
 const CartContext = createContext<CartContextType | null>(null);
 
@@ -121,7 +104,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cart.reduce(
-    (sum, item) => sum + item.quantity * (item.price ?? 0),
+    (sum, item) => sum + item.quantity * (item.unit_price ?? 0),
     0
   );
 

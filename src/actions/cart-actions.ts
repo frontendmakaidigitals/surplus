@@ -1,33 +1,8 @@
 "use server";
 
 import { cookies } from "next/headers";
-
+import { CartResponse, Cart } from "@/lib/types";
 const API_URL = "https://ecom-9npd.onrender.com";
-
-/* ---------------- TYPES ---------------- */
-
-export interface CartItem {
-  id: number;
-  product_id: number;
-  product_name: string;
-  product_slug: string;
-  image_url: string;
-  quantity: number;
-  unit_price: number;
-  line_total: number;
-}
-
-export interface Cart {
-  id: number;
-  items: CartItem[];
-  subtotal: number;
-  total_items: number;
-  item_count: number;
-  created_at: string;
-  updated_at: string;
-}
-
-/* ---------------- HELPERS ---------------- */
 
 async function getAuthHeaders() {
   const cookieStore = await cookies();
@@ -58,7 +33,7 @@ async function getAuthHeaders() {
 
 /* ---------------- ACTIONS ---------------- */
 /** GET CART */
-export async function getCartAction(): Promise<Cart> {
+export async function getCartAction(): Promise<CartResponse> {
   const headers = await getAuthHeaders();
 
   const res = await fetch(`${API_URL}/api/cart`, {
@@ -71,7 +46,7 @@ export async function getCartAction(): Promise<Cart> {
   }
 
   const text = await res.text();
-  return JSON.parse(text) as Cart;
+  return JSON.parse(text) as CartResponse;
 }
 
 /** ADD ITEM */
