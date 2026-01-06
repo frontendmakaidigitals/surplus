@@ -8,13 +8,15 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { ArrowRight, ArrowLeft } from "lucide-react";
-import { products as allProducts, type Product } from "../../data";
-function getRecentlyViewedIds(): string[] {
+import { products as allProducts } from "../../data";
+import { Product } from "@/lib/types";
+function getRecentlyViewedIds(): number[] {
   try {
     const raw = localStorage.getItem("recently_viewed_products");
     const parsed = raw ? JSON.parse(raw) : [];
 
-    if (Array.isArray(parsed) && parsed.every((id) => typeof id === "string")) {
+    // typeof returns a string, so compare with "number"
+    if (Array.isArray(parsed) && parsed.every((id) => typeof id === "number")) {
       return parsed;
     }
 
@@ -39,7 +41,7 @@ export default function RecentItems() {
   }, []);
 
   if (recentProducts.length === 0) return null;
-  console.log(recentProducts);
+
   return (
     <section className="py-12 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4">
@@ -61,7 +63,7 @@ export default function RecentItems() {
           <CarouselContent>
             {recentProducts.map((product) => (
               <CarouselItem key={product.id} className="basis-1/2 lg:basis-1/5">
-                <ProductCard layoutName={'recent'} product={product}  />
+                <ProductCard layoutName={"recent"} product={product} />
               </CarouselItem>
             ))}
           </CarouselContent>
