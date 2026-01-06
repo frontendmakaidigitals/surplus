@@ -9,7 +9,6 @@ import {
 } from "@/ui/shadcn/breadcrumb";
 import ShowProduct from "./showProduct";
 import axios from "axios";
-import { cookies } from "next/headers";
 export default async function Page(props: {
   params: Promise<{ slug: string }>;
 }) {
@@ -44,8 +43,7 @@ export default async function Page(props: {
 
   const subcategories = completeCategory.subcategories ?? [];
   const availableCategories = subcategories.map((sub: any) => sub.name);
-  const cookie = await cookies();
-  const token = cookie.get("token");
+
   return (
     <>
       <RootLayoutWrapper>
