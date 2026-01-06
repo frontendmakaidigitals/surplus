@@ -20,6 +20,7 @@ import {
 import ProductCount from "@/ui/product-count";
 import { Product } from "@/lib/types";
 import ProductCard from "@/ui/product-card";
+import { availableConditions } from "@/app/dashboard/components/product/Product-Form";
 const ProductRender = ({
   products,
   query,
@@ -70,7 +71,7 @@ const ProductRender = ({
                 console.log("Applied filters:", filters);
               }}
               availableCategories={categories}
-              availableConditions={["New", "Used", "Surplus"]}
+              availableConditions={availableConditions}
             />
           </div>
           <div className="">
