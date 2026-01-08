@@ -1,6 +1,4 @@
 "use client";
-
-import { toast } from "sonner";
 import { useTransition } from "react";
 import { useCart } from "@/context/cart-context";
 import { Product } from "@/lib/types";
@@ -29,7 +27,6 @@ export function AddToCart({ product, className, children }: AddToCartProps) {
 
     startTransition(() => {
       addToCart(product, 1);
-      toast.success("Added to cart");
       openCart();
     });
   };

@@ -17,7 +17,7 @@ import React, {
 } from "react";
 import { useAuth } from "./auth-provider";
 const CartContext = createContext<CartContextType | null>(null);
-
+import { toast } from "sonner";
 export const CartProvider = ({
   children,
   initialCart,
@@ -84,9 +84,23 @@ export const CartProvider = ({
     });
 
     try {
-      await addToCartAction(product.id, quantity);
+      const res = await addToCartAction(product.id, quantity);
+      if (!res.success) {
+        toast.error(res.message, {
+          className:
+            "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+        });
+        return;
+      }
+      toast.success("Item added to cart", {
+        className:
+          "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-green-200",
+      });
     } catch (err) {
-      console.error("Add to cart failed", err);
+      toast.error("Something went wrong. Please try again.", {
+        className:
+          "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+      });
       startTransition(() => {
         setCart((prev) =>
           prev
@@ -108,9 +122,23 @@ export const CartProvider = ({
     );
 
     try {
-      await removeCartItemAction(productId);
+      const res = await removeCartItemAction(productId);
+      if (!res.success) {
+        toast.error(res.message, {
+          className:
+            "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+        });
+        return;
+      }
+      toast.success("Item removed from cart", {
+        className:
+          "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-green-200",
+      });
     } catch (err) {
-      console.error("Remove from cart failed", err);
+      toast.error("Something went wrong. Please try again.", {
+        className:
+          "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+      });
       startTransition(() => setCart(previousCart));
     }
   };
@@ -130,9 +158,23 @@ export const CartProvider = ({
     });
 
     try {
-      await updateCartItemAction(cartItemId, newQuantity);
+      const res = await updateCartItemAction(cartItemId, newQuantity);
+      if (!res.success) {
+        toast.error(res.message, {
+          className:
+            "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+        });
+        return;
+      }
+      toast.success("Item updated in cart", {
+        className:
+          "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-green-200",
+      });
     } catch (err) {
-      console.error("Update quantity failed", err);
+      toast.error("Something went wrong. Please try again.", {
+        className:
+          "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+      });
       startTransition(() => setCart(previousCart));
     }
   };
@@ -142,9 +184,23 @@ export const CartProvider = ({
     startTransition(() => setCart([]));
 
     try {
-      await clearCartAction();
+      const res = await clearCartAction();
+      if (!res.success) {
+        toast.error(res.message, {
+          className:
+            "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+        });
+        return;
+      }
+      toast.success("Cart cleared successfully", {
+        className:
+          "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-green-200",
+      });
     } catch (err) {
-      console.error("Clear cart failed", err);
+      toast.error("Something went wrong. Please try again.", {
+        className:
+          "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+      });
       startTransition(() => setCart(previousCart));
     }
   };

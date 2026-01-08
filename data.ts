@@ -1,6 +1,6 @@
 export const products = [
   {
-    id: 23423,
+    id: 2342,
     name: "BOSCH ABS 2-LED-TESTER KDAS 0003 FOR 2nd GENERATION ABS ANTILOCK BRAKING SYSTEM",
     stock_quantity: 8,
     description:

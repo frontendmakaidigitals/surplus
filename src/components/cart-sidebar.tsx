@@ -11,8 +11,14 @@ interface CartSidebarProps {
 }
 
 export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
-  const { cart, totalItems, totalPrice, removeFromCart, updateQuantity } =
-    useCart();
+  const {
+    cart,
+    totalItems,
+    totalPrice,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+  } = useCart();
 
   return (
     <AnimatePresence mode="sync">
@@ -48,13 +54,26 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                   <ShoppingBag className="h-5 w-5" />
                   <h2 className="text-lg font-semibold">Cart ({totalItems})</h2>
                 </div>
-                <button
-                  onClick={onClose}
-                  className="rounded-full p-1 hover:bg-gray-100"
-                  aria-label="Close cart"
-                >
-                  <X className="h-5 w-5" />
-                </button>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={"outline"}
+                    disabled={totalItems === 0}
+                    onClick={clearCart}
+                    className=" text-xs h-8 px-3 hover:bg-red-400 bg-transparent rounded-full"
+                  >
+                    Clear Cart
+                  </Button>
+
+                  <Button
+                    onClick={onClose}
+                    variant={"ghost"}
+                    className="rounded-full h-8 px-3 hover:bg-gray-100"
+                    aria-label="Close cart"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
               </div>
 
               {/* Content */}

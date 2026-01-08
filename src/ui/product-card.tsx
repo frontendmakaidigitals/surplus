@@ -45,7 +45,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
     try {
       await addToCart(product, 1);
-      toast.success("Added to cart");
       openCart();
     } catch {
       toast.error("Failed to add item");
@@ -105,7 +104,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               <span className="text-xs">Free Shipping</span>
             )}
           </div>
-          <h2 className="text font-medium text-gray-800 line-clamp-1">
+          <h2 className="text font-medium text-gray-800 line-clamp-2">
             {product.name}
           </h2>
           <div className="mt-1">

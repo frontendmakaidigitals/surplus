@@ -61,6 +61,7 @@ function createEmptyCart(): Cart {
 export async function getCartAction(): Promise<CartResponse> {
   const { headers, hasAuth } = await getAuthHeaders();
 
+  // No auth → empty cart
   if (!hasAuth) {
     return {
       data: createEmptyCart(),
@@ -73,14 +74,25 @@ export async function getCartAction(): Promise<CartResponse> {
       cache: "no-store",
     });
 
+    const raw = await res.text();
+
+    // Backend error → empty cart
     if (!res.ok) {
+      console.error("Get cart failed:", raw);
       return {
         data: createEmptyCart(),
       };
     }
 
-    const text = await res.text();
-    return JSON.parse(text) as CartResponse;
+    // Safe JSON parse
+    try {
+      return JSON.parse(raw) as CartResponse;
+    } catch (parseError) {
+      console.error("Cart JSON parse error:", parseError, raw);
+      return {
+        data: createEmptyCart(),
+      };
+    }
   } catch (error) {
     console.error("Error fetching cart:", error);
     return {
@@ -90,11 +102,15 @@ export async function getCartAction(): Promise<CartResponse> {
 }
 
 /** ADD ITEM */
+export type ActionResult<T = null> = {
+  success: boolean;
+  message: string;
+  data?: T;
+};
 export async function addToCartAction(
   productId: number,
   quantity: number
-): Promise<Cart> {
-  // Ensure session exists before adding
+): Promise<ActionResult<Cart>> {
   await ensureSession();
 
   const { headers } = await getAuthHeaders();
@@ -111,21 +127,34 @@ export async function addToCartAction(
     cache: "no-store",
   });
 
-  const text = await res.text();
+  const raw = await res.text();
+  let message = "Failed to add cart item";
 
-  if (!res.ok) {
-    console.error("Add cart error:", text);
-    throw new Error(`Failed to add item to cart: ${text}`);
+  try {
+    const parsed = JSON.parse(raw) as { message: string };
+    message = parsed.message || message;
+  } catch {
+    if (raw) message = raw;
   }
 
-  return JSON.parse(text) as Cart;
+  if (!res.ok) {
+    return {
+      success: false,
+      message,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Item removed from cart",
+    data: raw ? (JSON.parse(raw) as Cart) : undefined,
+  };
 }
 
-/** UPDATE QUANTITY */
 export async function updateCartItemAction(
   cartItemId: number,
   quantity: number
-): Promise<Cart> {
+): Promise<ActionResult<Cart>> {
   await ensureSession();
 
   const { headers } = await getAuthHeaders();
@@ -135,18 +164,32 @@ export async function updateCartItemAction(
     body: JSON.stringify({ quantity: Number(quantity) }),
     cache: "no-store",
   });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Failed to update cart item: ${text}`);
+  const raw = await res.text();
+  let message = "Failed to update cart item";
+  try {
+    const parsed = JSON.parse(raw) as { message: string };
+    message = parsed.message || message;
+  } catch {
+    if (raw) message = raw;
   }
 
-  const text = await res.text();
-  return JSON.parse(text) as Cart;
+  if (!res.ok) {
+    return {
+      success: false,
+      message,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Item removed from cart",
+    data: raw ? (JSON.parse(raw) as Cart) : undefined,
+  };
 }
 
-/** REMOVE ITEM */
-export async function removeCartItemAction(cartItemId: number): Promise<Cart> {
+export async function removeCartItemAction(
+  cartItemId: number
+): Promise<ActionResult<Cart>> {
   await ensureSession();
 
   const { headers } = await getAuthHeaders();
@@ -156,17 +199,35 @@ export async function removeCartItemAction(cartItemId: number): Promise<Cart> {
     cache: "no-store",
   });
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Failed to remove cart item: ${text}`);
+  const raw = await res.text();
+  let message = "Failed to remove cart item";
+  try {
+    const parsed = JSON.parse(raw) as { message: string };
+    message = parsed.message || message;
+  } catch {
+    if (raw) message = raw;
   }
 
-  const text = await res.text();
-  return JSON.parse(text) as Cart;
+  if (!res.ok) {
+    return {
+      success: false,
+      message,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Item removed from cart",
+    data: raw ? (JSON.parse(raw) as Cart) : undefined,
+  };
 }
 
 /** CLEAR CART */
-export async function clearCartAction(): Promise<void> {
+type ClearCartResult = {
+  success: boolean;
+  message: string;
+};
+export async function clearCartAction(): Promise<ClearCartResult> {
   const { headers } = await getAuthHeaders();
   const res = await fetch(`${API_URL}/api/cart`, {
     method: "DELETE",
@@ -174,8 +235,24 @@ export async function clearCartAction(): Promise<void> {
     cache: "no-store",
   });
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Failed to clear cart: ${text}`);
+  const raw = await res.text();
+  let message = "Failed to remove cart item";
+  try {
+    const parsed = JSON.parse(raw) as { message: string };
+    message = parsed.message || message;
+  } catch {
+    if (raw) message = raw;
   }
+
+  if (!res.ok) {
+    return {
+      success: false,
+      message,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Cart cleared successfully",
+  };
 }
