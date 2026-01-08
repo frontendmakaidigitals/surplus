@@ -3,7 +3,6 @@ import { useState } from "react";
 import ProductDetail from "@/app/(store)/product/[slug]/product-detail";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import Image from "next/image";
-
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/utils";
 import { useProductBuilder } from "../../context/ProductFormContext";

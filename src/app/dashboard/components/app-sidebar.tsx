@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { toast } from "sonner";
 import {
   Sidebar,
   SidebarContent,
@@ -39,12 +40,15 @@ export function AppSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({});
-  const handleLogout = async () => {
+  const logout = async (role: string) => {
     try {
-      await axios.post("/api/logout", {
-        role: "admin",
+      await axios.post("/api/logout", { role: role });
+      toast.success("Logged out successfully!", {
+        className:
+          "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
       });
       router.push("/");
+      router.refresh();
     } catch (error) {
       console.error("Error logging out:", error);
     }
@@ -238,7 +242,7 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Logout">
               <button
-                onClick={handleLogout}
+                onClick={() => logout("admin")}
                 className="flex justify-center items-center gap-3 w-full"
               >
                 <LogOut className="h-10 w-10" />

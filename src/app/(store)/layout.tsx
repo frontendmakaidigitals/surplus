@@ -10,6 +10,8 @@ export default function StoreLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
   return (
     <>
       <Nav />
