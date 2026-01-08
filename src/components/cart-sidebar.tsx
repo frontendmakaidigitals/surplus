@@ -1,18 +1,18 @@
 "use client";
-
 import { motion, AnimatePresence } from "motion/react";
 import { Minus, Plus, ShoppingBag, X } from "lucide-react";
 import Image from "next/image";
 import { useCart } from "@/context/cart-context";
 import { formatMoney } from "@/lib/utils";
-
+import { Button } from "@/ui/shadcn/button";
 interface CartSidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
-  const { cart, totalItems, totalPrice, removeFromCart, addToCart } = useCart();
+  const { cart, totalItems, totalPrice, removeFromCart, updateQuantity } =
+    useCart();
 
   return (
     <AnimatePresence mode="sync">
@@ -123,7 +123,9 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                             <button
                               className="rounded-full p-1 hover:bg-gray-200"
                               disabled={item.quantity <= 1}
-                              onClick={() => addToCart(item.quantity, -1)}
+                              onClick={() =>
+                                updateQuantity(item.id, item.quantity - 1)
+                              }
                             >
                               <Minus className="h-3 w-3" />
                             </button>
@@ -132,7 +134,9 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                             </span>
                             <button
                               className="rounded-full p-1 hover:bg-gray-200"
-                              onClick={() => addToCart(item.quantity, 1)}
+                              onClick={() =>
+                                updateQuantity(item.id, item.quantity + 1)
+                              }
                             >
                               <Plus className="h-3 w-3" />
                             </button>
@@ -157,9 +161,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                       })}
                     </span>
                   </div>
-                  <button className="w-full rounded-lg bg-black px-6 py-3 text-white hover:bg-gray-800">
-                    Checkout (Demo)
-                  </button>
+                  <Button className="w-full h-11 ">Checkout</Button>
                 </div>
               )}
             </div>

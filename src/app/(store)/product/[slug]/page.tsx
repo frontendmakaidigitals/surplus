@@ -24,17 +24,43 @@ export default async function ProductPage(props: {
   const params = await props.params;
 
   const getProductData = async () => {
-    const productRes = await axios.get(
-      `${ServerUrl}/api/products-by-slug/${params.slug}`
-    );
+    try {
+      const productRes = await axios.get(
+        `${ServerUrl}/api/products-by-slug/${params.slug}`
+      );
 
-    return {
-      product: productRes.data.data,
-    };
+      const product = productRes.data?.data;
+
+      if (!product) {
+        throw new Error("Product not found");
+      }
+
+      let category = null;
+
+      try {
+        const categoryRes = await axios.get(
+          `${ServerUrl}/api/categories-by-slug/${product.category}`
+        );
+        category = categoryRes.data?.data ?? null;
+      } catch (err) {
+        // ✅ suppress category error (404, etc.)
+        console.warn("Category fetch failed, continuing without it");
+      }
+
+      return {
+        product,
+        category,
+      };
+    } catch (error) {
+      console.error("Failed to fetch product data:", error);
+      return {
+        product: null,
+        category: null,
+      };
+    }
   };
 
   const { product } = await getProductData();
-
   if (!product) {
     return <h1>Product not found</h1>;
   }

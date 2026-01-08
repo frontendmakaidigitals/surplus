@@ -13,7 +13,6 @@ import ImageSelector from "./images-selector";
 import { Button } from "./shadcn/button";
 import { Heart, ShoppingCartIcon } from "lucide-react";
 import { useCart } from "@/context/cart-context";
-import { useTransition } from "react";
 import { toast } from "sonner";
 import { useWishlist } from "@/context/wishlist-context";
 import { useRouter } from "next/navigation";
@@ -25,28 +24,27 @@ interface ProductCardProps {
   resizeable?: boolean;
   layoutName?: string;
   server?: boolean;
-  token?: string;
 }
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
   resizeable = false,
   layoutName,
   server = false,
-  token,
 }) => {
   const [selected, setSelected] = useState<Product | null>(null);
   const handleSelect = (product: Product) => setSelected(product);
   const handleClose = () => setSelected(null);
   const { cart, addToCart, openCart } = useCart();
-  const [pending] = useTransition();
-  const isInCart = cart.some((item) => item.id === product.id);
   const { isInWishlist, toggleWishlist } = useWishlist();
   const wish = isInWishlist(product.id);
   const router = useRouter();
-
   const handleAddtoCart = async () => {
+    if (cart.some((item) => item.product_id === product.id)) {
+      openCart();
+      return;
+    }
     try {
-      await addToCart(product.id, 1);
+      await addToCart(product, 1);
       toast.success("Added to cart");
       openCart();
     } catch {
@@ -131,13 +129,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <div className="flex justify-between gap-3 mt-4">
             <Button
               onClick={() => handleAddtoCart()}
-              isLoading={pending}
               className="flex-1 cursor-pointer flex items-center gap-2"
             >
               <span>
                 <ShoppingCartIcon />
               </span>
-              {pending ? "Adding..." : isInCart ? "View Cart" : "Add to Cart"}
+              {cart.some((item) => item.product_id === product.id)
+                ? "View Cart"
+                : "Add to Cart"}
             </Button>
             <Button
               onClick={async () => {

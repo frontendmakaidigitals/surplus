@@ -11,17 +11,6 @@ export interface CartItem {
   line_total: number;
 }
 
-// Product type for adding to cart
-export type addtocart = {
-  id: number;
-  name: string;
-  images: string[];
-  price: number;
-  model?: string;
-  condition: string;
-  category: string;
-};
-
 // Cart object
 export interface Cart {
   id: number;
@@ -41,8 +30,9 @@ export interface CartResponse {
 // Context type
 export interface CartContextType {
   cart: CartItem[];
-  addToCart: (productId: number, quantity?: number) => Promise<void>;
+  addToCart: (product: Product, quantity?: number) => Promise<void>;
   removeFromCart: (productId: number) => Promise<void>;
+  updateQuantity: (cartItemId: number, newQuantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
   totalItems: number;
   totalPrice: number;

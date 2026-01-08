@@ -1,30 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get("token")?.value;
+  const userToken = req.cookies.get("token")?.value;
+  const adminToken = req.cookies.get("admin_token")?.value;
   const pathname = req.nextUrl.pathname;
 
-  // Routes where logged-in users should NOT go
-  const authPages = ["/login"];
+  const res = NextResponse.next();
 
-  // Protected routes
-  const protectedRoutes = ["/my-account"];
-
-  // 1️⃣ If user has token AND visits login/register → redirect to home
-  if (token && authPages.includes(pathname)) {
-    return NextResponse.redirect(new URL("/", req.url));
+  if (pathname.startsWith("/my-account") && !userToken) {
+    const redirect = NextResponse.redirect(new URL("/login", req.url));
+    redirect.cookies.set("toast_message", "Something went wrong!", {
+      httpOnly: false, 
+      path: "/",
+      maxAge: 5, // 5 seconds
+    });
+    return redirect;
   }
 
-  // 2️⃣ If user tries to access protected page without token → login
-  const isProtected = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
-
-  if (isProtected && !token) {
-    return NextResponse.redirect(new URL("/login", req.url));
+  if (pathname.startsWith("/dashboard") && !adminToken) {
+    const redirect = NextResponse.redirect(new URL("/login", req.url));
+    redirect.cookies.set("toast_message", "Contact Administrator", {
+      httpOnly: false,
+      path: "/",
+      maxAge: 5,
+    });
+    return redirect;
   }
 
-  return NextResponse.next();
+  if ((userToken || adminToken) && ["/login", "/register"].includes(pathname)) {
+    const redirect = NextResponse.redirect(new URL("/", req.url));
+    return redirect;
+  }
+
+  return res;
 }
 
 export const config = {

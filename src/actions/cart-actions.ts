@@ -2,21 +2,13 @@
 
 import { cookies } from "next/headers";
 import { CartResponse, Cart } from "@/lib/types";
+
 const API_URL = "https://ecom-9npd.onrender.com";
 
 async function getAuthHeaders() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
-  let sessionId = cookieStore.get("cart_session")?.value;
-
-  if (!token && !sessionId) {
-    sessionId = crypto.randomUUID();
-    cookieStore.set("cart_session", sessionId, {
-      httpOnly: true,
-      path: "/",
-      secure: false,
-    });
-  }
+  const sessionId = cookieStore.get("cart_session")?.value;
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -24,29 +16,77 @@ async function getAuthHeaders() {
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
-  } else {
-    headers["X-Session-ID"] = sessionId!;
+  } else if (sessionId) {
+    headers["X-Session-ID"] = sessionId;
   }
 
-  return headers;
+  return { headers, hasAuth: !!(token || sessionId) };
+}
+
+// Helper to ensure session exists - only for mutation actions
+async function ensureSession() {
+  const cookieStore = await cookies();
+  let sessionId = cookieStore.get("cart_session")?.value;
+
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    cookieStore.set("cart_session", sessionId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+    });
+  }
+
+  return sessionId;
+}
+
+// Create empty cart helper - matches your Cart interface
+function createEmptyCart(): Cart {
+  return {
+    id: 0,
+    items: [],
+    subtotal: 0,
+    total_items: 0,
+    item_count: 0,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
 }
 
 /* ---------------- ACTIONS ---------------- */
-/** GET CART */
+
+/** GET CART - Safe to call from layouts/pages */
 export async function getCartAction(): Promise<CartResponse> {
-  const headers = await getAuthHeaders();
+  const { headers, hasAuth } = await getAuthHeaders();
 
-  const res = await fetch(`${API_URL}/api/cart`, {
-    headers,
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch cart");
+  if (!hasAuth) {
+    return {
+      data: createEmptyCart(),
+    };
   }
 
-  const text = await res.text();
-  return JSON.parse(text) as CartResponse;
+  try {
+    const res = await fetch(`${API_URL}/api/cart`, {
+      headers,
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      return {
+        data: createEmptyCart(),
+      };
+    }
+
+    const text = await res.text();
+    return JSON.parse(text) as CartResponse;
+  } catch (error) {
+    console.error("Error fetching cart:", error);
+    return {
+      data: createEmptyCart(),
+    };
+  }
 }
 
 /** ADD ITEM */
@@ -54,18 +94,15 @@ export async function addToCartAction(
   productId: number,
   quantity: number
 ): Promise<Cart> {
-  // Ensure they're numbers (Next.js might serialize them)
-  const cleanProductId = Number(productId);
-  const cleanQuantity = Number(quantity);
+  // Ensure session exists before adding
+  await ensureSession();
 
-  const headers = await getAuthHeaders();
+  const { headers } = await getAuthHeaders();
 
   const payload = {
-    product_id: cleanProductId,
-    quantity: cleanQuantity,
+    product_id: Number(productId),
+    quantity: Number(quantity),
   };
-
-  console.log("Sending to API:", payload);
 
   const res = await fetch(`${API_URL}/api/cart/items`, {
     method: "POST",
@@ -75,7 +112,6 @@ export async function addToCartAction(
   });
 
   const text = await res.text();
-  console.log("API Response:", text);
 
   if (!res.ok) {
     console.error("Add cart error:", text);
@@ -90,7 +126,9 @@ export async function updateCartItemAction(
   cartItemId: number,
   quantity: number
 ): Promise<Cart> {
-  const headers = await getAuthHeaders();
+  await ensureSession();
+
+  const { headers } = await getAuthHeaders();
   const res = await fetch(`${API_URL}/api/cart/items/${cartItemId}`, {
     method: "PATCH",
     headers,
@@ -109,7 +147,9 @@ export async function updateCartItemAction(
 
 /** REMOVE ITEM */
 export async function removeCartItemAction(cartItemId: number): Promise<Cart> {
-  const headers = await getAuthHeaders();
+  await ensureSession();
+
+  const { headers } = await getAuthHeaders();
   const res = await fetch(`${API_URL}/api/cart/items/${Number(cartItemId)}`, {
     method: "DELETE",
     headers,
@@ -127,7 +167,7 @@ export async function removeCartItemAction(cartItemId: number): Promise<Cart> {
 
 /** CLEAR CART */
 export async function clearCartAction(): Promise<void> {
-  const headers = await getAuthHeaders();
+  const { headers } = await getAuthHeaders();
   const res = await fetch(`${API_URL}/api/cart`, {
     method: "DELETE",
     headers,

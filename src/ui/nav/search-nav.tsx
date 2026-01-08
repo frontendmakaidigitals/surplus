@@ -16,7 +16,7 @@ export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
-  console.log(loading)
+  console.log(loading);
   const isMobile = useIsMobile();
   useEffect(() => {
     const handleKeyDown = (e: any) => {
@@ -59,8 +59,6 @@ export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
             signal: controller.signal,
           }
         );
-
-        console.log(res.data.data.content, "searchResults");
         setSearchResults(res.data.data.content || []); // <-- FIXED
       } catch (err: any) {
         if (axios.isCancel(err)) return;
@@ -93,7 +91,6 @@ export const SearchNav: React.FC<SearchNavProps> = ({ open, setOpen }) => {
         <SearchIcon className="h-[22px] w-[22px] text-neutral-700" />
       </button>
 
-      {/* Overlay */}
       <AnimatePresence>
         {open && (
           <motion.div

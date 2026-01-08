@@ -35,16 +35,16 @@ const Login = () => {
   const onSubmit = async (data: LoginFormType) => {
     startTransition(async () => {
       const res = await loginAction(data);
-
       if (res.success) {
         toast.success("Successfully logged in!", {
           className:
             "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
         });
+        router.refresh();
         if (res.role === "admin") {
           router.push("/dashboard");
         } else {
-          router.push("/my-account");
+          router.push("/");
         }
 
         return;

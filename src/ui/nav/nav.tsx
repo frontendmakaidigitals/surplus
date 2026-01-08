@@ -1,20 +1,18 @@
 "use client";
-
 import { CartIcon } from "@/components/cart-icon";
 import { NavMenu } from "@/ui/nav/nav-menu";
 import { SearchNav } from "./search-nav";
 import Link from "next/link";
 import { useCart } from "@/context/cart-context";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { NavMobileMenu } from "@/ui/nav/nav-mobile-menu.client";
 import Logo from "@/ui/Logo";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { usePathname } from "next/navigation";
 import UserMenu from "./user-menu";
 import { toast } from "sonner";
-
-interface User {
+import { useAuth } from "@/context/auth-provider";
+export interface User {
   id: number;
   first_name: string;
   last_name: string;
@@ -23,13 +21,8 @@ interface User {
 }
 export const Nav = () => {
   const router = useRouter();
-  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const { isCartOpen } = useCart();
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<User>();
-
   const links = [
     { label: "Home", href: "/" },
     { label: "About us", href: "/about" },
@@ -39,42 +32,16 @@ export const Nav = () => {
     { label: "Sell your surplus", href: "/sell-your-surplus" },
     { label: "Contact Us", href: "/contact" },
   ];
-
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      try {
-        const response = await axios.get("/api/profile");
-        if (response.data && response.data.data) {
-          const userData = response.data.data;
-          setIsLoggedIn(true);
-          setUser(userData);
-        } else {
-          setIsLoggedIn(false);
-        }
-      } catch (error: any) {
-        // Silently handle auth errors - 401 just means not logged in
-        if (error.response?.status === 401) {
-          setIsLoggedIn(false);
-        } else {
-          console.error("Unexpected error checking auth status:", error);
-          setIsLoggedIn(false);
-        }
-      } finally {
-      }
-    };
-
-    checkAuthStatus();
-  }, [pathname]);
-
+  const { isLoggedIn, user } = useAuth();
   const logout = async () => {
     try {
-      await axios.post("/api/logout");
+      await axios.post("/api/logout", { role: "user" });
       toast.success("Logged out successfully!", {
         className:
           "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
       });
-      setIsLoggedIn(false);
       router.push("/");
+      router.refresh();
     } catch (error) {
       console.error("Error logging out:", error);
     }

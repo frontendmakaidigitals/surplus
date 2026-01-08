@@ -336,7 +336,7 @@ export const ProductBuilderProvider = ({
 
       const method = productId ? "put" : "post";
 
-      await axios({
+      const res = await axios({
         method,
         url,
         data: formData,
@@ -345,6 +345,22 @@ export const ProductBuilderProvider = ({
         },
       });
 
+      const id = res.data.data.id;
+
+      if (data.discountPercentage) {
+        if (data.discountPercentage > 0) {
+          await axios.patch(
+            `${process.env.NEXT_PUBLIC_SERVER_URL}/api/products/${productId}/discount`,
+            {
+              discount_value: data.discountPercentage,
+              start_date: data.discountStartDate,
+              end_date: data.discountEndDate,
+              product_ids: [id],
+            }
+          );
+        }
+      }
+
       toast.success(
         productId
           ? "Product updated successfully!"
@@ -352,8 +368,12 @@ export const ProductBuilderProvider = ({
       );
 
       router.push("/dashboard/manage-products/products");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Something went wrong");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Request failed");
+      } else {
+        toast.error("Unexpected error occurred");
+      }
     }
   };
 

@@ -28,7 +28,7 @@ export function AddToCart({ product, className, children }: AddToCartProps) {
     if ((product.stock_quantity ?? 0) <= 0) return;
 
     startTransition(() => {
-      addToCart(product.id, 1);
+      addToCart(product, 1);
       toast.success("Added to cart");
       openCart();
     });

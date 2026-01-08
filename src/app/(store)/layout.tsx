@@ -1,10 +1,10 @@
 "use client";
 import "@/app/globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
-
 import Footer from "@/ui/footer/footer";
 import { Nav } from "@/ui/nav/nav";
 import { WishlistProvider } from "@/context/wishlist-context";
+
 export default function StoreLayout({
   children,
 }: Readonly<{

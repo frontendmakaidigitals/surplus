@@ -1,69 +1,97 @@
 "use client";
-import { CartContextType, CartItem } from "@/lib/types";
+import { CartContextType, CartItem, Product } from "@/lib/types";
 import {
-  getCartAction,
   addToCartAction,
   removeCartItemAction,
   clearCartAction,
+  updateCartItemAction,
+  getCartAction,
 } from "@/actions/cart-actions";
 import React, {
   createContext,
   useContext,
   useState,
-  useEffect,
   startTransition,
   ReactNode,
+  useEffect,
 } from "react";
-
+import { useAuth } from "./auth-provider";
 const CartContext = createContext<CartContextType | null>(null);
 
-export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
+export const CartProvider = ({
+  children,
+  initialCart,
+}: {
+  children: ReactNode;
+  initialCart: CartItem[];
+}) => {
+  const [cart, setCart] = useState<CartItem[]>(initialCart);
+  const { isLoggedIn } = useAuth(); // ← important
 
-  /* ---------------------------
-     Load cart on mount
-  ---------------------------- */
+  const [isCartOpen, setIsCartOpen] = useState(false);
   useEffect(() => {
+    let active = true;
+
     const loadCart = async () => {
       try {
         const res = await getCartAction();
-        setCart(res.data.items ?? []);
-      } catch (err) {
-        console.error("Failed to load cart", err);
+        if (active) setCart(res.data.items ?? []);
+      } catch {
+        if (active) setCart([]);
+      } finally {
       }
     };
-    loadCart();
-  }, []);
 
+    loadCart();
+
+    return () => {
+      active = false;
+    };
+  }, [isLoggedIn]);
   /* ---------------------------
      Cart actions
   ---------------------------- */
 
-  const addToCart = async (productId: number, quantity = 1) => {
-    // Optimistic update
+  const addToCart = async (product: Product, quantity = 1) => {
     startTransition(() => {
       setCart((prev) => {
-        const existing = prev.find((p) => p.id === productId);
+        const existing = prev.find((item) => item.product_id === product.id);
         if (existing) {
-          return prev.map((p) =>
-            p.id === productId ? { ...p, quantity: p.quantity + quantity } : p
+          return prev.map((item) =>
+            item.product_id === product.id
+              ? {
+                  ...item,
+                  quantity: item.quantity + quantity,
+                  line_total: (item.quantity + quantity) * item.unit_price,
+                }
+              : item
           );
         }
-        return [...prev, { id: productId, quantity } as CartItem];
+
+        const optimisticItem: CartItem = {
+          id: Date.now(),
+          product_id: product.id,
+          product_name: product.name,
+          product_slug: product.slug,
+          image_url: product.images?.[0] ?? "",
+          quantity,
+          unit_price: product.price,
+          line_total: product.price * quantity,
+        };
+
+        return [...prev, optimisticItem];
       });
     });
 
     try {
-      await addToCartAction(productId, quantity);
+      await addToCartAction(product.id, quantity);
     } catch (err) {
       console.error("Add to cart failed", err);
-      // Rollback
       startTransition(() => {
         setCart((prev) =>
           prev
             .map((p) =>
-              p.id === productId
+              p.id === product.id
                 ? { ...p, quantity: Math.max(p.quantity - quantity, 0) }
                 : p
             )
@@ -83,6 +111,28 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       await removeCartItemAction(productId);
     } catch (err) {
       console.error("Remove from cart failed", err);
+      startTransition(() => setCart(previousCart));
+    }
+  };
+
+  const updateQuantity = async (cartItemId: number, newQuantity: number) => {
+    if (newQuantity < 1) return;
+
+    const previousCart = [...cart];
+
+    // optimistic update
+    startTransition(() => {
+      setCart((prev) =>
+        prev.map((item) =>
+          item.id === cartItemId ? { ...item, quantity: newQuantity } : item
+        )
+      );
+    });
+
+    try {
+      await updateCartItemAction(cartItemId, newQuantity);
+    } catch (err) {
+      console.error("Update quantity failed", err);
       startTransition(() => setCart(previousCart));
     }
   };
@@ -120,6 +170,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         openCart,
         closeCart,
         isCartOpen,
+        updateQuantity,
       }}
     >
       {children}

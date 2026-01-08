@@ -1,10 +1,11 @@
 import React from "react";
 import Login from "./Login";
 import Link from "next/link";
-
-const Page = () => {
+import ErrorResponse from "./Error-response";
+export default async function Page() {
   return (
     <div className="  px-4 py-10 bg-gray-50 max-w-4xl w-full container ">
+      <ErrorResponse />
       <div className="grid md:grid-cols-2 place-items-center gap-8 ">
         <div className="">
           <Login />
@@ -28,6 +29,4 @@ const Page = () => {
       </div>
     </div>
   );
-};
-
-export default Page;
+}

@@ -8,11 +8,9 @@ import { availableConditions } from "@/app/dashboard/components/product/Product-
 const ShowProduct = ({
   products,
   availableCategories,
-  token,
 }: {
   products: Product[];
   availableCategories: string[];
-  token?: string;
 }) => {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-[.5fr_1.5fr] gap-5">
@@ -31,7 +29,6 @@ const ShowProduct = ({
               key={idx}
               server
               layoutName="category-product"
-              token={token}
             />
           ))
         ) : (

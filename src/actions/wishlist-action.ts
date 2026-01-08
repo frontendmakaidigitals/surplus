@@ -134,14 +134,9 @@ export async function getWishlistAction(): Promise<any> {
 
       const data = await res.json().catch(() => null);
 
-      if (!res.ok) {
-        const errorData = data as Response;
-        throw new Error(
-          errorData?.message || `Failed to fetch wishlist (${res.status})`
-        );
+      if (res.ok) {
+        return data;
       }
-
-      return data;
     } catch (error) {
       if (error instanceof Error) {
         throw error;

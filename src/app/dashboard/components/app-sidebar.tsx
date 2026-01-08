@@ -33,11 +33,22 @@ import Logo from "@/ui/Logo";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import axios from "axios";
 export function AppSidebar() {
   const { state } = useSidebar();
   const router = useRouter();
   const pathname = usePathname();
   const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({});
+  const handleLogout = async () => {
+    try {
+      await axios.post("/api/logout", {
+        role: "admin",
+      });
+      router.push("/");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
   const adminRoutes = [
     { name: "Dashboard", href: "/dashboard", icon: Home, badge: false },
     {
@@ -227,10 +238,7 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Logout">
               <button
-                onClick={() => {
-                  localStorage.removeItem("userRole");
-                  router.push("/login");
-                }}
+                onClick={handleLogout}
                 className="flex justify-center items-center gap-3 w-full"
               >
                 <LogOut className="h-10 w-10" />

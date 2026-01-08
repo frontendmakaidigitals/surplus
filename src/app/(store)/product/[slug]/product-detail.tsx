@@ -51,6 +51,10 @@ const ProductDetail = ({ product }: { product: Product }) => {
             {product.condition}
           </div>
 
+          <div className="flex items-center gap-4">
+            {product.brand && <DetailRow label="Brand" value={product.brand} />}
+          </div>
+
           {/* ACTIONS */}
           <div className="mt-6 space-y-4">
             <Button className="w-full bg-secondary py-6 text-lg font-normal hover:bg-secondary/90">
@@ -60,7 +64,9 @@ const ProductDetail = ({ product }: { product: Product }) => {
             <AddToCart
               product={product}
               className={`w-full ${
-                product.stock_quantity <= 0 ? "cursor-not-allowed opacity-50" : ""
+                product.stock_quantity <= 0
+                  ? "cursor-not-allowed opacity-50"
+                  : ""
               }`}
             >
               {product.stock_quantity <= 0 ? "Out of Stock" : "Add to Cart"}
