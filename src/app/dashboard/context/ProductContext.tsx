@@ -18,14 +18,15 @@ type PaginatedProductsResponse = {
     content: Product[];
     page: number;
     size: number;
-    number_of_elements: number;
+    number_of_elements: number; // Current page count
+    total_elements: number; // Total count across all pages
     total_pages: number;
     first: boolean;
     last: boolean;
   };
 };
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 interface ProductContextType {
   products: Product[];
@@ -204,7 +205,8 @@ export const ProductProvider = ({
         );
         setProducts(res.data.data.content ?? []);
         setTotalPages(res.data.data.total_pages ?? 1);
-        setProductCount(res.data.data.number_of_elements ?? 0);
+
+        setProductCount(res.data.data.total_elements ?? 0);
       } catch (err) {
         setError("Failed to load products. Please try again.");
         setProducts([]);

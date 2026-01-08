@@ -1,7 +1,7 @@
-'use client'
+"use client";
 import React, { useState } from "react";
 import { Input } from "@/ui/shadcn/input";
-import { Search, Trash2, Upload } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 import { Button } from "@/ui/shadcn/button";
 import { ProductFilter, ProductFilters } from "./product/product-filter";
 import { ExportDialog } from "./product/ExportDialog";
@@ -51,13 +51,7 @@ const Searchbar = () => {
           availableCategories={availableCategories}
           availableConditions={availableConditions}
         />
-        <Button
-          variant="outline"
-          className="gap-2 hover:text-primary-foreground"
-        >
-          <Upload className="w-4 h-4" />
-          Import
-        </Button>
+
         <ExportDialog
           products={filteredProducts}
           selectedProducts={selectedProductObjects}

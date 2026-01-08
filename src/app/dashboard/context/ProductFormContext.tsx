@@ -102,7 +102,7 @@ export const ProductBuilderProvider = ({
         );
 
         const product = res.data.data;
-
+        console.log(product);
         form.setValue("name", product.name || "", {
           shouldValidate: true,
           shouldDirty: true,
@@ -119,7 +119,7 @@ export const ProductBuilderProvider = ({
           shouldValidate: true,
           shouldDirty: true,
         });
-        form.setValue("stock_quantity", product.stock || 0, {
+        form.setValue("stock_quantity", product.stock_quantity || 0, {
           shouldValidate: true,
           shouldDirty: true,
         });

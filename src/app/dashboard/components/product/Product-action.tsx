@@ -1,5 +1,5 @@
 "use client";
-
+import { toast } from "sonner";
 import React from "react";
 import { Button } from "@/ui/shadcn/button";
 import { Edit, MoreVertical } from "lucide-react";
@@ -47,6 +47,66 @@ const ProductAction = ({
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const router = useRouter();
+  const handleDeleteProduct = async (id: number) => {
+    const result = await deleteProductAction(id);
+    if (!result.success) {
+      toast.error(result.message, {
+        className:
+          "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-400/60",
+      });
+      return;
+    }
+
+    toast.success(result.message, {
+      className:
+        "!bg-green-600/80 backdrop-blur-xl !text-slate-50 border !border-green-400/60",
+    });
+    setConfirmOpen(false);
+    router.refresh();
+  };
+
+  const toggleActive = async (value: boolean, id: number) => {
+    setIsActive(value);
+    const result = await toggleActiveAction({
+      productId: id,
+      value,
+    });
+    if (!result.success) {
+      toast.error(result.message, {
+        className:
+          "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-400/60",
+      });
+      return;
+    }
+
+    toast.success(result.message, {
+      className:
+        "!bg-green-600/80 backdrop-blur-xl !text-slate-50 border !border-green-400/60",
+    });
+    router.refresh();
+  };
+
+  const toggleFeature = async (value: boolean, id: number) => {
+    setIsFeatured(value);
+    const result = await toggleFeaturedAction({
+      productId: id,
+      value,
+    });
+    if (!result.success) {
+      toast.error(result.message, {
+        className:
+          "!bg-red-600/80 backdrop-blur-xl !text-slate-100 border !border-red-400/60",
+      });
+      return;
+    }
+
+    toast.success(result.message, {
+      className:
+        "!bg-green-600/80 backdrop-blur-xl !text-slate-50 border !border-green-400/60",
+    });
+    router.refresh();
+  };
+
   return (
     <div className="flex items-center justify-end gap-1">
       <Link href={`/dashboard/manage-products/products/edit?id=${id}`}>
@@ -62,7 +122,6 @@ const ProductAction = ({
         </DropdownMenuTrigger>
 
         <DropdownMenuContent className="w-56" align="end">
-          {/* Active */}
           <DropdownMenuItem
             className="flex justify-between"
             onSelect={(e) => e.preventDefault()}
@@ -70,13 +129,7 @@ const ProductAction = ({
             <Label>Active</Label>
             <Switch
               checked={isActive}
-              onCheckedChange={async (value) => {
-                setIsActive(value);
-                await toggleActiveAction({
-                  productId: id,
-                  value,
-                });
-              }}
+              onCheckedChange={(value) => toggleActive(value, id)}
             />
           </DropdownMenuItem>
 
@@ -88,13 +141,7 @@ const ProductAction = ({
             <Label>Featured</Label>
             <Switch
               checked={isFeatured}
-              onCheckedChange={async (value) => {
-                setIsFeatured(value);
-                await toggleFeaturedAction({
-                  productId: id,
-                  value,
-                });
-              }}
+              onCheckedChange={(value) => toggleFeature(value, id)}
             />
           </DropdownMenuItem>
 
@@ -127,10 +174,8 @@ const ProductAction = ({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-red-600 hover:bg-red-700"
-              onClick={async () => {
-                await deleteProductAction(id);
-                setConfirmOpen(false);
-                router.refresh();
+              onClick={() => {
+                handleDeleteProduct(id);
               }}
             >
               Yes, delete

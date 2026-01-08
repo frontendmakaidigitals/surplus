@@ -47,7 +47,6 @@ export function PaginationWrapper({
             />
           </PaginationItem>
 
-          {/* Page numbers */}
           {[...Array(totalPages)].map((_, index) => {
             const page = index + 1;
             const isActive = page === currentPage;
