@@ -14,46 +14,6 @@ import { useEffect, useState } from "react";
 import type { Category } from "../../actions/useCategoryActions";
 import { FieldErrors } from "react-hook-form";
 import { toast } from "sonner";
-export const productSchema = z.object({
-  name: z.string().min(1, "Product name is required"),
-  price: z.preprocess(
-    (val) => (val === "" || val === null ? undefined : Number(val)),
-    z.number().min(1, "Price must be at least 1")
-  ),
-
-  category: z.string().min(1, "Select a category"),
-  condition: z.string().min(1, "Select a condition"),
-  stock_quantity: z.preprocess(
-    (val) => (val === "" || val === null ? undefined : Number(val)),
-    z.number().min(0)
-  ),
-  description: z
-    .string()
-    .min(1, "Description is required")
-    .min(20, "Add a more detailed description"),
-  images: z
-    .array(z.any())
-    .min(2, "Minimum 2 images required")
-    .max(6, "Maximum 6 images allowed")
-    .default([]),
-  model: z.string().optional(),
-  brand: z.string().optional(),
-  country_of_origin: z.string().optional(),
-  discountPercentage: z.coerce.number().min(0).max(100).optional(),
-  discountStartDate: z.string().optional(),
-  discountEndDate: z.string().optional(),
-  free_shipping: z.boolean().default(false),
-  meta_title: z.string().min(10, "Meta title is Required"),
-  meta_description: z.string().min(10, "Meta Description is Required"),
-  weight: z.string().min(3, "Weight is required"),
-  dimension: z.string().min(3, "Dimensions are required"),
-  SKU: z.string().optional(),
-  is_featured: z.boolean().default(false),
-  is_active: z.boolean().default(true),
-  type: z.string().min(3, "Type is required"),
-  mpn: z.string().min(3, "MPN is required"),
-  slug: z.string().min(2, "Slug is required"),
-});
 
 export type ProductBuilderValues = z.infer<typeof productSchema>;
 
@@ -532,3 +492,43 @@ const ProductForm = () => {
 };
 
 export default ProductForm;
+export const productSchema = z.object({
+  name: z.string().min(1, "Product name is required"),
+  price: z.preprocess(
+    (val) => (val === "" || val === null ? undefined : Number(val)),
+    z.number().min(1, "Price must be at least 1")
+  ),
+
+  category: z.string().min(1, "Select a category"),
+  condition: z.string().min(1, "Select a condition"),
+  stock_quantity: z.preprocess(
+    (val) => (val === "" || val === null ? undefined : Number(val)),
+    z.number().min(0)
+  ),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .min(20, "Add a more detailed description"),
+  images: z
+    .array(z.any())
+    .min(2, "Minimum 2 images required")
+    .max(6, "Maximum 6 images allowed")
+    .default([]),
+  model: z.string().optional(),
+  brand: z.string().optional(),
+  country_of_origin: z.string().optional(),
+  discountPercentage: z.coerce.number().min(0).max(100).optional(),
+  discountStartDate: z.string().optional(),
+  discountEndDate: z.string().optional(),
+  free_shipping: z.boolean().default(false),
+  meta_title: z.string().min(10, "Meta title is Required"),
+  meta_description: z.string().min(10, "Meta Description is Required"),
+  weight: z.string().min(3, "Weight is required"),
+  dimension: z.string().min(3, "Dimensions are required"),
+  SKU: z.string().optional(),
+  is_featured: z.boolean().default(false),
+  is_active: z.boolean().default(true),
+  type: z.string().min(3, "Type is required"),
+  mpn: z.string().min(3, "MPN is required"),
+  slug: z.string().min(2, "Slug is required"),
+});

@@ -11,8 +11,10 @@ import ShowProduct from "./showProduct";
 import axios from "axios";
 export default async function Page(props: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ q?: string }>;
 }) {
   const { slug } = await props.params;
+  const { q } = await props.searchParams;
   const categorySlug = decodeURIComponent(slug);
 
   let category: any;
@@ -71,32 +73,11 @@ export default async function Page(props: {
       </section>
       <RootLayoutWrapper>
         <div>
-          {subcategories.length > 0 ? (
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {subcategories.map((sub: any) => (
-                <div
-                  key={sub.id}
-                  className="border p-4 rounded hover:shadow cursor-pointer"
-                >
-                  <div className="aspect-square w-full">
-                    <img
-                      alt={""}
-                      src={`${process.env.NEXT_PUBLIC_SERVER_URL}${sub.thumbnail_url}`}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                    />
-                  </div>
-                  <h2 className="font-semibold mt-2 text-center">{sub.name}</h2>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <>
-              <ShowProduct
-                availableCategories={availableCategories}
-                products={products}
-              />
-            </>
-          )}
+          <ShowProduct
+            availableCategories={availableCategories}
+            products={products}
+            q={q}
+          />
         </div>
       </RootLayoutWrapper>
     </>

@@ -47,7 +47,10 @@ export default function CategoryCard({
             {chain.map((cat, i) => (
               <li key={i}>
                 <Link
-                  href={`/category/${cat.slug}`}
+                  href={{
+                    pathname: `/category/${category.slug}`,
+                    query: { q: cat.slug },
+                  }}
                   className="text-[.9rem] text-secondary underline hover:text-primray/90"
                 >
                   {cat.name}

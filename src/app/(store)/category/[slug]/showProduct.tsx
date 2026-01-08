@@ -8,10 +8,13 @@ import { availableConditions } from "@/app/dashboard/components/product/Product-
 const ShowProduct = ({
   products,
   availableCategories,
+  q,
 }: {
   products: Product[];
   availableCategories: string[];
+  q?: string;
 }) => {
+  console.log(q, 'q')
   return (
     <div className="grid grid-cols-2 lg:grid-cols-[.5fr_1.5fr] gap-5">
       <ProductFilter
@@ -20,6 +23,7 @@ const ShowProduct = ({
         onApplyFilters={(filters) => {
           console.log("Apply filters", filters);
         }}
+        categoryParam={q}
       />
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-4 lg:gap-4">
         {products.length > 0 ? (

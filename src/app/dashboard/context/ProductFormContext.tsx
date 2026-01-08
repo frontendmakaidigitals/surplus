@@ -14,7 +14,6 @@ interface ProductBuilderContextType {
   form: ReturnType<typeof useForm<ProductBuilderValues>>;
   watchAll: any;
   images: (File | string)[];
-  files: File[];
   dialogOpen: boolean;
   currentIndex: number;
   openViewer: (index: number) => void;
@@ -48,7 +47,6 @@ export const ProductBuilderProvider = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const searchParams = useSearchParams();
   const [images, setImages] = useState<(File | string)[]>([]);
-  const [files, setFiles] = useState<File[]>(initialValues?.images || []);
   const [token, setToken] = useState("");
   const productId = searchParams.get("id");
 
@@ -361,7 +359,6 @@ export const ProductBuilderProvider = ({
         form,
         watchAll,
         images,
-        files,
         dialogOpen,
         currentIndex,
         openViewer,

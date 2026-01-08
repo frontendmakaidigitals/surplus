@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
-
+import { deslugify } from "@/lib/utils";
 export interface ProductFilters {
   categories: string[];
   conditions: string[];
@@ -14,18 +14,42 @@ interface ProductFilterProps {
   onApplyFilters: (filters: ProductFilters) => void;
   availableCategories: string[];
   availableConditions: { key: string; value: string }[];
+  categoryParam?: string;
 }
 
 export const ProductFilter: React.FC<ProductFilterProps> = ({
   onApplyFilters,
   availableCategories,
   availableConditions,
+  categoryParam,
 }) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
   const [selectedStockStatus, setSelectedStockStatus] = useState<string[]>([]);
   const [minPrice, setMinPrice] = useState<number>(0);
   const [maxPrice, setMaxPrice] = useState<number>(10000);
+
+  // Initialize category from query param
+  useEffect(() => {
+    if (categoryParam && availableCategories.length > 0) {
+      const param = deslugify(categoryParam);
+      const matchingCategory = availableCategories.find(
+        (cat) => cat.toLowerCase() === param
+      );
+
+      if (matchingCategory && !selectedCategories.includes(matchingCategory)) {
+        setSelectedCategories([matchingCategory]);
+
+        // Auto-apply filters when category param is set
+        onApplyFilters({
+          categories: [matchingCategory],
+          conditions: selectedConditions,
+          priceRange: { min: minPrice, max: maxPrice },
+          stockStatus: selectedStockStatus,
+        });
+      }
+    }
+  }, [categoryParam, availableCategories]);
 
   const toggleSelection = (
     item: string,
@@ -52,6 +76,14 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
     setSelectedStockStatus([]);
     setMinPrice(0);
     setMaxPrice(10000);
+
+    // Apply empty filters
+    onApplyFilters({
+      categories: [],
+      conditions: [],
+      priceRange: { min: 0, max: 10000 },
+      stockStatus: [],
+    });
   };
 
   return (
@@ -90,7 +122,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
                         setSelectedCategories
                       )
                     }
-                    className="w-4 h-4 rounded border-slate-300 text-secondary  cursor-pointer"
+                    className="w-4 h-4 rounded border-slate-300 text-secondary cursor-pointer"
                   />
                   <span className="text-sm text-slate-700 group-hover:text-slate-900 transition-colors">
                     {category}
@@ -114,7 +146,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
               >
                 <input
                   type="checkbox"
-                  checked={selectedConditions.includes(condition)}
+                  checked={selectedConditions.includes(condition.key)}
                   onChange={() =>
                     toggleSelection(
                       condition.key,
@@ -150,9 +182,9 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
                   type="number"
                   min={0}
                   value={minPrice}
-                  onChange={(e: any) => setMinPrice(e.target.value)}
+                  onChange={(e) => setMinPrice(Number(e.target.value))}
                   placeholder="0"
-                  className="w-full pl-7 pr-3 py-2 text-sm border border-slate-300 rounded-lg  "
+                  className="w-full pl-7 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary"
                 />
               </div>
             </div>
@@ -169,9 +201,9 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
                   type="number"
                   min={0}
                   value={maxPrice}
-                  onChange={(e: any) => setMaxPrice(e.target.value)}
-                  placeholder="1000"
-                  className="w-full pl-7 pr-3 py-2 text-sm border border-slate-300 rounded-lg  "
+                  onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  placeholder="10000"
+                  className="w-full pl-7 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary"
                 />
               </div>
             </div>
@@ -199,7 +231,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
                       setSelectedStockStatus
                     )
                   }
-                  className="w-4 h-4 rounded border-slate-300 text-secondary  not-visited:ring cursor-pointer"
+                  className="w-4 h-4 rounded border-slate-300 text-secondary cursor-pointer"
                 />
                 <span className="text-sm text-slate-700 group-hover:text-slate-900 transition-colors">
                   {status}
