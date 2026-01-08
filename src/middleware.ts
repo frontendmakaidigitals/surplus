@@ -1,40 +1,89 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(req: NextRequest) {
-  const userToken = req.cookies.get("token")?.value;
-  const adminToken = req.cookies.get("admin_token")?.value;
+const API = process.env.NEXT_PUBLIC_SERVER_URL;
+
+export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
-  const res = NextResponse.next();
+  const userToken = req.cookies.get("token")?.value;
+  const adminToken = req.cookies.get("admin_token")?.value;
 
-  if (pathname.startsWith("/my-account") && !userToken) {
-    const redirect = NextResponse.redirect(new URL("/login", req.url));
-    redirect.cookies.set("toast_message", "Something went wrong!", {
-      httpOnly: false, 
-      path: "/",
-      maxAge: 5, // 5 seconds
-    });
-    return redirect;
+  /* ---------------- USER: /my-account ---------------- */
+
+  if (pathname.startsWith("/my-account")) {
+    if (!userToken) {
+      return redirectHome(req, "Please login to continue");
+    }
+
+    const valid = await verifyToken(`${API}/api/auth/me`, userToken);
+    if (!valid) {
+      return clearAndRedirect(req, "token", "Session expired");
+    }
   }
 
-  if (pathname.startsWith("/dashboard") && !adminToken) {
-    const redirect = NextResponse.redirect(new URL("/login", req.url));
-    redirect.cookies.set("toast_message", "Contact Administrator", {
-      httpOnly: false,
-      path: "/",
-      maxAge: 5,
-    });
-    return redirect;
+  /* ---------------- ADMIN: /dashboard ---------------- */
+
+  if (pathname.startsWith("/dashboard")) {
+    if (!adminToken) {
+      return redirectHome(req, "Unauthorized access");
+    }
+
+    const valid = await verifyToken(`${API}/api/admin/auth/me`, adminToken);
+
+    if (!valid) {
+      return clearAndRedirect(req, "admin_token", "Admin session expired");
+    }
   }
+
+  /* ---------------- AUTH PAGES ---------------- */
 
   if ((userToken || adminToken) && ["/login", "/register"].includes(pathname)) {
-    const redirect = NextResponse.redirect(new URL("/", req.url));
-    return redirect;
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
+  return NextResponse.next();
+}
+
+/* ---------------- HELPERS ---------------- */
+
+async function verifyToken(url: string, token: string) {
+  try {
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+function redirectHome(req: NextRequest, message: string) {
+  const res = NextResponse.redirect(new URL("/login", req.url));
+  res.cookies.set("toast_message", message, {
+    httpOnly: false,
+    path: "/",
+    maxAge: 5,
+  });
   return res;
 }
 
+function clearAndRedirect(
+  req: NextRequest,
+  cookieName: string,
+  message: string
+) {
+  const res = NextResponse.redirect(new URL("/login", req.url));
+  res.cookies.delete(cookieName);
+  res.cookies.set("toast_message", message, {
+    httpOnly: false,
+    path: "/",
+    maxAge: 5,
+  });
+  return res;
+}
+
+/* ---------------- MATCHER ---------------- */
+
 export const config = {
-  matcher: ["/login", "/register", "/dashboard/:path*", "/my-account/:path*"],
+  matcher: ["/login", "/register", "/my-account/:path*", "/dashboard/:path*"],
 };

@@ -1,5 +1,4 @@
 "use client";
-
 import {
   createContext,
   useContext,
@@ -12,6 +11,7 @@ import axios from "axios";
 import type { ProductFilters } from "../components/product/product-filter";
 import { getCategoriesAction } from "../actions/useCategoryActions";
 import { Product } from "@/lib/types";
+import { checkAuthStatus } from "@/lib/checkAuthStatus";
 
 type PaginatedProductsResponse = {
   data: {
@@ -86,7 +86,6 @@ export const ProductProvider = ({
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const [activeFilters, setActiveFilters] = useState<ProductFilters>({
     categories: [],
     conditions: [],
@@ -98,12 +97,21 @@ export const ProductProvider = ({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [productCount, setProductCount] = useState(0);
-
+  const [token, setToken] = useState<string>("");
   const [categoryCount, setCategoryCount] = useState(0);
   // ------------------------------------------------
   // Fetch categories once
   // ------------------------------------------------
-
+  const getToken = async () => {
+    const res = await checkAuthStatus();
+    const { token } = res;
+    if (token) {
+      setToken(token);
+    }
+  };
+  useEffect(() => {
+    getToken();
+  }, []);
   const countCategories = (categories: any[]): number => {
     return categories.reduce((total, category) => {
       let count = 1;
@@ -134,7 +142,7 @@ export const ProductProvider = ({
     };
 
     fetchCategories();
-  }, []);
+  }, [token]);
 
   // ------------------------------------------------
   // Fetch products with search and filters
@@ -190,7 +198,7 @@ export const ProductProvider = ({
           {
             params,
             headers: {
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_ADMIN_TOKEN}`,
+              Authorization: `Bearer ${token}`,
             },
           }
         );
@@ -198,7 +206,6 @@ export const ProductProvider = ({
         setTotalPages(res.data.data.total_pages ?? 1);
         setProductCount(res.data.data.number_of_elements ?? 0);
       } catch (err) {
-        console.error("Failed to fetch products", err);
         setError("Failed to load products. Please try again.");
         setProducts([]);
         setTotalPages(1);
@@ -265,7 +272,7 @@ export const ProductProvider = ({
         { ids: selectedProducts },
         {
           headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_ADMIN_TOKEN}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );

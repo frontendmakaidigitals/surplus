@@ -28,9 +28,6 @@ export default function ContactFormsPage() {
         setContactForms(res.data.data);
       });
   };
-
-  console.log(contactForms);
-
   const messages = contactForms.filter((msg) => msg.status === "new");
 
   const deleteMessage = async (id: string) => {

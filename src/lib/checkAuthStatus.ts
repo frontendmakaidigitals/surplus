@@ -2,7 +2,6 @@
 
 import { cookies } from "next/headers";
 import axios from "axios";
-
 export async function checkAuthStatus() {
   const cookieStore = await cookies();
 

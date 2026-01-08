@@ -1,7 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 const API_URL = "https://ecom-9npd.onrender.com";
-
+import { cookies } from "next/headers";
 /* ---------------- TYPES ---------------- */
 
 export interface Category {
@@ -25,12 +25,11 @@ export interface CategoryFormData {
 
 /* ---------------- AUTH ---------------- */
 
-function getAuthHeaders() {
-  const token = process.env.NEXT_PUBLIC_ADMIN_TOKEN;
+async function getAuthHeaders() {
+  const cookieStore = await cookies();
 
-  if (!token) {
-    throw new Error("Missing NEXT_PUBLIC_ADMIN_TOKEN");
-  }
+  const tokenFromCookie = cookieStore.get("authToken")?.value; // Replace 'authToken' with your actual cookie name
+  const token = tokenFromCookie;
 
   return {
     Authorization: `Bearer ${token}`,
@@ -41,8 +40,10 @@ function getAuthHeaders() {
 
 /** GET ALL CATEGORIES */
 export async function getCategoriesAction(): Promise<Category[]> {
+  const headers = await getAuthHeaders();
+
   const res = await fetch(`${API_URL}/api/categories`, {
-    headers: getAuthHeaders(),
+    headers,
     cache: "no-store",
   });
 
@@ -56,17 +57,11 @@ export async function getCategoriesAction(): Promise<Category[]> {
 
 /** CREATE CATEGORY */
 export async function createCategoryAction(formData: FormData) {
+  const headers = await getAuthHeaders();
   try {
-    const token = process.env.NEXT_PUBLIC_ADMIN_TOKEN;
-
-    if (!token) {
-      throw new Error("Missing NEXT_PUBLIC_ADMIN_TOKEN");
-    }
     const res = await fetch(`${API_URL}/api/categories`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers,
       body: formData,
     });
 
@@ -83,13 +78,12 @@ export async function createCategoryAction(formData: FormData) {
   }
 }
 
-
 export async function updateCategoryAction(categoryId: number, data: FormData) {
+  const headers = await getAuthHeaders();
   try {
-    console.log(data);
     const res = await fetch(`${API_URL}/api/categories/${categoryId}`, {
       method: "PUT",
-      headers: getAuthHeaders(),
+      headers,
       body: data,
     });
 
@@ -108,10 +102,11 @@ export async function updateCategoryAction(categoryId: number, data: FormData) {
 
 /** DELETE CATEGORY */
 export async function deleteCategoryAction(categoryId: number) {
+  const headers = await getAuthHeaders();
   try {
     const res = await fetch(`${API_URL}/api/categories/${categoryId}`, {
       method: "DELETE",
-      headers: getAuthHeaders(),
+      headers,
     });
 
     if (!res.ok) {
@@ -128,8 +123,9 @@ export async function deleteCategoryAction(categoryId: number) {
 
 /** GET SINGLE CATEGORY */
 export async function getCategoryAction(categoryId: number): Promise<Category> {
+  const headers = await getAuthHeaders();
   const res = await fetch(`${API_URL}/api/categories/${categoryId}`, {
-    headers: getAuthHeaders(),
+    headers,
     cache: "no-store",
   });
 
@@ -158,18 +154,11 @@ interface ApiResponse {
 }
 
 export async function createSubCategoryAction(formData: FormData) {
+  const headers = await getAuthHeaders();
   try {
-    const token = process.env.NEXT_PUBLIC_ADMIN_TOKEN;
-
-    if (!token) {
-      throw new Error("Missing NEXT_PUBLIC_ADMIN_TOKEN");
-    }
-
     const res = await fetch(`${API_URL}/api/categories`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers,
       body: formData,
     });
 

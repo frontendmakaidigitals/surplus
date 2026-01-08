@@ -1,12 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-
+import { cookies } from "next/headers";
 type TogglePayload = {
   productId: number;
   value: boolean;
 };
-const token = process.env.NEXT_PUBLIC_ADMIN_TOKEN;
 export async function toggleDiscountAction({
   productId,
   value,
@@ -23,6 +22,7 @@ export async function toggleDiscountAction({
 
 export async function toggleActiveAction({ productId, value }: TogglePayload) {
   const formData = new FormData();
+  const cookie = await cookies();
   formData.append("active", value.toString()); // convert boolean to string if needed
 
   const res = await fetch(
@@ -30,7 +30,7 @@ export async function toggleActiveAction({ productId, value }: TogglePayload) {
     {
       method: "PUT",
       headers: {
-        Authorization: `Bearer ${token}`, // don't set Content-Type, browser handles it
+        Authorization: `Bearer ${cookie.get("admin_token")}`,
       },
       body: formData,
       credentials: "include",
@@ -48,13 +48,14 @@ export async function toggleFeaturedAction({
   productId,
   value,
 }: TogglePayload) {
+  const cookie = await cookies();
   await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/products/${productId}/featured`,
     {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${cookie.get("admin_token")}`,
       },
       body: JSON.stringify({ is_featured: value }),
       credentials: "include",
@@ -65,6 +66,7 @@ export async function toggleFeaturedAction({
 }
 
 export async function deleteProductAction(productId: number) {
+  const cookie = await cookies();
   await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_URL}/api/products/${productId}`,
     {
@@ -72,7 +74,7 @@ export async function deleteProductAction(productId: number) {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${cookie.get("admin_token")}`,
       },
     }
   );

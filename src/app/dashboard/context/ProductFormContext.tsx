@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import imageCompression from "browser-image-compression";
-
+import { checkAuthStatus } from "@/lib/checkAuthStatus";
 interface ProductBuilderContextType {
   form: ReturnType<typeof useForm<ProductBuilderValues>>;
   watchAll: any;
@@ -49,9 +49,20 @@ export const ProductBuilderProvider = ({
   const searchParams = useSearchParams();
   const [images, setImages] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>(initialValues?.images || []);
-
+  const [token, setToken] = useState("");
   const productId = searchParams.get("id");
 
+  useEffect(() => {
+    const getToken = async () => {
+      const res = await checkAuthStatus();
+      console.log(res, "token");
+      const { token } = res;
+      if (token) {
+        setToken(token);
+      }
+    };
+    getToken();
+  }, []);
   const router = useRouter();
   const form = useForm<ProductBuilderValues>({
     resolver: zodResolver(productSchema) as any,
@@ -341,7 +352,7 @@ export const ProductBuilderProvider = ({
         url,
         data: formData,
         headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_ADMIN_TOKEN}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 

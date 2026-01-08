@@ -20,8 +20,13 @@ export async function loginAction(data: { email: string; password: string }) {
       path: "/",
       maxAge: 60 * 60 * 24 * 2, // 2 days
     });
+    if (role === "user") {
+      cookieStore.delete("admin_token");
+    } else {
+      cookieStore.delete("token");
+    }
 
-    return { success: true, role };
+    return { success: true, role, token };
   } catch (error) {
     return { success: false, message: "Invalid login credentials" };
   }

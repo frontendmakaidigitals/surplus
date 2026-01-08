@@ -1,4 +1,4 @@
-// app/api/auth/logout/route.ts
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 type LogoutRequestBody = {
@@ -34,46 +34,10 @@ export async function POST(req: Request) {
   return res;
 }
 
-// Add GET method for server-side clearing
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const role = searchParams.get("role") as "user" | "admin" | null;
+export async function GET() {
+  const cookie = await cookies();
+  cookie.delete("token");
+  cookie.delete("admin_token");
 
-  const res = NextResponse.redirect(new URL("/login", req.url));
-
-  if (role === "user") {
-    res.cookies.set("token", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      maxAge: 0,
-    });
-  } else if (role === "admin") {
-    res.cookies.set("admin_token", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      maxAge: 0,
-    });
-  } else {
-    // Clear both if role not specified
-    res.cookies.set("token", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      maxAge: 0,
-    });
-    res.cookies.set("admin_token", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      maxAge: 0,
-    });
-  }
-
-  return res;
+  return NextResponse.redirect(new URL("/login"));
 }
