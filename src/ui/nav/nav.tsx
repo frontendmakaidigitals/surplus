@@ -7,7 +7,7 @@ import { useCart } from "@/context/cart-context";
 import { useState } from "react";
 import { NavMobileMenu } from "@/ui/nav/nav-mobile-menu.client";
 import Logo from "@/ui/Logo";
-import { useRouter } from "next/navigation";
+
 import UserMenu from "./user-menu";
 import { useAuth } from "@/context/auth-provider";
 export interface User {
@@ -18,7 +18,6 @@ export interface User {
   avatar?: string;
 }
 export const Nav = () => {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const { isCartOpen } = useCart();
   const links = [
