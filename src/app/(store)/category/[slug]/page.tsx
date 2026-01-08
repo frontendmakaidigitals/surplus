@@ -54,10 +54,6 @@ export default async function Page(props: {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Category</BreadcrumbPage>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
               <BreadcrumbPage>{categorySlug}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>

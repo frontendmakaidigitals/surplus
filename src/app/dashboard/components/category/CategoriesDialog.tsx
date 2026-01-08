@@ -34,7 +34,6 @@ export function CategoriesDialog({
   handleClose,
   fetchCategories,
 }: CategoriesDialogProps) {
-  // Determine the dialog title
   const getDialogTitle = () => {
     if (editingSubcategory) {
       return "Edit Subcategory";

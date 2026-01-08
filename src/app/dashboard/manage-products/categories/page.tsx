@@ -105,6 +105,8 @@ export default function CategoriesPage() {
     setOpen(false);
     setEditing(null);
     setManageSubsFor(null);
+    setEditingSubcategory(null);
+    setManageSubsFor(null);
   };
 
   const handleDelete = async (id: number) => {
@@ -159,12 +161,10 @@ export default function CategoriesPage() {
           onSelect={setSelectedCategory}
           onEdit={(row: Category | subcategories) => {
             setEditing(row);
-
             if ("parent_id" in row && row.parent_id && row.parent_id > 0) {
               const parent =
                 categories.find((cat) => cat.id === row.parent_id) ||
                 selectedCategory;
-              // Only set as subcategory if it actually is one (has a valid parent_id)
               setEditingSubcategory(row as subcategories);
               setManageSubsFor(parent);
             } else {
