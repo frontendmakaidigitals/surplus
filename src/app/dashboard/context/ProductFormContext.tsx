@@ -55,7 +55,6 @@ export const ProductBuilderProvider = ({
   useEffect(() => {
     const getToken = async () => {
       const res = await checkAuthStatus();
-      console.log(res, "token");
       const { token } = res;
       if (token) {
         setToken(token);

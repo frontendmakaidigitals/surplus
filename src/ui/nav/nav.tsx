@@ -8,9 +8,7 @@ import { useState } from "react";
 import { NavMobileMenu } from "@/ui/nav/nav-mobile-menu.client";
 import Logo from "@/ui/Logo";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import UserMenu from "./user-menu";
-import { toast } from "sonner";
 import { useAuth } from "@/context/auth-provider";
 export interface User {
   id: number;
@@ -33,19 +31,6 @@ export const Nav = () => {
     { label: "Contact Us", href: "/contact" },
   ];
   const { isLoggedIn, user } = useAuth();
-  const logout = async () => {
-    try {
-      await axios.post("/api/logout", { role: "user" });
-      toast.success("Logged out successfully!", {
-        className:
-          "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
-      });
-      router.push("/");
-      router.refresh();
-    } catch (error) {
-      console.error("Error logging out:", error);
-    }
-  };
 
   return (
     <header
@@ -83,7 +68,7 @@ export const Nav = () => {
           <div className="hidden sm:flex items-center gap-3">
             <SearchNav open={open} setOpen={setOpen} />
             <CartIcon />
-            <UserMenu logout={logout} isLoggedIn={isLoggedIn} user={user} />
+            <UserMenu isLoggedIn={isLoggedIn} user={user} />
           </div>
 
           <div className="flex sm:hidden items-center justify-between w-full">
@@ -118,7 +103,7 @@ export const Nav = () => {
             {/* ---- RIGHT: Cart + User ---- */}
             <div className="flex items-center gap-3">
               <CartIcon />
-              <UserMenu logout={logout} isLoggedIn={isLoggedIn} user={user} />
+              <UserMenu isLoggedIn={isLoggedIn} user={user} />
             </div>
           </div>
         </div>

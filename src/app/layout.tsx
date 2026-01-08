@@ -22,6 +22,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const auth = await checkAuthStatus();
+
   const cartResponse = await getCartAction();
   const cartItems = cartResponse.data.items || [];
 

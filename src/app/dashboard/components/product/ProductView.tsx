@@ -15,7 +15,6 @@ export default function ProductView() {
   const { watchAll, images } = useProductBuilder();
   const product = watchAll;
   const [showFullProduct, setShowFullProduct] = useState(false);
-  console.log(product);
   if (!product) return null;
 
   return (

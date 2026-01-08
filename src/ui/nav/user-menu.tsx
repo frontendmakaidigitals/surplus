@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-
+import axios from "axios";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { LayoutDashboard } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -23,7 +26,6 @@ import {
 interface UserMenuProps {
   isLoggedIn: boolean;
   user: any;
-  logout: () => void;
 }
 
 // Define deterministic colors for letters A-Z
@@ -56,8 +58,22 @@ const letterColors: Record<string, string> = {
   Z: "bg-purple-700",
 };
 
-export default function UserMenu({ isLoggedIn, user, logout }: UserMenuProps) {
+export default function UserMenu({ isLoggedIn, user }: UserMenuProps) {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const logout = async (role: string) => {
+    try {
+      await axios.post("/api/logout", { role: role });
+      toast.success("Logged out successfully!", {
+        className:
+          "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
+      });
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
 
   if (!isLoggedIn || !user) {
     return (
@@ -71,7 +87,7 @@ export default function UserMenu({ isLoggedIn, user, logout }: UserMenuProps) {
   const firstLetter = (user.first_name || "U")[0].toUpperCase();
   const bgColor = letterColors[firstLetter] || "bg-gray-400";
 
-  return (
+  return user.role === "user" ? (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger className="flex border rounded-lg px-1.5 py-1 border-slate-500/30 text-sm font-medium hover:bg-slate-100 data-[state=open]:bg-slate-100 items-center gap-2">
         <div
@@ -134,7 +150,42 @@ export default function UserMenu({ isLoggedIn, user, logout }: UserMenuProps) {
         <DropdownMenuItem
           onSelect={() => {
             setOpen(false);
-            logout();
+            logout(user.role);
+          }}
+          className="py-[.6rem] hover:!bg-red-500 group hover:!text-white"
+        >
+          <LogOut className="!size-[20px] mr-2 text-secondary group-hover:!text-white" />
+          Log Out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  ) : (
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger className="flex border rounded-lg px-1.5 py-1 border-slate-500/30 text-sm font-medium hover:bg-slate-100 data-[state=open]:bg-slate-100 items-center gap-2">
+        <div
+          className={`w-7 h-7 rounded-full flex items-center justify-center text-white font-semibold ${bgColor}`}
+        >
+          A
+        </div>
+        <p className="capitalize">Admin</p>
+        <ChevronDown size={16} />
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent className="w-44">
+        <DropdownMenuItem
+          onSelect={() => {
+            setOpen(false);
+            logout(user.role);
+          }}
+          className="py-[.6rem] "
+        >
+          <LayoutDashboard className="!size-[20px] mr-2 text-secondary " />
+          Dashboard
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={() => {
+            setOpen(false);
+            logout(user.role);
           }}
           className="py-[.6rem] hover:!bg-red-500 group hover:!text-white"
         >

@@ -40,6 +40,7 @@ const Login = () => {
           className:
             "!bg-green-600/80 backdrop-blur-xl !text-slate-100 border !border-red-200",
         });
+
         router.refresh();
         if (res.role === "admin") {
           router.push("/dashboard");

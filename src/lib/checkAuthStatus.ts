@@ -2,13 +2,15 @@
 
 import { cookies } from "next/headers";
 import axios from "axios";
+
 export async function checkAuthStatus() {
   const cookieStore = await cookies();
 
   const token = cookieStore.get("token")?.value;
+  const adminToken = cookieStore.get("admin_token")?.value;
   const sessionId = cookieStore.get("cart_session")?.value;
 
-  if (!token) {
+  if (!token && !adminToken) {
     return {
       isAuthenticated: false,
       sessionId,
@@ -16,19 +18,24 @@ export async function checkAuthStatus() {
     };
   }
 
+  const isAdmin = Boolean(adminToken);
+  const authToken = adminToken || token;
+  const endpoint = "/api/auth/me";
+
   try {
     const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/me`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}${endpoint}`,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
         },
       }
     );
 
     return {
       isAuthenticated: true,
-      token,
+      role: isAdmin ? "admin" : "user",
+      token: authToken,
       user: res.data.data,
       expired: false,
     };

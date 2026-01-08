@@ -10,7 +10,7 @@ export async function loginAction(data: { email: string; password: string }) {
     );
 
     const token = res.data.data.token;
-    const role = res.data.data.user.role; // <-- get role here
+    const role = res.data.data.user.role;
 
     const cookieStore = await cookies();
     cookieStore.set(role === "user" ? "token" : "admin_token", token, {
@@ -26,7 +26,7 @@ export async function loginAction(data: { email: string; password: string }) {
       cookieStore.delete("token");
     }
 
-    return { success: true, role, token };
+    return { success: true, role };
   } catch (error) {
     return { success: false, message: "Invalid login credentials" };
   }

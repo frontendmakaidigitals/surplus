@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+const API = process.env.NEXT_PUBLIC_SERVER_URL as string;
 
-const API = process.env.NEXT_PUBLIC_SERVER_URL;
+/* ===================== MIDDLEWARE ===================== */
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
@@ -8,57 +9,59 @@ export async function middleware(req: NextRequest) {
   const userToken = req.cookies.get("token")?.value;
   const adminToken = req.cookies.get("admin_token")?.value;
 
-  /* ---------------- USER: /my-account ---------------- */
-
+  /* ---------- USER ROUTES ---------- */
   if (pathname.startsWith("/my-account")) {
     if (!userToken) {
       return redirectHome(req, "Please login to continue");
     }
 
-    const valid = await verifyToken(`${API}/api/auth/me`, userToken);
-    if (!valid) {
+    const isValid = await verifyToken(userToken);
+    if (!isValid) {
       return clearAndRedirect(req, "token", "Session expired");
     }
   }
 
-  /* ---------------- ADMIN: /dashboard ---------------- */
-
+  /* ---------- ADMIN ROUTES ---------- */
   if (pathname.startsWith("/dashboard")) {
     if (!adminToken) {
       return redirectHome(req, "Unauthorized access");
     }
 
-    const valid = await verifyToken(`${API}/api/admin/auth/me`, adminToken);
-
-    if (!valid) {
+    const isValid = await verifyToken(adminToken);
+    if (!isValid) {
       return clearAndRedirect(req, "admin_token", "Admin session expired");
     }
   }
 
-  /* ---------------- AUTH PAGES ---------------- */
-
-  if ((userToken || adminToken) && ["/login", "/register"].includes(pathname)) {
+  /* ---------- AUTH PAGES ---------- */
+  if (
+    (userToken || adminToken) &&
+    (pathname === "/login" || pathname === "/register")
+  ) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
   return NextResponse.next();
 }
 
-/* ---------------- HELPERS ---------------- */
+/* ===================== HELPERS ===================== */
 
-async function verifyToken(url: string, token: string) {
+async function verifyToken(token: string): Promise<boolean> {
   try {
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
+    const res = await fetch(`${API}/api/auth/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
+
     return res.ok;
   } catch {
     return false;
   }
 }
 
-function redirectHome(req: NextRequest, message: string) {
-  const res = NextResponse.redirect(new URL("/login", req.url));
+function redirectHome(req: NextRequest, message: string): NextResponse {
+  const res = NextResponse.redirect(new URL("/", req.url));
   res.cookies.set("toast_message", message, {
     httpOnly: false,
     path: "/",
@@ -69,10 +72,10 @@ function redirectHome(req: NextRequest, message: string) {
 
 function clearAndRedirect(
   req: NextRequest,
-  cookieName: string,
+  cookieName: "token" | "admin_token",
   message: string
-) {
-  const res = NextResponse.redirect(new URL("/login", req.url));
+): NextResponse {
+  const res = NextResponse.redirect(new URL("/", req.url));
   res.cookies.delete(cookieName);
   res.cookies.set("toast_message", message, {
     httpOnly: false,
@@ -82,7 +85,7 @@ function clearAndRedirect(
   return res;
 }
 
-/* ---------------- MATCHER ---------------- */
+/* ===================== MATCHER ===================== */
 
 export const config = {
   matcher: ["/login", "/register", "/my-account/:path*", "/dashboard/:path*"],
