@@ -34,7 +34,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
     if (categoryParam && availableCategories.length > 0) {
       const param = deslugify(categoryParam);
       const matchingCategory = availableCategories.find(
-        (cat) => cat.toLowerCase() === param
+        (cat) => cat.toLowerCase() === param.toLowerCase()
       );
 
       if (matchingCategory && !selectedCategories.includes(matchingCategory)) {

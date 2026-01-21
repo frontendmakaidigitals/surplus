@@ -45,7 +45,7 @@ const fieldOrder: (keyof SurplusRequestFormValues)[] = [
 
 export default function SurplusRequestForm() {
   const [captcha, setCaptcha] = useState(false);
-  const { images, files, openViewer, removeImage, handleImageChange } =
+  const { images, openViewer, removeImage, handleImageChange } =
     useProductBuilder();
   const [successOpen, setSuccessOpen] = useState(false);
   const form = useForm<SurplusRequestFormValues>({
@@ -103,9 +103,7 @@ export default function SurplusRequestForm() {
       });
 
       // Append images
-      files.forEach((img: File, index: number) => {
-        formData.append("images", img, img.name || `image-${index}.jpg`);
-      });
+      
 
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/surplus-requests`,
@@ -114,7 +112,7 @@ export default function SurplusRequestForm() {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       if (res.data.status === "ok") {
@@ -298,8 +296,8 @@ export default function SurplusRequestForm() {
             !status
               ? "bg-secondary hover:bg-secondary/80"
               : status === "success"
-              ? "bg-green-600 hover:bg-green-500"
-              : "bg-red-500 hover:bg-red-400"
+                ? "bg-green-600 hover:bg-green-500"
+                : "bg-red-500 hover:bg-red-400",
           )}
           type="submit"
         >

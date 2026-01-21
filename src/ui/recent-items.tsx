@@ -8,14 +8,12 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { ArrowRight, ArrowLeft } from "lucide-react";
-import { products as allProducts } from "../../data";
 import { Product } from "@/lib/types";
 function getRecentlyViewedIds(): number[] {
+  console.log("running");
   try {
     const raw = localStorage.getItem("recently_viewed_products");
     const parsed = raw ? JSON.parse(raw) : [];
-
-    // typeof returns a string, so compare with "number"
     if (Array.isArray(parsed) && parsed.every((id) => typeof id === "number")) {
       return parsed;
     }
@@ -26,18 +24,44 @@ function getRecentlyViewedIds(): number[] {
   }
 }
 
+async function fetchProductsByIds(ids: number[]): Promise<Product[]> {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/products/recent-items`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ids }),
+    },
+  );
+
+  if (!res.ok) {
+    return [];
+  }
+
+  const data = (await res.json()) as Array<{ product: Product }>;
+
+  // Adjust this line if API response shape is different
+  return data.map((item: any) => item.product);
+}
+
 export default function RecentItems() {
   const [recentProducts, setRecentProducts] = useState<Product[]>([]);
   const carouselApi = useRef<CarouselApi | null>(null);
+
   useEffect(() => {
     const ids = getRecentlyViewedIds();
-
     if (ids.length === 0) return;
-    const mapped = ids
-      .map((id) => allProducts.find((p) => p.id === id))
-      .filter((p) => p !== undefined);
 
-    setRecentProducts(mapped);
+    (async () => {
+      try {
+        const products = await fetchProductsByIds(ids);
+        setRecentProducts(products);
+      } catch (error) {
+        console.error("Error fetching recent products:", error);
+      }
+    })();
   }, []);
 
   if (recentProducts.length === 0) return null;
